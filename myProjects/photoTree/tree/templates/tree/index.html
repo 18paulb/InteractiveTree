@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+
+<html lang='en'>
+
+    <head>
+        <title>Interactive Tree</title>
+        <link rel='stylesheet' href='../../static/tree/style.css'/>
+    </head>
+
+
+    <body>
+        <div>
+            <div class='photo'>
+                <img id='1' src='../../static/tree/images/duck1.jpg'/>
+            </div>
+
+            <div class='photo'>
+                <img id='2' src='../../static/tree/images/duck2.jpg'/>
+            </div>
+
+            <div class='photo'>
+                <img id='3' src='../../static/tree/images/duck3.jpg'/>
+            </div>
+
+            <div class='photo'>
+                <img id='4' src='../../static/tree/images/duck4.jpg'/>
+            </div>
+
+            <div class='photo'>
+                <img id='5' src='../../static/tree/images/duck5.jpg'/>
+            </div>
+
+            <div class='photo' ondrop='drop(event)' ondragover="allowDrop(event)">
+                <img id='6' src='../../static/tree/images/duck6.jpg' ondragstart='drag(event)'/>
+            </div>
+
+            <div class='photo' ondrop='drop(event)' ondragover='allowDrop(event)'>
+                <h1>Place Photo Here</h1>
+            </div>
+
+        </div>
+
+
+        <button onclick='myFunct()'>ChangePic</button>
+
+
+
+
+
+
+
+
+
+
+
+
+        <script src='../../static/tree/methods.js'></script>
+    </body>
+
+
+
+</html>
