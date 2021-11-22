@@ -3,6 +3,7 @@
 <html lang='en'>
 
     <head>
+        <meta charset='utf-8'>
         <title>Interactive Tree</title>
         <link rel='stylesheet' href='../../static/tree/style.css'/>
     </head>
@@ -16,7 +17,6 @@
 
 
         <svg width="500" height="500"><line x1="50" y1="50" x2="350" y2="350" stroke="black"/></svg>
-
 
 
         <h1>Testing Dragging and Dropping</h1>
@@ -57,31 +57,15 @@
             <h1>Testing Lines</h1>
         </div>
 
-        <button onclick='changeSVG(getPosition("test1"), getPosition("test2"))'>Move Line</button>
-
+        <button onclick='changeSVG("test1", "test2")'>Move Line</button>
 
         <div id='test1' class='photo'>
             <img src='../../static/tree/images/duck1.jpg'/>
             <button onclick='getPosition("test1")'>Get Position</button>
         </div>
 
-        <svg id='SVG1' width="500" height="500"><line x1="50" y1="50" x2="350" y2="350" stroke="black"/></svg>
-<!--
-        <script src='../../static/tree/methods.js'>
 
-            let pos1 = getPosition(test1)
-            let pos2 = getPosition(test2)
-
-            let x1 = pos1.right
-            let y1 = pos1.top
-            let x2 = pos2.right
-            let y2 = pos2.top
-
-            document.getElementById('SVG1').innerHTML = '<line x1=' + x1 + ' y1=' + y1 + ' x2=' + x2 + ' y2=' + y2 + ' stroke="red"/>'
-
-
-        </script>
-    -->
+        <svg id='SVG1' class='line'></svg>
     
         <div id='test2' class='photo'>
             <img src='../../static/tree/images/duck2.jpg'/>

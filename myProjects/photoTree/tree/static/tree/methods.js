@@ -18,12 +18,12 @@ function getPosition(id) {
     
     let tmpEl = document.getElementById(id);
     let pos = tmpEl.getBoundingClientRect();
-    let bodyRect = document.body.getBoundingClientRect()
 
     console.log(" Position of " + id + " Relative to Page View: \n")
     console.log("Top: " + pos.top + " Right: " + pos.right + " Bottom: " + pos.bottom + " Left: " + pos.left)
 
     /*
+    let bodyRect = document.body.getBoundingClientRect()
     topOffset = pos.top - bodyRect.top
     rightOffset = bodyRect.right - pos.right
     bottomOffset = bodyRect.bottom - pos.bottom
@@ -33,22 +33,49 @@ function getPosition(id) {
     console.log("Top: " + topOffset + " Right: " + rightOffset + " Bottom: " + bottomOffset + " Left: " + leftOffset)
     */
 
-    return pos
+    return pos;
     
 }
 
-function changeSVG(position1, position2) {
+function changeSVG(id1, id2) {
 
     //FIXME I'm not getting the middle position, coordinates are wrong
-    //FIXME fix top position, then doesn't extend all the way to div
+    //Try doing it based on position relative to whole page
 
-    let x1 = (position1.right / 2) - position1.left
-    let y1 = position1.top / 2
 
-    let x2 = (position2.right / 2) - position2.left
-    let y2 = position2.top * 2
+    let pos1 = getPosition(id1)
+    let pos2 = getPosition(id2)
+
+    document.getElementById('SVG1').style.width = pos1.right - pos1.left
+    document.getElementById('SVG1').style.height = (pos1.bottom - pos1.top) + (pos2.bottom - pos2.top)
+
+
+    pos1 = getPosition(id1)
+    pos2 = getPosition(id2)
+
+    let x1 = (pos1.right / 2) + pos1.left
+    let y1 = pos1.top
+
+    let x2 = (pos2.right / 2) + pos2.left
+    let y2 = pos2.top
 
     document.getElementById('SVG1').innerHTML = '<line x1=' + x1 + ' y1=' + y1 + ' x2=' + x2 + ' y2=' + y2 + ' stroke="red"/>'
+
+
+/*
+var line = document.getElementById('SVG1')
+var div1 = document.getElementById('test1');
+var div2 = document.getElementById('test2');
+
+var x1 = div1.offsetLeft + (div1.style.width/2);
+var y1 = div1.offsetTop + (div1.style.height/2);
+var x2 = div2.offsetLeft + (div2.style.width/2);
+var y2 = div2.offsetTop + (div2.style.height/2);
+
+line.innerHTML = '<line x1=' + x1 + ' y1=' + y1 + ' x2=' + x2 + ' y2=' + y2 + ' stroke="red"/>'
+//line.attr('x1',x1).attr('y1',y1).attr('x2',x2).attr('y2',y2);
+*/
+    
 }
 
 

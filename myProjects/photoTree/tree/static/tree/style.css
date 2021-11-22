@@ -6,3 +6,8 @@ h1 {
     margin: 20px;
     border: 5px solid black;
 }
+
+.line {
+    /*position:absolute;*/
+    z-index: -1;
+}
