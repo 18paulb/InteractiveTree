@@ -8,6 +8,21 @@ h1 {
 }
 
 .line {
-    /*position:absolute;*/
+    position:absolute;
     z-index: -1;
+}
+
+.tree-level {
+    display: flex;
+    justify-content: center;
+
+}
+
+.tree-node {
+    display: flex;
+    justify-content: center;
+    border: 3px solid red;
+    width: 50px;
+
+    margin: 30px;
 }
