@@ -6,12 +6,15 @@
         <meta charset='utf-8'>
         <title>Interactive Tree</title>
         <link rel='stylesheet' href='../../static/tree/style.css'/>
+
+        <!--Added to test sortable dragging-->
+
     </head>
 
 
     <body>
 
-
+<!--
         <div class='photo' id="div1" style="width: 100px; height: 100px; top:0; left:0; background:#777; position:absolute;"></div>
         <div class='photo' id="div2" style="width: 100px; height: 100px; top:300px; left:300px; background:#333; position:absolute;"></div>
 
@@ -57,7 +60,7 @@
             <h1>Testing Lines</h1>
         </div>
 
-        <button onclick='changeSVG("test1", "test2")'>Move Line</button>
+        <button onclick='changeSVG("test1", "test2", "SVG1")'>Move Line</button>
 
         <div id='test1' class='photo'>
             <img src='../../static/tree/images/duck1.jpg'/>
@@ -81,6 +84,49 @@
 
 
 
+    -->
+        <h1>Testing Tree</h1> 
+
+        <a href='draggable'>Dragging</a>
+
+        <button onclick='changeSVG("node1", "node2", "SVG2")'>Get Position</button>
+
+        <div class='tree-level' ondrop='drop(event)' ondragover="allowDrop(event)">
+
+            <div id='node1' class='tree-node' ondragstart='drag(event)'><h1>1</h1></div>
+
+        </div>
+
+        <div class='tree-level' ondrop='drop(event)' ondragover="allowDrop(event)">
+
+            <div id='node3' class='tree-node' ondragstart='drag(event)'><h1>3</h1></div>
+            <div id='node2' class='tree-node' ondragstart='drag(event)'><h1>2</h1></div>
+
+        </div>
+
+
+        <div class='tree-level' ondrop='drop(event)' ondragover="allowDrop(event)">
+
+            <div id='node6' class='tree-node' ondragstart='drag(event)'><h1>6</h1></div>
+            <div id='node5' class='tree-node' ondragstart='drag(event)'><h1>5</h1></div>
+            <div id='node4' class='tree-node' ondragstart='drag(event)'><h1>4</h1></div>
+
+        </div>
+
+
+
+        
+
+
+
+<!--
+        <div id='SVG2'>
+
+        </div>
+
+    <svg class='line' width='114' height ='171'><line x1='570' y1='465' x2='628' y2='319.6' stroke='red'/></svg>
+
+    -->
 
 
 
@@ -89,6 +135,7 @@
 
 
         <script src='../../static/tree/methods.js'></script>
+        <script src='../../static/tree/drag.js'></script>
     </body>
 
 
