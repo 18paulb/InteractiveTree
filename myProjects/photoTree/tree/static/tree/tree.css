@@ -1,0 +1,173 @@
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+
+body {
+    height: 100vh;
+    display: grid;
+    align-items: center;
+}
+
+/* TEsting Borders */
+li {
+    border: 1px solid gray;
+}
+
+a {
+    border: 2px solid plum !important;
+}
+
+
+/*Finish Testing Borders*/
+
+
+.tree {
+    width: 100%;
+    height: auto;
+    text-align: center;
+}
+
+.tree ul {
+    padding-top: 20px;
+    position: relative;
+    transition: .5s;
+}
+
+.tree li {
+    display: inline-table;
+    list-style-type: none;
+    position: relative;
+    padding: 10px;
+    transition: .5s;
+}
+
+.tree li:before, .tree li:after {
+    content: '||';
+    position: absolute;     /*How does this affect if relative*/
+    top: 0;
+    right: 50%;
+    border-top: 5px solid red;
+    width: 51%;             /*what does changing these values do*/
+    height: 10px;
+
+}
+
+
+
+/* TESTING MARRIAGE UL
+.marriage {
+    content: '1';
+    position: absolute;
+    top: 50%;
+    right: 50%;
+    width: 51%;
+    height: 10px;
+    border-top: 5px solid red;
+}
+*/
+
+
+.tree li:after {
+    right: auto;
+    left: 50%;
+    border-left: 5px solid green;
+}
+
+.tree li:only-child:after, .tree li:only-child:before {
+    display: 0 none;
+    border: 0 none;         /*What does this do*/
+}
+
+.tree li:only-child {
+    padding-top: 0;
+}
+
+.tree li:first-child:before, .tree li:last-child:after {
+    border: 0 none;
+}
+
+.tree li:last-child:before {
+    border-right: 5px solid orange;
+    border-radius: 0px 5px 0px 0px;
+}
+
+.tree li:first-child:after {
+    border-radius: 5px 0px 0px 0px;
+}
+
+.tree ul ul:before {
+    content: '';
+    position: absolute;  /*How does this affect if relative*/
+    top: 0;
+    left: 50%;
+    border-left: 5px solid black;
+    width: 0;
+    height: 20px;
+}
+
+.tree a {
+    border: 1px solid #ccc;
+    padding: 10px;
+    display: inline-grid;
+    border-radius: 5px;
+    text-decoration-line: none;
+    transition: .5s;
+}
+
+.tree a img {
+    width: 50px;
+    height: 50px;
+    margin-bottom: 10px !important;
+    border-radius: 100px;
+}
+
+.tree a span {
+    border: 1px solid purple;
+    border-radius: 5px;
+    color: #666;
+    padding: 8px;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 500;
+}
+
+
+/*Hover Section*/
+
+.tree li a:hover, .tree li a:hover img, .tree li a:hover span, .tree li a:hover+ul li a {
+    background: burlywood;
+    color: #000;
+    border: 5px solid darkgoldenrod;
+    box-shadow: 0px 0px 0px -5px greenyellow
+}
+
+.tree li a:hover+ul li:after, .tree li a:hover+ul li:before, .tree li a:hover+ul:before, .tree li a:hover+ul ul:before {
+    border: cyan;
+}
+
+
+
+/*WORKS these cause a line to be between husband and wife*/
+li:first-child:after {
+    content: '1';
+    position: absolute;
+    top: 50%;
+    right: 50%;
+    width: 51%;
+    height: 10px;
+    border-top: 5px solid red;
+}
+
+li:last-child:before {
+    content: '1';
+    position: absolute;
+    top: 50%;
+    right: 50%;
+    width: 51%;
+    height: 10px;
+    border-top: 5px solid red;
+}
