@@ -7,5 +7,5 @@ from . import views
 urlpatterns = [
     path('', views.index, name='index'),
     path('draggable/', views.draggable, name='draggable'),
-    #path('draggable/', DraggablePageView.as_view(), name='draggable'),
+    path('tree/', views.tree, name='tree'),
 ]

@@ -11,5 +11,5 @@ def index(request):
 def draggable(request):
     return render(request, 'tree/draggable.html')
 
-#class DraggablePageView(TemplateView):
-#    template_name = 'draggable.html'
+def tree(request):
+    return render(request, 'tree/tree.html')
