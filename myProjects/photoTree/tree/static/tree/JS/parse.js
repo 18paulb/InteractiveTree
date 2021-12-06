@@ -101,10 +101,10 @@ let data = [
     "mother": null,
     "spouse": 15,
     "birthyear": 1981
-  }
- ]
+  },
+]
 
-
+//Adds all photos to left side of screen, just for testing, will need to change eventually
 for (let i = 0; i < data.length; ++i) {
   let pic = data[i].image.toString()
   let year = data[i].birthyear.toString()
@@ -113,11 +113,47 @@ for (let i = 0; i < data.length; ++i) {
 }
 
 
-//This only works if there is a data structure that has multiple keys
-//I need a data structure to have all the mother-child relationships, maybe a map with multiple values(children) to each key(mother)
-//Consider having key (mother) that connects to Object (Mother Class) that contains array of chilren
+//Defines class to be used for the objects of the values in momMap
+class mom {
+
+  children = []
+  spouse = null
+
+  addChild(child) {
+    this.children.push(child)
+  }
+
+  addSpouse(spouse) {
+    this.spouse = spouse;
+  }
+}
 
 
+let momMap = new Map()
+
+function TestMap() {
+  //Initializes map with a key of each person in data inputs
+  for (let i = 0; i < data.length; ++i) {
+    momMap.set(data[i], new mom())
+  }
 
 
+  //Appends children and husbands to key of mothers, appends to Object data members 
+  for (let i = 0; i < data.length; ++i) {
+    if (data[i].mother != null) { 
+      momMap.get(data[data[i].mother - 1]).addChild([data[i]])
+    }
+    if (data[i].spouse != null) {
+      momMap.get(data[data[i].spouse - 1]).addSpouse([data[i]])
+    }
+  }
 
+  //Cleans out map so that non-mothers are deleted, since tree is based around Mothers others shouldn't be needed
+  for (let [key, value] of  momMap.entries()) {
+    if (value.children.length === 0) {
+      momMap.delete(key)
+    }
+  }
+
+  console.log(momMap)
+}
