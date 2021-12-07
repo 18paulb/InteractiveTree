@@ -131,29 +131,80 @@ class mom {
 
 let momMap = new Map()
 
-function TestMap() {
-  //Initializes map with a key of each person in data inputs
-  for (let i = 0; i < data.length; ++i) {
-    momMap.set(data[i], new mom())
-  }
 
-
-  //Appends children and husbands to key of mothers, appends to Object data members 
-  for (let i = 0; i < data.length; ++i) {
-    if (data[i].mother != null) { 
-      momMap.get(data[data[i].mother - 1]).addChild([data[i]])
-    }
-    if (data[i].spouse != null) {
-      momMap.get(data[data[i].spouse - 1]).addSpouse([data[i]])
-    }
-  }
-
-  //Cleans out map so that non-mothers are deleted, since tree is based around Mothers others shouldn't be needed
-  for (let [key, value] of  momMap.entries()) {
-    if (value.children.length === 0) {
-      momMap.delete(key)
-    }
-  }
-
-  console.log(momMap)
+//Initializes map with a key of each person in data inputs
+for (let i = 0; i < data.length; ++i) {
+  momMap.set(data[i], new mom())
 }
+
+//Appends children and husbands to key of mothers, appends to Object data members 
+for (let i = 0; i < data.length; ++i) {
+  if (data[i].mother != null) { 
+    momMap.get(data[data[i].mother - 1]).addChild([data[i]])
+  }
+  if (data[i].spouse != null) {
+    momMap.get(data[data[i].spouse - 1]).addSpouse([data[i]])
+  }
+}
+/*
+//Cleans out map so that non-mothers are deleted, since tree is based around Mothers others shouldn't be needed
+for (let [key, value] of  momMap.entries()) {
+  if (value.children.length === 0) {
+    momMap.delete(key)
+  }
+}
+*/
+//Makes an array out of map to sort (bubble sort) mothers from oldest to newest birthyear (oldest first) 
+let tmpArray = Array.from(momMap)
+
+for (let i = 0; i < tmpArray.length; ++i) {
+  for(let j = 0; j < tmpArray.length - i - 1; ++j) {
+    if (tmpArray[j][0].birthyear > tmpArray[j+1][0].birthyear) {
+      let tmp = tmpArray[j+1]
+      tmpArray[j+1] = tmpArray[j]
+      tmpArray[j] = tmp
+    }
+  }
+}
+
+//Converts Array back into a map
+momMap = new Map()
+
+for (let i = 0; i < tmpArray.length; ++i) {
+  let key = tmpArray[i][0]
+  let value = tmpArray[i][1]
+
+  momMap.set(key, value)
+}
+
+console.log(momMap)
+
+
+
+
+
+
+//Testing for displaying tree hiearchy from computed data above, simple unordered list strcture
+let nodes = document.getElementById('testNodes')
+//FIXME
+
+/*
+let i = 1
+momMap.forEach((value, key) => {
+  nodes.innerHTML +=
+  `<li><img class='photo' src="../../static/tree/images/pictures/${key.image}.PNG"/>
+
+  <ul id='node${i}'>
+    <li>${value.children.forEach(child => console.log(child[0].image))}</li>
+  </ul>
+  
+  </li>`
+  i += 1
+})
+*/
+
+momMap.forEach((value, key) => {
+  value.children.forEach(child => {
+
+  })
+})

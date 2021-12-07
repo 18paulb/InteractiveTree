@@ -52,12 +52,14 @@ function changeSVG(id1, id2, SVGId) {
 
 
 
-
 //I'm gonna need to change the innerHTML to make new <div> tags whenever I drag between the tree
 
 //Finding positions of elements https://stackoverflow.com/questions/442404/retrieve-the-position-x-y-of-an-html-element
 //Use this to use a function that calculates position so that SVG line can follow wherever you drag too
 
-
-
 //For sorting in specific positions: https://jqueryui.com/sortable/
+
+
+
+//IMPORTANT CHECK
+//For SVG line connecting two divs: https://codepen.io/berky93/pen/vKmkWG
