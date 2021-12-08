@@ -129,57 +129,56 @@ class mom {
 }
 
 
+
 let momMap = new Map()
 
-
-//Initializes map with a key of each person in data inputs
-for (let i = 0; i < data.length; ++i) {
-  momMap.set(data[i], new mom())
-}
-
-//Appends children and husbands to key of mothers, appends to Object data members 
-for (let i = 0; i < data.length; ++i) {
-  if (data[i].mother != null) { 
-    momMap.get(data[data[i].mother - 1]).addChild([data[i]])
+  //Initializes map with a key of each person in data inputs
+  for (let i = 0; i < data.length; ++i) {
+    momMap.set(data[i], new mom())
   }
-  if (data[i].spouse != null) {
-    momMap.get(data[data[i].spouse - 1]).addSpouse([data[i]])
-  }
-}
-/*
-//Cleans out map so that non-mothers are deleted, since tree is based around Mothers others shouldn't be needed
-for (let [key, value] of  momMap.entries()) {
-  if (value.children.length === 0) {
-    momMap.delete(key)
-  }
-}
-*/
-//Makes an array out of map to sort (bubble sort) mothers from oldest to newest birthyear (oldest first) 
-let tmpArray = Array.from(momMap)
 
-for (let i = 0; i < tmpArray.length; ++i) {
-  for(let j = 0; j < tmpArray.length - i - 1; ++j) {
-    if (tmpArray[j][0].birthyear > tmpArray[j+1][0].birthyear) {
-      let tmp = tmpArray[j+1]
-      tmpArray[j+1] = tmpArray[j]
-      tmpArray[j] = tmp
+  //Appends children and husbands to key of mothers, appends to Object data members 
+  for (let i = 0; i < data.length; ++i) {
+    if (data[i].mother != null) { 
+      momMap.get(data[data[i].mother - 1]).addChild([data[i]])
+    }
+    if (data[i].spouse != null) {
+      momMap.get(data[data[i].spouse - 1]).addSpouse([data[i]])
     }
   }
-}
 
-//Converts Array back into a map
-momMap = new Map()
+  //Cleans out map so that non-mothers are deleted, since tree is based around Mothers others shouldn't be needed
+  for (let [key, value] of  momMap.entries()) {
+    if (value.children.length === 0) {
+      momMap.delete(key)
+    }
+  }
 
-for (let i = 0; i < tmpArray.length; ++i) {
-  let key = tmpArray[i][0]
-  let value = tmpArray[i][1]
+  //Makes an array out of map to sort (bubble sort) mothers from oldest to newest birthyear (oldest first) 
+  momArray = Array.from(momMap)
 
-  momMap.set(key, value)
-}
+  for (let i = 0; i < momArray.length; ++i) {
+    for(let j = 0; j < momArray.length - i - 1; ++j) {
+      if (momArray[j][0].birthyear > momArray[j+1][0].birthyear) {
+        let tmp = momArray[j+1]
+        momArray[j+1] = momArray[j]
+        momArray[j] = tmp
+      }
+    }
+  }
 
-console.log(momMap)
+  //Converts Array back into a map
+  momMap = new Map()
 
+  for (let i = 0; i < momArray.length; ++i) {
+    let key = momArray[i][0]
+    let value = momArray[i][1]
 
+    momMap.set(key, value)
+  }
+
+  console.log("Array: ", momArray)
+  console.log(momMap)
 
 
 
@@ -188,23 +187,28 @@ console.log(momMap)
 let nodes = document.getElementById('testNodes')
 //FIXME
 
-/*
-let i = 1
+let i = 0
 momMap.forEach((value, key) => {
   nodes.innerHTML +=
   `<li><img class='photo' src="../../static/tree/images/pictures/${key.image}.PNG"/>
-
-  <ul id='node${i}'>
-    <li>${value.children.forEach(child => console.log(child[0].image))}</li>
-  </ul>
-  
+      <ul id='kids${i}'></ul>
   </li>`
   i += 1
 })
-*/
 
-momMap.forEach((value, key) => {
-  value.children.forEach(child => {
+//Loops through all moms and makes nodes and adds children 
+for (let i = 0; i < momArray.length; ++i) {
+  let kids = document.getElementById(`kids${i}`)
+  
+  //This loops through children array of mom and makes and appends nodes for each one
+  for (let j = 0; j < momArray[i][1].children.length; ++j) {
+    let pic = momArray[i][1].children[j][0].image
+    let year = momArray[i][1].children[j][0].birthyear
 
-  })
-})
+    let li = document.createElement('li');
+    li.innerHTML = `<div class="node" style='flex-wrap:wrap;'><img class="photo" src="../../static/tree/images/pictures/${pic}.PNG"/>
+    <span style='margin-top:5px;'>${year}</span></div>`
+    kids.appendChild(li)
+  }
+
+}
