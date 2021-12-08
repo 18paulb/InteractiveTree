@@ -200,7 +200,7 @@ momMap.forEach((value, key) => {
 for (let i = 0; i < momArray.length; ++i) {
   let kids = document.getElementById(`kids${i}`)
   
-  //This loops through children array of mom and makes and appends nodes for each one
+  //This loops through children array of mom and makes and appends nodes for each
   for (let j = 0; j < momArray[i][1].children.length; ++j) {
     let pic = momArray[i][1].children[j][0].image
     let year = momArray[i][1].children[j][0].birthyear
