@@ -70,3 +70,7 @@ left: 50px;
 bottom: 20px;
 right: 50px;
 }
+
+.drag {
+    position: absolute;
+}
