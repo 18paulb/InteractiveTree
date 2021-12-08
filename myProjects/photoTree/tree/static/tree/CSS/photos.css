@@ -4,6 +4,13 @@ body {
   border: 2px solid purple;
 }
 */
+
+
+.photo {
+  width: 75px;
+  height: 75px;
+}
+
 .nodeBox {
   display: flex;
   width: 175px;
@@ -16,12 +23,6 @@ body {
 
   background-color: lightblue;
 }
-
-.photo {
-  width: 75px;
-  height: 75px;
-}
-
 .node {
   display: flex;
   width: 100;
@@ -29,9 +30,20 @@ body {
   background-color: darkgoldenrod;
   justify-content: center;
   align-items: center;
-  flex-direction: column;
+  /*flex-direction: column;*/
   border: 2px solid black;
 
   margin-top: 3px;
   margin-bottom: 3px;
 }
+
+/*
+.tree {
+  display: flex;
+
+  flex-direction: row;
+
+  border:5px solid orange;
+  margin-left:50px;
+}
+*/
