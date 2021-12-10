@@ -13,3 +13,6 @@ def draggable(request):
 
 def tree(request):
     return render(request, 'tree/tree.html')
+
+def chart(request):
+    return render(request, 'tree/chart.html')
