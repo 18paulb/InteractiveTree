@@ -108,8 +108,10 @@ let data = [
 for (let i = 0; i < data.length; ++i) {
   let pic = data[i].image.toString()
   let year = data[i].birthyear.toString()
+
   document.getElementById('nodes').innerHTML += `<div class="node"><img class="photo" src="../../static/tree/images/pictures/${pic}.PNG"/>
   <span style='margin-top:5px;'>${year}</span></div>`
+
 }
 
 

@@ -29,4 +29,22 @@
   height: 12px;
   position: absolute;
   width: 12px;
+  
+  /* The data points have a radius of 8px and the line segment has a width of 3px, 
+    so we split the difference to center the data points on the line segment origins */
+  bottom: calc(var(--y) - 6.5px);
+  left: calc(var(--x) - 9.5px);
+  
+}
+
+.line-segment {
+  background-color: blue;
+  bottom: var(--y);
+  height: 3px;
+  left: var(--x);
+  position: absolute;
+
+  transform: rotate(calc(var(--angle) * 1deg));
+  transform-origin: left bottom;
+  width: calc(var(--hypotenuse) * 1px);
 }

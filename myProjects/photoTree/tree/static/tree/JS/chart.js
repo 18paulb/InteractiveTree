@@ -1,4 +1,3 @@
-
 let data = [
   {
     "image": 1,
@@ -104,12 +103,27 @@ let data = [
   },
 ]
 
+
+/*
+//sorting data to test for tree
+for (let i = 0; i < data.length; ++i) {
+  for(let j = 0; j < data.length - i - 1; ++j) {
+    if (data[j].birthyear > data[j+1].birthyear) {
+      let tmp = data[j+1]
+      data[j+1] = data[j]
+      data[j] = tmp
+    }
+  }
+}
+*/
+
 //Tmp variables to work with, will change if i need to change graph
 let chartWidth = 900;
 let maxValue = 0;
 let minValue = data[0].birthyear //initial value for comparing
 let spacing = chartWidth / data.length
 
+//Sets min and max values
 for (let i = 0; i < data.length; ++i) {
   if (data[i].birthyear > maxValue) {
     maxValue = data[i].birthyear
@@ -123,19 +137,6 @@ for (let i = 0; i < data.length; ++i) {
 let scaleFactor = maxValue - minValue;
 
 
-//Just for testing hypotenuse
-//Loops throgh all but one, leaves at last one since it doesn't connect to anything
-let hypotenuseList = []
-
-for (let i = 0; i < data.length - 1; ++i) {
-  let bottom1 = getBottom(data[i].birthyear, maxValue, chartWidth)
-  let bottom2 = getBottom(data[i+1].birthyear, maxValue, chartWidth)
-  
-  hypotenuseList.push(getHypotenuse(bottom1, bottom2))
-}
-
-console.log(hypotenuseList)
-
 //Makes each data entry a li in the chart
 let chartList = document.getElementById('chart')
 
@@ -145,28 +146,44 @@ for (let i = 0; i < data.length; ++i) {
   let bottom = getBottom(data[i].birthyear, maxValue, chartWidth)
   let left = getLeft(chartWidth, data.length, i)
 
+  let bottom2 = 0;
+  let hypotenuse = 0;
 
+  if (i+1 != data.length) {
+    bottom2 = getBottom(data[i+1].birthyear, maxValue, chartWidth)
+    hypotenuse = getHypotenuse(bottom, bottom2)
+  }
+
+
+
+
+  li.setAttribute('style', `--y: ${bottom}px; --x: ${left}px`)
+/* Ignoring Line drawing for now
   li.innerHTML = `
-  <div class="line-segment" style="--hypotenuse: ${hypotenuseList[i]};"></div>
-  <div class="data-point" data-value="${data[i].birthyear}" style="bottom: ${bottom}px; left: ${left}px;" ></div>
+  <div class="line-segment" style="--hypotenuse: ${hypotenuse};"></div>
+  <div class="data-point" data-value="${data[i].birthyear}" ></div>
   `
+*/
+  li.innerHTML = `<div class="data-point" data-value="${data[i].birthyear}" ></div>`
+
   chartList.appendChild(li);
 }
 
 
 
-
 function getBottom(value, maxValue, chartWidth) {
+  //debugger;
 
   //Scales values so that it fits evenly in size of chart
-  scaledValue = (value - minValue) * scaleFactor
-  scaledMaxValue = (maxValue - minValue) * scaleFactor
+  //Makes it so that lowest value is top of graph
+  scaledValue = (Math.abs(value - maxValue)) * scaleFactor
+  scaledMaxValue = (Math.abs(minValue - maxValue)) * scaleFactor
   let bottom = (scaledValue / scaledMaxValue) * chartWidth
 
   return bottom;
 }
 
-function getLeft(chartWidth, numValues, positionInData ) {
+function getLeft(chartWidth, numValues, positionInData) {
   let left = (chartWidth / numValues) * (positionInData + 1)
 
   return left;
@@ -180,4 +197,15 @@ function getHypotenuse(datapoint1, datapoint2) {
 
   return hypotenuse
 
+}
+
+//Get the angle to place line in between nodes
+//FIXME not working if next data point is lower, opposite needs to be spacing, not y-distance between the two (MAYBE)
+function getSine(opposite, hypotenuse) {
+  let sine = Math.asin(opposite / hypotenuse)
+
+  //Convert from radians to degrees
+  sine = sine * (180 / Math.PI)
+
+  return sine;
 }
