@@ -104,7 +104,7 @@ let data = [
 ]
 
 
-/*
+/*\\
 //sorting data to test for tree
 for (let i = 0; i < data.length; ++i) {
   for(let j = 0; j < data.length - i - 1; ++j) {
@@ -136,42 +136,46 @@ for (let i = 0; i < data.length; ++i) {
 
 let scaleFactor = maxValue - minValue;
 
-
+/*
 //Makes each data entry a li in the chart
 let chartList = document.getElementById('chart')
 
 for (let i = 0; i < data.length; ++i) {
   let li = document.createElement('li')
 
-  let bottom = getBottom(data[i].birthyear, maxValue, chartWidth)
+  let bottom = getY(data[i].birthyear, maxValue, chartWidth)
   let left = getLeft(chartWidth, data.length, i)
 
   let bottom2 = 0;
   let hypotenuse = 0;
 
   if (i+1 != data.length) {
-    bottom2 = getBottom(data[i+1].birthyear, maxValue, chartWidth)
+    bottom2 = getY(data[i+1].birthyear, maxValue, chartWidth)
     hypotenuse = getHypotenuse(bottom, bottom2)
   }
+
+  let angle;
+
+
+  angle = getAngle(bottom - bottom2, hypotenuse)
 
 
 
 
   li.setAttribute('style', `--y: ${bottom}px; --x: ${left}px`)
-/* Ignoring Line drawing for now
+//Ignoring Old Draw Line
   li.innerHTML = `
-  <div class="line-segment" style="--hypotenuse: ${hypotenuse};"></div>
+  <div class="line-segment" style="--hypotenuse: ${hypotenuse}; --angle: ${angle}"></div>
   <div class="data-point" data-value="${data[i].birthyear}" ></div>
   `
-*/
-  li.innerHTML = `<div class="data-point" data-value="${data[i].birthyear}" ></div>`
+
+  //li.innerHTML = `<div class="data-point" data-value="${data[i].birthyear}" ></div>`
 
   chartList.appendChild(li);
 }
+*/
 
-
-
-function getBottom(value, maxValue, chartWidth) {
+function getY(value, maxValue, chartWidth) {
   //debugger;
 
   //Scales values so that it fits evenly in size of chart
@@ -200,12 +204,133 @@ function getHypotenuse(datapoint1, datapoint2) {
 }
 
 //Get the angle to place line in between nodes
-//FIXME not working if next data point is lower, opposite needs to be spacing, not y-distance between the two (MAYBE)
-function getSine(opposite, hypotenuse) {
+function getAngle(opposite, hypotenuse) {
+  //debugger;
   let sine = Math.asin(opposite / hypotenuse)
 
   //Convert from radians to degrees
   sine = sine * (180 / Math.PI)
 
   return sine;
+}
+
+
+
+
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Drawing Lines to Children
+
+
+
+//Defines class to be used for the objects of the values in momMap
+class mom {
+
+  children = []
+  spouse = null
+
+  addChild(child) {
+    this.children.push(child)
+  }
+
+  addSpouse(spouse) {
+    this.spouse = spouse;
+  }
+}
+
+let momMap = new Map()
+
+//Initializes map with a key of each person in data inputs
+for (let i = 0; i < data.length; ++i) {
+  momMap.set(data[i], new mom())
+}
+
+//Appends children and husbands to key of mothers, appends to Object data members 
+for (let i = 0; i < data.length; ++i) {
+  if (data[i].mother != null) { 
+    momMap.get(data[data[i].mother - 1]).addChild([data[i]])
+  }
+  if (data[i].spouse != null) {
+    momMap.get(data[data[i].spouse - 1]).addSpouse([data[i]])
+  }
+}
+
+//Cleans out map so that non-mothers are deleted, since tree is based around Mothers others shouldn't be needed
+for (let [key, value] of  momMap.entries()) {
+  if (value.children.length === 0) {
+    momMap.delete(key)
+  }
+}
+
+//Makes an array out of map to sort (bubble sort) mothers from oldest to newest birthyear (oldest first) 
+momArray = Array.from(momMap)
+
+for (let i = 0; i < momArray.length; ++i) {
+  for(let j = 0; j < momArray.length - i - 1; ++j) {
+    if (momArray[j][0].birthyear > momArray[j+1][0].birthyear) {
+      let tmp = momArray[j+1]
+      momArray[j+1] = momArray[j]
+      momArray[j] = tmp
+    }
+  }
+}
+
+console.log("Array: ", momArray)
+
+
+
+
+
+
+
+
+
+
+
+//Makes each data entry a li in the chart
+let chartList = document.getElementById('chart')
+
+for (let i = 0; i < data.length; ++i) {
+  let li = document.createElement('li')
+
+  //Sets isMom to true or false so that only mom Node will get lines
+  let isMom = false;
+
+  let childrenArray = []
+
+  for (let j = 0; j < momArray.length; ++j) {
+    if (data[i].image == momArray[j][0].image) {
+      isMom = true;
+      childrenArray.push(momArray[j][1].children)
+    }
+  }
+
+  //Gonna need to add multiple line segments for each child and calculate hypotenus and angle, should put line exactly to right spot even if point isn't there yet
+  //Triple forLoop ugly, fix later
+
+  let hypotenuse = 0;
+  let angle = 0;
+
+
+  if (isMom) {
+
+    li.innerHTML += ` 
+    <div class="line-segment" style="--hypotenuse: ${hypotenuse}; --angle: ${angle}"></div>
+
+    `
+
+    //Makes it so that data point is last thing added so that lines are below node
+    li.innerHTML += `<div class="data-point" data-value="${data[i].birthyear}" ></div>`
+
+  } else {
+    li.innerHTML = `<div class="data-point" data-value="${data[i].birthyear}" ></div>`
+  }
+
+  
+  chartList.appendChild(li);
+
 }
