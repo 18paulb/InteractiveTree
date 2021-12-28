@@ -103,9 +103,7 @@ let data = [
   },
 ]
 
-
-/*\\
-//sorting data to test for tree
+//Sorting data
 for (let i = 0; i < data.length; ++i) {
   for(let j = 0; j < data.length - i - 1; ++j) {
     if (data[j].birthyear > data[j+1].birthyear) {
@@ -115,7 +113,6 @@ for (let i = 0; i < data.length; ++i) {
     }
   }
 }
-*/
 
 //Tmp variables to work with, will change if i need to change graph
 let chartWidth = 900;
@@ -156,11 +153,7 @@ for (let i = 0; i < data.length; ++i) {
 
   let angle;
 
-
   angle = getAngle(bottom - bottom2, hypotenuse)
-
-
-
 
   li.setAttribute('style', `--y: ${bottom}px; --x: ${left}px`)
 //Ignoring Old Draw Line
@@ -168,7 +161,6 @@ for (let i = 0; i < data.length; ++i) {
   <div class="line-segment" style="--hypotenuse: ${hypotenuse}; --angle: ${angle}"></div>
   <div class="data-point" data-value="${data[i].birthyear}" ></div>
   `
-
   //li.innerHTML = `<div class="data-point" data-value="${data[i].birthyear}" ></div>`
 
   chartList.appendChild(li);
@@ -176,42 +168,47 @@ for (let i = 0; i < data.length; ++i) {
 */
 
 function getY(value, maxValue, chartWidth) {
-  //debugger;
-
   //Scales values so that it fits evenly in size of chart
   //Makes it so that lowest value is top of graph
   scaledValue = (Math.abs(value - maxValue)) * scaleFactor
   scaledMaxValue = (Math.abs(minValue - maxValue)) * scaleFactor
   let bottom = (scaledValue / scaledMaxValue) * chartWidth
-
   return bottom;
 }
 
 function getLeft(chartWidth, numValues, positionInData) {
   let left = (chartWidth / numValues) * (positionInData + 1)
-
   return left;
 }
 
-function getHypotenuse(datapoint1, datapoint2) {
-
+function test(datapoint1, datapoint2, left1, left2) {
   triSide = datapoint1 - datapoint2
-
-  hypotenuse = Math.sqrt((triSide * triSide) + (spacing * spacing))
-
+  tmpSpacing = left1 - left2
+  hypotenuse = Math.sqrt((triSide * triSide) + (tmpSpacing * tmpSpacing))
   return hypotenuse
+}
 
+function getHypotenuse(datapoint1, datapoint2) {
+  triSide = datapoint1 - datapoint2
+  hypotenuse = Math.sqrt((triSide * triSide) + (spacing * spacing))
+  return hypotenuse
 }
 
 //Get the angle to place line in between nodes
 function getAngle(opposite, hypotenuse) {
-  //debugger;
   let sine = Math.asin(opposite / hypotenuse)
-
   //Convert from radians to degrees
   sine = sine * (180 / Math.PI)
 
   return sine;
+}
+
+function getIndex(id) {
+  for (let i = 0; i < data.length; ++i) {
+    if (id === data[i].image) {
+      return i;
+    }
+  }
 }
 
 
@@ -223,10 +220,6 @@ function getAngle(opposite, hypotenuse) {
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Drawing Lines to Children
-
-
-
 //Defines class to be used for the objects of the values in momMap
 class mom {
 
@@ -252,10 +245,20 @@ for (let i = 0; i < data.length; ++i) {
 //Appends children and husbands to key of mothers, appends to Object data members 
 for (let i = 0; i < data.length; ++i) {
   if (data[i].mother != null) { 
-    momMap.get(data[data[i].mother - 1]).addChild([data[i]])
+    for (let j = 0; j < data.length; j++) {
+      if (data[j].image == data[i].mother) {
+        let mom = data[j]
+        momMap.get(mom).addChild([data[i]])
+      }
+    }
   }
   if (data[i].spouse != null) {
-    momMap.get(data[data[i].spouse - 1]).addSpouse([data[i]])
+    for (let j = 0; j < data.length; j++) {
+      if (data[j].image == data[i].spouse) {
+        let spouse = data[j]
+        momMap.get(spouse).addSpouse([data[i]])
+      }
+    }
   }
 }
 
@@ -279,11 +282,8 @@ for (let i = 0; i < momArray.length; ++i) {
   }
 }
 
-console.log("Array: ", momArray)
-
-
-
-
+console.log("Mom Array: ", momArray)
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -302,35 +302,81 @@ for (let i = 0; i < data.length; ++i) {
 
   let childrenArray = []
 
+  //Initializes an array for this iteration of loop containing children
   for (let j = 0; j < momArray.length; ++j) {
-    if (data[i].image == momArray[j][0].image) {
+    if (momArray[j][0].image == data[i].image) {   
       isMom = true;
       childrenArray.push(momArray[j][1].children)
+      break;
     }
   }
 
-  //Gonna need to add multiple line segments for each child and calculate hypotenus and angle, should put line exactly to right spot even if point isn't there yet
-  //Triple forLoop ugly, fix later
+  /////////////////////////  /////////////////////////  /////////////////////////  /////////////////////////  /////////////////////////  /////////////////////////  /////////////////////////
+  //Makes each data entry a li in the chart
+  let bottom = getY(data[i].birthyear, maxValue, chartWidth)
+  let left = getLeft(chartWidth, data.length, i)
 
-  let hypotenuse = 0;
-  let angle = 0;
+  li.setAttribute('style', `--y: ${bottom}px; --x: ${left}px`)
+  /////////////////////////  /////////////////////////  /////////////////////////  /////////////////////////  /////////////////////////  /////////////////////////  /////////////////////////
 
 
+
+
+
+
+
+
+//TESTING
+  if (i == 0) {
+    console.log(childrenArray)
+
+    let testLeft = getLeft(chartWidth, data.length, 4)
+    let testBottom = getY(childrenArray[0][0][0].birthyear, maxValue, chartWidth)
+    let testHypotenuse = test(bottom, testBottom, left, testLeft)
+    let testAngle = getAngle(bottom - testBottom, testHypotenuse)
+
+    console.log("Bottom:", bottom)
+    console.log("testBottom:", testBottom)
+    console.log("testHypotenuse", testHypotenuse)
+    console.log("Angle:", testAngle)
+
+    li.innerHTML += `<div class="line-segment" style="--hypotenuse: ${testHypotenuse}; --angle: ${testAngle}"></div>`
+    li.innerHTML += `<div class="data-point" data-value="${data[i].birthyear}" ></div>`
+
+    chartList.appendChild(li)
+    continue
+  }
+
+
+
+
+  //If mom should draw lines to each of the children
+  //FIXME number of lines are correct, do not go to Children
   if (isMom) {
+    let childBottom
+    let childHypotenuse
 
-    li.innerHTML += ` 
-    <div class="line-segment" style="--hypotenuse: ${hypotenuse}; --angle: ${angle}"></div>
+    for (let j = 0; j < childrenArray[0].length; ++j) {
+      
+      if (i+1 != data.length) {
+        childBottom = getY(childrenArray[0][j][0].birthyear, maxValue, chartWidth)
+        childLeft = getLeft(chartWidth, data.length, getIndex(childrenArray[0][j][0].image))
+        childHypotenuse = test(bottom, childBottom, left, childLeft)
+      }
 
-    `
+      let angle = getAngle(bottom - childBottom, childHypotenuse)
 
-    //Makes it so that data point is last thing added so that lines are below node
+      li.innerHTML += `<div class="line-segment" style="--hypotenuse: ${childHypotenuse}; --angle: ${angle}"></div>`
+    }
+
+    //Makes it so that data point is last thing added so that lines are beneath node
     li.innerHTML += `<div class="data-point" data-value="${data[i].birthyear}" ></div>`
 
   } else {
     li.innerHTML = `<div class="data-point" data-value="${data[i].birthyear}" ></div>`
   }
 
-  
+
   chartList.appendChild(li);
 
 }
