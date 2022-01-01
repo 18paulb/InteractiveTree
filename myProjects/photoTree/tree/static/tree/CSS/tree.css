@@ -11,20 +11,6 @@ body {
     align-items: center;
 }
 
-/* TEsting Borders */
-/*
-li {
-    border: 1px solid gray;
-}
-
-a {
-    border: 2px solid plum !important;
-}
-*/
-
-/*Finish Testing Borders*/
-
-
 .tree {
     width: 85%;
     height: auto;
@@ -138,30 +124,4 @@ a {
 .tree li a:hover+ul li:after, .tree li a:hover+ul li:before, .tree li a:hover+ul:before, .tree li a:hover+ul ul:before {
     border: cyan;
 }
-
-
-
-/*WORKS these cause a line to be between husband and wife*/
-/*
-.marriage:first-child:after {
-    content: '1';
-    position: absolute;
-    top: 50%;
-    right: 50%;
-    width: 51%;
-    height: 10px;
-    border-top: 5px solid red;
-}
-
-.marriage:last-child:before {
-    content: '1';
-    position: absolute;
-    top: 50%;
-    right: 50%;
-    width: 51%;
-    height: 10px;
-    border-top: 5px solid red;
-}
-
-*/
 
