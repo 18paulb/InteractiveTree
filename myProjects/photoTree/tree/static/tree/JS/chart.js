@@ -103,24 +103,17 @@ let data = [
   },
 ]
 
-//Sorting data
-for (let i = 0; i < data.length; ++i) {
-  for(let j = 0; j < data.length - i - 1; ++j) {
-    if (data[j].birthyear > data[j+1].birthyear) {
-      let tmp = data[j+1]
-      data[j+1] = data[j]
-      data[j] = tmp
-    }
-  }
-}
+//For testing
+//randomizeDataOrder(data)
+//console.log(data)
 
-//Tmp variables to work with, will change if i need to change graph
+//Variables to work with, will change if I need to change graph size
 let chartWidth = 900;
 let maxValue = 0;
 let minValue = data[0].birthyear //initial value for comparing
 let spacing = chartWidth / data.length
 
-//Sets min and max values
+//Sets min and max values for yPos calculation
 for (let i = 0; i < data.length; ++i) {
   if (data[i].birthyear > maxValue) {
     maxValue = data[i].birthyear
@@ -131,93 +124,8 @@ for (let i = 0; i < data.length; ++i) {
   }
 }
 
-let scaleFactor = maxValue - minValue;
-
-/*
-//Makes each data entry a li in the chart
-let chartList = document.getElementById('chart')
-
-for (let i = 0; i < data.length; ++i) {
-  let li = document.createElement('li')
-
-  let bottom = getY(data[i].birthyear, maxValue, chartWidth)
-  let left = getLeft(chartWidth, data.length, i)
-
-  let bottom2 = 0;
-  let hypotenuse = 0;
-
-  if (i+1 != data.length) {
-    bottom2 = getY(data[i+1].birthyear, maxValue, chartWidth)
-    hypotenuse = getHypotenuse(bottom, bottom2)
-  }
-
-  let angle;
-
-  angle = getAngle(bottom - bottom2, hypotenuse)
-
-  li.setAttribute('style', `--y: ${bottom}px; --x: ${left}px`)
-//Ignoring Old Draw Line
-  li.innerHTML = `
-  <div class="line-segment" style="--hypotenuse: ${hypotenuse}; --angle: ${angle}"></div>
-  <div class="data-point" data-value="${data[i].birthyear}" ></div>
-  `
-  //li.innerHTML = `<div class="data-point" data-value="${data[i].birthyear}" ></div>`
-
-  chartList.appendChild(li);
-}
-*/
-
-function getY(value, maxValue, chartWidth) {
-  //Scales values so that it fits evenly in size of chart
-  //Makes it so that lowest value is top of graph
-  scaledValue = (Math.abs(value - maxValue)) * scaleFactor
-  scaledMaxValue = (Math.abs(minValue - maxValue)) * scaleFactor
-  let bottom = (scaledValue / scaledMaxValue) * chartWidth
-  return bottom;
-}
-
-function getLeft(chartWidth, numValues, positionInData) {
-  let left = (chartWidth / numValues) * (positionInData + 1)
-  return left;
-}
-
-function test(datapoint1, datapoint2, left1, left2) {
-  triSide = datapoint1 - datapoint2
-  tmpSpacing = left1 - left2
-  hypotenuse = Math.sqrt((triSide * triSide) + (tmpSpacing * tmpSpacing))
-  return hypotenuse
-}
-
-function getHypotenuse(datapoint1, datapoint2) {
-  triSide = datapoint1 - datapoint2
-  hypotenuse = Math.sqrt((triSide * triSide) + (spacing * spacing))
-  return hypotenuse
-}
-
-//Get the angle to place line in between nodes
-function getAngle(opposite, hypotenuse) {
-  let sine = Math.asin(opposite / hypotenuse)
-  //Convert from radians to degrees
-  sine = sine * (180 / Math.PI)
-
-  return sine;
-}
-
-function getIndex(id) {
-  for (let i = 0; i < data.length; ++i) {
-    if (id === data[i].image) {
-      return i;
-    }
-  }
-}
-
-
-
-
-
-
-
-
+//Important otherwise nodes would be too close together
+let scaleFactor = maxValue - minValue;  
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Defines class to be used for the objects of the values in momMap
@@ -283,13 +191,13 @@ for (let i = 0; i < momArray.length; ++i) {
 }
 
 console.log("Mom Array: ", momArray)
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
 
 
-
+//FIXME Optimize, double and even triple for loops not efficient, for loop too long
 
 //Makes each data entry a li in the chart
 let chartList = document.getElementById('chart')
@@ -299,6 +207,11 @@ for (let i = 0; i < data.length; ++i) {
 
   //Sets isMom to true or false so that only mom Node will get lines
   let isMom = false;
+  let hasSpouse = false;
+
+  if (data[i].spouse != null) {
+    hasSpouse = true;
+  }
 
   let childrenArray = []
 
@@ -311,72 +224,116 @@ for (let i = 0; i < data.length; ++i) {
     }
   }
 
-  /////////////////////////  /////////////////////////  /////////////////////////  /////////////////////////  /////////////////////////  /////////////////////////  /////////////////////////
-  //Makes each data entry a li in the chart
-  let bottom = getY(data[i].birthyear, maxValue, chartWidth)
-  let left = getLeft(chartWidth, data.length, i)
+  let yPos = getY(data[i].birthyear, maxValue, chartWidth)
+  let xPos = getX(chartWidth, data.length, i)
 
-  li.setAttribute('style', `--y: ${bottom}px; --x: ${left}px`)
-  /////////////////////////  /////////////////////////  /////////////////////////  /////////////////////////  /////////////////////////  /////////////////////////  /////////////////////////
+  li.setAttribute('style', `--y: ${yPos}px; --x: ${xPos}px`)
 
+  //Draws line to spouse
+  if (hasSpouse) {
 
+    let spouseYPos = getY(data[getIndex(data[i].spouse)].birthyear, maxValue, chartWidth)
+    let spouseXPos = getX(chartWidth, data.length, getIndex(data[i].spouse))
+    let spouseHypotenuse = test(yPos, spouseYPos, xPos, spouseXPos)
 
+    let spouseAngle = getAngle(yPos - spouseYPos, spouseHypotenuse)
 
+    if (spouseXPos < xPos) {
+      spouseAngle = (-1 * spouseAngle) + 180.5
+    }
 
-
-
-
-//TESTING
-  if (i == 0) {
-    console.log(childrenArray)
-
-    let testLeft = getLeft(chartWidth, data.length, 4)
-    let testBottom = getY(childrenArray[0][0][0].birthyear, maxValue, chartWidth)
-    let testHypotenuse = test(bottom, testBottom, left, testLeft)
-    let testAngle = getAngle(bottom - testBottom, testHypotenuse)
-
-    console.log("Bottom:", bottom)
-    console.log("testBottom:", testBottom)
-    console.log("testHypotenuse", testHypotenuse)
-    console.log("Angle:", testAngle)
-
-    li.innerHTML += `<div class="line-segment" style="--hypotenuse: ${testHypotenuse}; --angle: ${testAngle}"></div>`
-    li.innerHTML += `<div class="data-point" data-value="${data[i].birthyear}" ></div>`
-
-    chartList.appendChild(li)
-    continue
+    //if statement so that two spouse lines aren't drawn between spouses
+    if (spouseXPos > xPos) {
+      li.innerHTML +=`<div class="spouse-line" style="--hypotenuse: ${spouseHypotenuse}; --angle: ${spouseAngle}"></div>`
+    }
   }
 
 
-
-
-  //If mom should draw lines to each of the children
-  //FIXME number of lines are correct, do not go to Children
+  //If mom, should draw lines to each of the children
   if (isMom) {
-    let childBottom
+    let childYPos
     let childHypotenuse
 
     for (let j = 0; j < childrenArray[0].length; ++j) {
       
-      if (i+1 != data.length) {
-        childBottom = getY(childrenArray[0][j][0].birthyear, maxValue, chartWidth)
-        childLeft = getLeft(chartWidth, data.length, getIndex(childrenArray[0][j][0].image))
-        childHypotenuse = test(bottom, childBottom, left, childLeft)
+      childYPos = getY(childrenArray[0][j][0].birthyear, maxValue, chartWidth)
+      childXPos = getX(chartWidth, data.length, getIndex(childrenArray[0][j][0].image))
+      childHypotenuse = test(yPos, childYPos, xPos, childXPos)
+
+      let angle = getAngle(yPos - childYPos, childHypotenuse)
+
+      //Adjusts angle if child is before mom in x-axis
+      if (childXPos < xPos) {
+        angle = (-1 * angle) + 180.5
       }
 
-      let angle = getAngle(bottom - childBottom, childHypotenuse)
-
-      li.innerHTML += `<div class="line-segment" style="--hypotenuse: ${childHypotenuse}; --angle: ${angle}"></div>`
+      li.innerHTML += `<div class="child-line" style="--hypotenuse: ${childHypotenuse}; --angle: ${angle}"></div>`
     }
 
-    //Makes it so that data point is last thing added so that lines are beneath node
     li.innerHTML += `<div class="data-point" data-value="${data[i].birthyear}" ></div>`
 
   } else {
-    li.innerHTML = `<div class="data-point" data-value="${data[i].birthyear}" ></div>`
+    li.innerHTML += `<div class="data-point" data-value="${data[i].birthyear}" ></div>`
   }
 
+  chartList.appendChild(li)
+}
 
-  chartList.appendChild(li);
 
+
+
+
+
+function getY(value, maxValue, chartWidth) {
+  //Scales values so that it fits evenly in size of chart
+  //Makes it so that lowest value is top of graph
+  scaledValue = (Math.abs(value - maxValue)) * scaleFactor
+  scaledMaxValue = (Math.abs(minValue - maxValue)) * scaleFactor
+  let bottom = (scaledValue / scaledMaxValue) * chartWidth
+  return bottom;
+}
+
+function getX(chartWidth, numValues, positionInData) {
+  let left = (chartWidth / numValues) * (positionInData + 1)
+  return left;
+}
+
+function test(datapoint1, datapoint2, left1, left2) {
+  triSide = datapoint1 - datapoint2
+  tmpSpacing = left1 - left2
+  hypotenuse = Math.sqrt((triSide * triSide) + (tmpSpacing * tmpSpacing))
+  return hypotenuse
+}
+
+function getHypotenuse(datapoint1, datapoint2) {
+  triSide = datapoint1 - datapoint2
+  hypotenuse = Math.sqrt((triSide * triSide) + (spacing * spacing))
+  return hypotenuse
+}
+
+//Get the angle to place line in between nodes
+function getAngle(opposite, hypotenuse) {
+  let sine = Math.asin(opposite / hypotenuse)
+  //Convert from radians to degrees
+  sine = sine * (180 / Math.PI)
+
+  return sine;
+}
+
+function getIndex(id) {
+  for (let i = 0; i < data.length; ++i) {
+    if (id === data[i].image) {
+      return i;
+    }
+  }
+}
+
+//For testing with different data positions
+function randomizeDataOrder(data) {
+  for (let i = 0; i < data.length; ++i) {
+    let randomIndex = Math.floor(Math.random() * data.length)
+    let tmpVal = data[randomIndex]
+    data[randomIndex] = data[i]
+    data[i] = tmpVal
+  }
 }
