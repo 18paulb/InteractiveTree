@@ -37,8 +37,21 @@
   
 }
 
-.line-segment {
+.child-line {
   background-color: blue;
+  bottom: var(--y);
+  height: 3px;
+  left: var(--x);
+  position: absolute;
+
+  transform: rotate(calc(var(--angle) * 1deg)); 
+  transform-origin: left bottom;
+  width: calc(var(--hypotenuse) * 1px);
+  z-index: -1;
+}
+
+.spouse-line {
+  background-color: red;
   bottom: var(--y);
   height: 3px;
   left: var(--x);
@@ -47,4 +60,5 @@
   transform: rotate(calc(var(--angle) * 1deg));
   transform-origin: left bottom;
   width: calc(var(--hypotenuse) * 1px);
+  z-index: -1;
 }
