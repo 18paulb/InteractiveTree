@@ -9,4 +9,5 @@ urlpatterns = [
     path('draggable/', views.draggable, name='draggable'),
     path('tree/', views.tree, name='tree'),
     path('chart/', views.chart, name='tree'),
+    path('delete/', views.delete, name='delete')
 ]

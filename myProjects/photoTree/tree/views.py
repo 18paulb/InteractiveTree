@@ -16,3 +16,6 @@ def tree(request):
 
 def chart(request):
     return render(request, 'tree/chart.html')
+
+def delete(request):
+    return render(request, 'tree/delete.html')
