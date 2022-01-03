@@ -1,4 +1,3 @@
-
 let data = [
   {
     "image": 1,
@@ -212,4 +211,5 @@ for (let i = 0; i < momArray.length; ++i) {
     <span style='margin-top:5px;'>${year}</span></div>`
     kids.appendChild(li)
   }
+
 }
