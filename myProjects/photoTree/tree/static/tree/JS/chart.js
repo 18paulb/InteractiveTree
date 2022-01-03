@@ -107,6 +107,9 @@ let data = [
 //randomizeDataOrder(data)
 //console.log(data)
 
+
+//FIXME code is confusing with indexing, it is important that you fix
+
 //Variables to work with, will change if I need to change graph size
 let chartWidth = 900;
 let maxValue = 0;
@@ -130,7 +133,6 @@ let scaleFactor = maxValue - minValue;
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Defines class to be used for the objects of the values in momMap
 class mom {
-
   children = []
   spouse = null
 
@@ -198,7 +200,6 @@ console.log("Mom Array: ", momArray)
 
 
 //FIXME Optimize, double and even triple for loops not efficient, for loop too long
-
 //Makes each data entry a li in the chart
 let chartList = document.getElementById('chart')
 
@@ -228,14 +229,14 @@ for (let i = 0; i < data.length; ++i) {
   let xPos = getX(chartWidth, data.length, i)
 
   li.setAttribute('style', `--y: ${yPos}px; --x: ${xPos}px`)
+  li.setAttribute('id', i)
 
   //Draws line to spouse
   if (hasSpouse) {
 
-    let spouseYPos = getY(data[getIndex(data[i].spouse)].birthyear, maxValue, chartWidth)
-    let spouseXPos = getX(chartWidth, data.length, getIndex(data[i].spouse))
+    let spouseYPos = getY(data[getDataIndex(data[i].spouse)].birthyear, maxValue, chartWidth)
+    let spouseXPos = getX(chartWidth, data.length, getDataIndex(data[i].spouse))
     let spouseHypotenuse = test(yPos, spouseYPos, xPos, spouseXPos)
-
     let spouseAngle = getAngle(yPos - spouseYPos, spouseHypotenuse)
 
     if (spouseXPos < xPos) {
@@ -254,10 +255,12 @@ for (let i = 0; i < data.length; ++i) {
     let childYPos
     let childHypotenuse
 
+    //FIXME you don't need children array just use mom array
+    //Draws line to children
     for (let j = 0; j < childrenArray[0].length; ++j) {
       
       childYPos = getY(childrenArray[0][j][0].birthyear, maxValue, chartWidth)
-      childXPos = getX(chartWidth, data.length, getIndex(childrenArray[0][j][0].image))
+      childXPos = getX(chartWidth, data.length, getDataIndex(childrenArray[0][j][0].image))
       childHypotenuse = test(yPos, childYPos, xPos, childXPos)
 
       let angle = getAngle(yPos - childYPos, childHypotenuse)
@@ -320,10 +323,18 @@ function getAngle(opposite, hypotenuse) {
   return sine;
 }
 
-function getIndex(id) {
+function getDataIndex(id) {
   for (let i = 0; i < data.length; ++i) {
     if (id === data[i].image) {
       return i;
+    }
+  }
+}
+
+function getMomArrayIndex(array, id) {
+  for (let i = 0; i < array.length; ++i) {
+    if (array[i][0].image == id) {
+      return i
     }
   }
 }
