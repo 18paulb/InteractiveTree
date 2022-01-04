@@ -107,9 +107,6 @@ let data = [
 //randomizeDataOrder(data)
 //console.log(data)
 
-
-//FIXME code is confusing with indexing, it is important that you fix
-
 //Variables to work with, will change if I need to change graph size
 let chartWidth = 900;
 let maxValue = 0;
@@ -135,6 +132,7 @@ let scaleFactor = maxValue - minValue;
 class mom {
   children = []
   spouse = null
+  data = null
 
   addChild(child) {
     this.children.push(child)
@@ -143,97 +141,84 @@ class mom {
   addSpouse(spouse) {
     this.spouse = spouse;
   }
+
+  addData(data) {
+    this.data = data;
+  }
 }
 
-let momMap = new Map()
+let momArray = []
 
-//Initializes map with a key of each person in data inputs
 for (let i = 0; i < data.length; ++i) {
-  momMap.set(data[i], new mom())
+  momArray.push([])
+  momArray[i].push(new mom)
 }
 
-//Appends children and husbands to key of mothers, appends to Object data members 
+//Pushes children to moms
 for (let i = 0; i < data.length; ++i) {
-  if (data[i].mother != null) { 
+  if (data[i].mother != null) {
     for (let j = 0; j < data.length; j++) {
       if (data[j].image == data[i].mother) {
-        let mom = data[j]
-        momMap.get(mom).addChild([data[i]])
+        momArray[j][0].children.push(data[i])
       }
     }
   }
+}
+
+//Pushes spouse to moms
+for (let i = 0; i < data.length; ++i) {
   if (data[i].spouse != null) {
     for (let j = 0; j < data.length; j++) {
       if (data[j].image == data[i].spouse) {
-        let spouse = data[j]
-        momMap.get(spouse).addSpouse([data[i]])
+        momArray[j][0].spouse = data[j].image
       }
     }
   }
 }
 
-//Cleans out map so that non-mothers are deleted, since tree is based around Mothers others shouldn't be needed
-for (let [key, value] of  momMap.entries()) {
-  if (value.children.length === 0) {
-    momMap.delete(key)
-  }
+//Pushes data to mom
+for (let i = 0; i < data.length; ++i) {
+  momArray[i][0].data = data[i]
 }
 
-//Makes an array out of map to sort (bubble sort) mothers from oldest to newest birthyear (oldest first) 
-momArray = Array.from(momMap)
-
+//Cleaning Up Array to only leave moms
+let tmpMomArray = []
 for (let i = 0; i < momArray.length; ++i) {
-  for(let j = 0; j < momArray.length - i - 1; ++j) {
-    if (momArray[j][0].birthyear > momArray[j+1][0].birthyear) {
-      let tmp = momArray[j+1]
-      momArray[j+1] = momArray[j]
-      momArray[j] = tmp
-    }
+  if (momArray[i][0].children.length != 0) {
+    tmpMomArray.push(momArray[i])
   }
 }
+momArray = tmpMomArray
 
 console.log("Mom Array: ", momArray)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-
-
-
-//FIXME Optimize, double and even triple for loops not efficient, for loop too long
-//Makes each data entry a li in the chart
 let chartList = document.getElementById('chart')
 
+//Creates Data Points
 for (let i = 0; i < data.length; ++i) {
   let li = document.createElement('li')
 
-  //Sets isMom to true or false so that only mom Node will get lines
-  let isMom = false;
-  let hasSpouse = false;
-
-  if (data[i].spouse != null) {
-    hasSpouse = true;
-  }
-
-  let childrenArray = []
-
-  //Initializes an array for this iteration of loop containing children
-  for (let j = 0; j < momArray.length; ++j) {
-    if (momArray[j][0].image == data[i].image) {   
-      isMom = true;
-      childrenArray.push(momArray[j][1].children)
-      break;
-    }
-  }
-
-  let yPos = getY(data[i].birthyear, maxValue, chartWidth)
-  let xPos = getX(chartWidth, data.length, i)
+  yPos = getY(data[i].birthyear, maxValue, chartWidth)
+  xPos = getX(chartWidth, data.length, i)
 
   li.setAttribute('style', `--y: ${yPos}px; --x: ${xPos}px`)
   li.setAttribute('id', i)
 
-  //Draws line to spouse
-  if (hasSpouse) {
+  li.innerHTML += `<div class="data-point" data-value="${data[i].birthyear}" ></div>`
 
+  chartList.appendChild(li)
+}
+
+//Draws Line Connecting to Spouse
+for (let i = 0; i < data.length; ++i) {
+  let li = document.getElementById(i)
+
+  yPos = getY(data[i].birthyear, maxValue, chartWidth)
+  xPos = getX(chartWidth, data.length, i)
+
+  if (data[i].spouse != null) {
     let spouseYPos = getY(data[getDataIndex(data[i].spouse)].birthyear, maxValue, chartWidth)
     let spouseXPos = getX(chartWidth, data.length, getDataIndex(data[i].spouse))
     let spouseHypotenuse = test(yPos, spouseYPos, xPos, spouseXPos)
@@ -245,24 +230,34 @@ for (let i = 0; i < data.length; ++i) {
 
     //if statement so that two spouse lines aren't drawn between spouses
     if (spouseXPos > xPos) {
-      li.innerHTML +=`<div class="spouse-line" style="--hypotenuse: ${spouseHypotenuse}; --angle: ${spouseAngle}"></div>`
+      li.innerHTML += `<div class="spouse-line" style="--hypotenuse: ${spouseHypotenuse}; --angle: ${spouseAngle}"></div>`
+    }
+  }
+}
+
+//Draws lines from mothers to children
+//FIXME Optimize Further
+for (let i = 0; i < data.length; ++i) {
+  let isMom = false;
+  for (let j = 0; j < momArray.length; ++j) {
+    if (momArray[j][0].data.image == data[i].image) {   
+      isMom = true;
+      break;
     }
   }
 
-
-  //If mom, should draw lines to each of the children
   if (isMom) {
-    let childYPos
-    let childHypotenuse
+    let li = document.getElementById(i)
 
-    //FIXME you don't need children array just use mom array
-    //Draws line to children
-    for (let j = 0; j < childrenArray[0].length; ++j) {
-      
-      childYPos = getY(childrenArray[0][j][0].birthyear, maxValue, chartWidth)
-      childXPos = getX(chartWidth, data.length, getDataIndex(childrenArray[0][j][0].image))
-      childHypotenuse = test(yPos, childYPos, xPos, childXPos)
+    yPos = getY(data[i].birthyear, maxValue, chartWidth)
+    xPos = getX(chartWidth, data.length, i)
 
+    let index = getMomArrayIndex(momArray, data[i].image)
+    //debugger
+    for (let j = 0; j < momArray[index][0].children.length; ++j) {
+      let childYPos = getY(momArray[index][0].children[j].birthyear, maxValue, chartWidth)
+      let childXPos = getX(chartWidth, data.length, getDataIndex(momArray[index][0].children[j].image))
+      let childHypotenuse = test(yPos, childYPos, xPos, childXPos)
       let angle = getAngle(yPos - childYPos, childHypotenuse)
 
       //Adjusts angle if child is before mom in x-axis
@@ -272,15 +267,11 @@ for (let i = 0; i < data.length; ++i) {
 
       li.innerHTML += `<div class="child-line" style="--hypotenuse: ${childHypotenuse}; --angle: ${angle}"></div>`
     }
-
-    li.innerHTML += `<div class="data-point" data-value="${data[i].birthyear}" ></div>`
-
-  } else {
-    li.innerHTML += `<div class="data-point" data-value="${data[i].birthyear}" ></div>`
   }
-
-  chartList.appendChild(li)
 }
+
+
+
 
 
 
@@ -333,7 +324,7 @@ function getDataIndex(id) {
 
 function getMomArrayIndex(array, id) {
   for (let i = 0; i < array.length; ++i) {
-    if (array[i][0].image == id) {
+    if (array[i][0].data.image == id) {
       return i
     }
   }
