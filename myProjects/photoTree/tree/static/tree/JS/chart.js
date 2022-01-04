@@ -141,10 +141,6 @@ class mom {
   addSpouse(spouse) {
     this.spouse = spouse;
   }
-
-  addData(data) {
-    this.data = data;
-  }
 }
 
 let momArray = []
