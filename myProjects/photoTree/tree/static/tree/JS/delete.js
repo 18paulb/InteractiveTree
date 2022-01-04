@@ -220,7 +220,7 @@ for (let i = 0; i < data.length; ++i) {
   li.setAttribute('id', i)
   li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`)
 
-  li.innerHTML += `<div class="data-point" data-value="${data[i].birthyear}" ><button id='button${i}' onclick='getID()'></button></div>`
+  li.innerHTML += `<div class="data-point" data-value="${data[i].birthyear}" ><button id='button${i}' onclick='test(${i})'></button></div>`
 
   chartList.appendChild(li)
 }
@@ -285,6 +285,10 @@ for (let i = 0; i < data.length; ++i) {
   }
 }
 
+
+function test(id) {
+  console.log(id)
+}
 
 
 
