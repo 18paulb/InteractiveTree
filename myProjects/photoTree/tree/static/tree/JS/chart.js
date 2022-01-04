@@ -190,17 +190,29 @@ console.log("Mom Array: ", momArray)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+//TODO Will want to have middle child in array be exactly under mom, xPos will be same and other children will calculate around that
+
+//TESTING Changing Data to better organize tree
+
+
 let chartList = document.getElementById('chart')
 
 //Creates Data Points
 for (let i = 0; i < data.length; ++i) {
+  //debugger
   let li = document.createElement('li')
 
   yPos = getY(data[i].birthyear, maxValue, chartWidth)
   xPos = getX(chartWidth, data.length, i)
 
-  li.setAttribute('style', `--y: ${yPos}px; --x: ${xPos}px`)
+  //FIXME Sometimes some spouses are not technically children
+  if (isChild(data[i])) {
+    let avgYear = getAvgYear(getSiblings(data[i]))
+    yPos = getY(avgYear, maxValue, chartWidth)
+  }
+
   li.setAttribute('id', i)
+  li.setAttribute('style', `--y: ${yPos}px; --x: ${Math.round(xPos)}px`)
 
   li.innerHTML += `<div class="data-point" data-value="${data[i].birthyear}" ></div>`
 
@@ -215,9 +227,15 @@ for (let i = 0; i < data.length; ++i) {
   xPos = getX(chartWidth, data.length, i)
 
   if (data[i].spouse != null) {
+
+    //FIXME Not working
+    //let avgYear = getAvgYear(getSiblings(data[data[i].spouse - 1]))
+    //console.log(avgYear)
+    //let spouseYPos = getY(avgYear, maxValue, chartWidth)
+
     let spouseYPos = getY(data[getDataIndex(data[i].spouse)].birthyear, maxValue, chartWidth)
     let spouseXPos = getX(chartWidth, data.length, getDataIndex(data[i].spouse))
-    let spouseHypotenuse = test(yPos, spouseYPos, xPos, spouseXPos)
+    let spouseHypotenuse = getHypotenuse(yPos, spouseYPos, xPos, spouseXPos)
     let spouseAngle = getAngle(yPos - spouseYPos, spouseHypotenuse)
 
     if (spouseXPos < xPos) {
@@ -234,26 +252,25 @@ for (let i = 0; i < data.length; ++i) {
 //Draws lines from mothers to children
 //FIXME Optimize Further
 for (let i = 0; i < data.length; ++i) {
-  let isMom = false;
-  for (let j = 0; j < momArray.length; ++j) {
-    if (momArray[j][0].data.image == data[i].image) {   
-      isMom = true;
-      break;
-    }
-  }
 
-  if (isMom) {
+  if (isMom(data[i])) {
     let li = document.getElementById(i)
 
     yPos = getY(data[i].birthyear, maxValue, chartWidth)
     xPos = getX(chartWidth, data.length, i)
 
     let index = getMomArrayIndex(momArray, data[i].image)
-    //debugger
+
     for (let j = 0; j < momArray[index][0].children.length; ++j) {
+
+      //FIXME something wrong if it is just single child
+      //let avgYear = getAvgYear(getSiblings(momArray[index][0].children[j]))
+      //let childYPos = getY(avgYear, maxValue, chartWidth)
+      //console.log(avgYear)
+
       let childYPos = getY(momArray[index][0].children[j].birthyear, maxValue, chartWidth)
       let childXPos = getX(chartWidth, data.length, getDataIndex(momArray[index][0].children[j].image))
-      let childHypotenuse = test(yPos, childYPos, xPos, childXPos)
+      let childHypotenuse = getHypotenuse(yPos, childYPos, xPos, childXPos)
       let angle = getAngle(yPos - childYPos, childHypotenuse)
 
       //Adjusts angle if child is before mom in x-axis
@@ -271,12 +288,12 @@ for (let i = 0; i < data.length; ++i) {
 
 
 
-
+//FIXME for functions with id as parameter, consider making it take in entire data object rather than just image as it makes it easier to read in code
 
 
 function getY(value, maxValue, chartWidth) {
   //Scales values so that it fits evenly in size of chart
-  //Makes it so that lowest value is top of graph
+  //Makes it so that lowest value (oldest person) is top of graph
   scaledValue = (Math.abs(value - maxValue)) * scaleFactor
   scaledMaxValue = (Math.abs(minValue - maxValue)) * scaleFactor
   let bottom = (scaledValue / scaledMaxValue) * chartWidth
@@ -288,16 +305,10 @@ function getX(chartWidth, numValues, positionInData) {
   return left;
 }
 
-function test(datapoint1, datapoint2, left1, left2) {
+function getHypotenuse(datapoint1, datapoint2, left1, left2) {
   triSide = datapoint1 - datapoint2
   tmpSpacing = left1 - left2
   hypotenuse = Math.sqrt((triSide * triSide) + (tmpSpacing * tmpSpacing))
-  return hypotenuse
-}
-
-function getHypotenuse(datapoint1, datapoint2) {
-  triSide = datapoint1 - datapoint2
-  hypotenuse = Math.sqrt((triSide * triSide) + (spacing * spacing))
   return hypotenuse
 }
 
@@ -334,4 +345,53 @@ function randomizeDataOrder(data) {
     data[randomIndex] = data[i]
     data[i] = tmpVal
   }
+}
+
+//Possible functions I might need
+
+
+function getSiblings(child) {
+  let allChildren = []
+  let mother = child.mother
+  for (let i = 0; i < data.length; ++i) {
+    if (data[i].mother == mother) {
+      allChildren.push(data[i])
+    }
+  }
+
+  if (allChildren.length == 0) {
+    allChildren.push(child)
+  }
+
+  return allChildren
+}
+
+//This is probably redundant
+function getAvgYear(array) {
+  let avg = 0
+  for (let i = 0; i < array.length; ++i) {
+    avg += array[i].birthyear
+  }
+  avg = avg / array.length
+
+  return avg
+}
+
+function isChild(node) {
+  if (node.mother != null) {
+    return true
+  } else {
+    return false
+  }
+}
+
+function isMom(node) {
+  let isMom = false;
+  for (let j = 0; j < momArray.length; ++j) {
+    if (momArray[j][0].data.image == node.image) {   
+      isMom = true;
+      break;
+    }
+  }
+  return isMom
 }
