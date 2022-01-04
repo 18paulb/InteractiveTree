@@ -1,4 +1,3 @@
-
 let data = [
   {
     "image": 1,
