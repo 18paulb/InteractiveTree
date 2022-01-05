@@ -103,7 +103,6 @@ let data = [
   },
 ]
 
-//For testing
 //randomizeDataOrder(data)
 //console.log(data)
 
@@ -196,67 +195,8 @@ console.log(data)
 let chartList = document.getElementById('chart')
 
 createDataPoints(chartList)
-
-
-//Draws Line Connecting to Spouse
-for (let i = 0; i < data.length; ++i) {
-  let li = document.getElementById(i)
-
-  yPos = parseAttribute('y', li.getAttribute('style'))
-  xPos = parseAttribute('x', li.getAttribute('style'))
-
-  if (data[i].spouse != null) {
-
-    //FIXME
-    let spouseLi = document.getElementById(data[i].spouse)
-    //let testspouseYPos = parseAttribute('y', spouseLi.getAttribute('style'), maxValue, chartWidth)
-    //console.log("Test:", testspouseYPos)
-    //let int = parseAttribute('y', spouseLi.getAttribute('style'), maxValue, chartWidth)
-
-    let spouseYPos = getY(data[getDataIndex(data[i].spouse)].birthyear, maxValue, chartWidth)
-    //console.log("Real", spouseYPos)
-    let spouseXPos = getX(chartWidth, data.length, getDataIndex(data[i].spouse))
-    let spouseHypotenuse = getHypotenuse(yPos, spouseYPos, xPos, spouseXPos)
-    let spouseAngle = getAngle(yPos - spouseYPos, spouseHypotenuse)
-
-    if (spouseXPos < xPos) {
-      spouseAngle = (-1 * spouseAngle) + 180.5
-    }
-
-    //if statement so that two spouse lines aren't drawn between spouses
-    if (spouseXPos > xPos) {
-      li.innerHTML += `<div class="spouse-line" style="--hypotenuse: ${spouseHypotenuse}; --angle: ${spouseAngle}"></div>`
-    }
-  }
-}
-
-//Draws lines from mothers to children
-for (let i = 0; i < data.length; ++i) {
-
-  if (isMom(data[i])) {
-    let li = document.getElementById(i)
-
-    yPos = parseAttribute('y', li.getAttribute('style'))
-    xPos = parseAttribute('x', li.getAttribute('style'))
-    
-    let index = getMomArrayIndex(momArray, data[i].image)
-
-    for (let j = 0; j < momArray[index][0].children.length; ++j) {
-
-      let childYPos = getY(momArray[index][0].children[j].birthyear, maxValue, chartWidth)
-      let childXPos = getX(chartWidth, data.length, getDataIndex(momArray[index][0].children[j].image))
-      let childHypotenuse = getHypotenuse(yPos, childYPos, xPos, childXPos)
-      let angle = getAngle(yPos - childYPos, childHypotenuse)
-
-      //Adjusts angle if child is before mom in x-axis
-      if (childXPos < xPos) {
-        angle = (-1 * angle) + 180.5
-      }
-
-      li.innerHTML += `<div class="child-line" style="--hypotenuse: ${childHypotenuse}; --angle: ${angle}"></div>`
-    }
-  }
-}
+createChildLines()
+createSpouseLines()
 
 //Creates Data Points
 function createDataPoints(chart) {
@@ -270,11 +210,69 @@ function createDataPoints(chart) {
 
     li.setAttribute('id', i)
     li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`)
-    li.innerHTML += `<div class="data-point" data-value="${data[i].birthyear}" ><button id='button${i+1}' onclick='addToConfirmBox(${i+1})'></button></div>`
+    li.innerHTML += `<div class="data-point" data-value="${data[i].birthyear}"><button id='button${i+1}' onclick='addToConfirmBox(${i+1})'></button></div>`
   
     chart.appendChild(li)
   }
 }
+
+//Draws Line To Children
+function createChildLines() {
+  for (let i = 0; i < data.length; ++i) {
+
+    if (isMom(data[i])) {
+      let li = document.getElementById(i)
+  
+      yPos = parseAttribute('y', li.getAttribute('style'))
+      xPos = parseAttribute('x', li.getAttribute('style'))
+      
+      let index = getMomArrayIndex(momArray, data[i].image)
+  
+      for (let j = 0; j < momArray[index][0].children.length; ++j) {
+  
+        let childYPos = getY(momArray[index][0].children[j].birthyear, maxValue, chartWidth)
+        let childXPos = getX(chartWidth, data.length, getDataIndex(momArray[index][0].children[j].image))
+        let childHypotenuse = getHypotenuse(yPos, childYPos, xPos, childXPos)
+        let angle = getAngle(yPos - childYPos, childHypotenuse)
+  
+        //Adjusts angle if child is before mom in x-axis
+        if (childXPos < xPos) {
+          angle = (-1 * angle) + 180.5
+        }
+  
+        li.innerHTML += `<div class="child-line" style="--hypotenuse: ${childHypotenuse}; --angle: ${angle}"></div>`
+      }
+    }
+  }
+}
+
+//Draws Line Connecting to Spouse
+function createSpouseLines() {
+  for (let i = 0; i < data.length; ++i) {
+    let li = document.getElementById(i)
+
+    yPos = parseAttribute('y', li.getAttribute('style'))
+    xPos = parseAttribute('x', li.getAttribute('style'))
+
+    if (data[i].spouse != null) {
+
+      let spouseYPos = getY(data[getDataIndex(data[i].spouse)].birthyear, maxValue, chartWidth)
+      let spouseXPos = getX(chartWidth, data.length, getDataIndex(data[i].spouse))
+      let spouseHypotenuse = getHypotenuse(yPos, spouseYPos, xPos, spouseXPos)
+      let spouseAngle = getAngle(yPos - spouseYPos, spouseHypotenuse)
+
+      if (spouseXPos < xPos) {
+        spouseAngle = (-1 * spouseAngle) + 180.5
+      }
+
+      //if statement so that two spouse lines aren't drawn between spouses
+      if (spouseXPos > xPos) {
+        li.innerHTML += `<div class="spouse-line" style="--hypotenuse: ${spouseHypotenuse}; --angle: ${spouseAngle}"></div>`
+      }
+    }
+  }
+}
+
 
 function removeAllChildNodes(parent) {
   while (parent.firstChild) {
@@ -284,31 +282,44 @@ function removeAllChildNodes(parent) {
 
 function removeRelationship(childId, momId) {
   //removes Child from momArray
+  let isRelated = false
   for (let i = 0; i < momArray.length; ++i) {
-
     if (momArray[i][0].data.image == momId) {
-
       for (let j = 0; j < momArray[i][0].children.length; ++j) {
         let childArray = momArray[i][0].children
         if (childArray[j].image == childId) {
+          isRelated = true;
           childArray.splice(j,1)
           break;
         }
       }
     }
-    break;
   }
-  
-  //Adds node to temporary confirm box
-  //TODO add if statement to make sure it is done correctly before erasing from 
+
   let box = document.getElementById('confirmBox');
+
+  if (!isRelated) {
+    box.innerHTML += "<p>Error: Are Not Related</p>"
+    return
+  }
+
+  createDataPoints(chartList)
+  createChildLines();
+  createSpouseLines();
+
+
   box.innerHTML = "<button class='remove-relationship-buttton' onclick='removeRelationship()'>Remove Relationship</button>"
 }
+
 function addToConfirmBox(id) {
   let box = document.getElementById('confirmBox')
 
-  box.innerHTML += `<img class='node-image' src='../../static/tree/images/pictures/${id}.PNG'/>`
+  box.innerHTML += `<img id='node${id}' class='node-image' src='../../static/tree/images/pictures/${id}.PNG'/>`
+
+  //let removeButton = document.getElementById('removeButton')
+  //removeButton.onclick = removeRelationship(something, something)
 }
+
 
 
 
@@ -376,56 +387,6 @@ function randomizeDataOrder(data) {
 }
 
 //Possible functions I might need
-
-
-function getSiblings(node) {
-  let allChildren = []
-  let mother = node.mother
-  for (let i = 0; i < data.length; ++i) {
-    if (data[i].mother == mother) {
-      allChildren.push(data[i])
-    }
-  }
-
-  if (allChildren.length == 0) {
-    allChildren.push(child)
-  }
-
-  return allChildren
-}
-
-//Probably not needed
-function hasSiblings(node) {
-  let mother = node.mother
-  let hasSiblings = false;
-  for (let i = 0; i < data.length; ++i) {
-    if (data[i].mother == mother) {
-      hasSiblings = true;
-    }
-  }
-
-  return hasSiblings
-}
-
-//This is probably redundant
-function getAvgYear(array) {
-  let avg = 0
-  for (let i = 0; i < array.length; ++i) {
-    avg += array[i].birthyear
-  }
-  avg = avg / array.length
-
-  return avg
-}
-
-function isChild(node) {
-  if (node.mother != null) {
-    return true
-  } else {
-    return false
-  }
-}
-
 function isMom(node) {
   let isMom = false;
   for (let j = 0; j < momArray.length; ++j) {
