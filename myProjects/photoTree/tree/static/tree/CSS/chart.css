@@ -62,3 +62,26 @@
   width: calc(var(--hypotenuse) * 1px);
   z-index: -1;
 }
+
+
+.footer-box {
+  display: flex;
+  border: 1px solid black;
+  width: 100%;
+}
+
+.node-container {
+  display: flex;
+  justify-content: space-around;
+}
+
+.footer-node {
+  display: flex;
+  border: 1px solid red;
+}
+
+.confirm-box {
+  display: flex;
+  border: 1px solid green;
+  width: 25%;
+}

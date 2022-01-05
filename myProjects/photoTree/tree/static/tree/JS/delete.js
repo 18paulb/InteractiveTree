@@ -220,7 +220,7 @@ for (let i = 0; i < data.length; ++i) {
   li.setAttribute('id', i)
   li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`)
 
-  li.innerHTML += `<div class="data-point" data-value="${data[i].birthyear}" ><button id='button${i}' onclick='test(${i})'></button></div>`
+  li.innerHTML += `<div class="data-point" data-value="${data[i].birthyear}" ><button id='button${i+1}' onclick='addToConfirmBox(${i+1})'></button></div>`
 
   chartList.appendChild(li)
 }
@@ -289,6 +289,26 @@ for (let i = 0; i < data.length; ++i) {
 function test(id) {
   console.log(id)
 }
+
+
+
+function removeRelationship() {
+  let box = document.getElementById('confirmBox')
+  box.innerHTML = "<button onclick='removeRelationship()'>Remove Relationship</button>"
+}
+
+function addToConfirmBox(id) {
+  let box = document.getElementById('confirmBox')
+
+  box.innerHTML += `<img src='../../static/tree/images/pictures/${id}.PNG'/>`
+}
+
+
+
+
+
+
+
 
 
 
