@@ -67,12 +67,17 @@
 .footer-box {
   display: flex;
   border: 1px solid black;
+  justify-content: space-between;
   width: 100%;
 }
 
 .node-container {
   display: flex;
-  justify-content: space-around;
+  justify-content: space-between;
+}
+
+.node-image {
+  width: 100px;
 }
 
 .footer-node {
@@ -83,5 +88,8 @@
 .confirm-box {
   display: flex;
   border: 1px solid green;
-  width: 25%;
+}
+
+.remove-relationship-button {
+  display: flex;
 }

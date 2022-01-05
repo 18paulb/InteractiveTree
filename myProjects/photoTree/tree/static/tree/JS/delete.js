@@ -195,35 +195,8 @@ console.log(data)
 
 let chartList = document.getElementById('chart')
 
-//Creates Data Points
-for (let i = 0; i < data.length; ++i) {
+createDataPoints(chartList)
 
-  let li = document.createElement('li')
-
-  yPos = getY(data[i].birthyear, maxValue, chartWidth)
-  xPos = getX(chartWidth, data.length, i)
-
-  if (isChild(data[i])) {
-    let avgYear = getAvgYear(getSiblings(data[i]))
-    //yPos = getY(avgYear, maxValue, chartWidth)
-  }
-
-  if (data[i].spouse != null) {
-    //FIXME this if statement probably won't hold well
-    if (getDataIndex(data[i].spouse) < i) {
-    let spouseYear = data[data[i].spouse - 1].birthyear
-    yPos = getY(spouseYear, maxValue, chartWidth)
-    }
-  }
-  
-
-  li.setAttribute('id', i)
-  li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`)
-
-  li.innerHTML += `<div class="data-point" data-value="${data[i].birthyear}" ><button id='button${i+1}' onclick='addToConfirmBox(${i+1})'></button></div>`
-
-  chartList.appendChild(li)
-}
 
 //Draws Line Connecting to Spouse
 for (let i = 0; i < data.length; ++i) {
@@ -285,22 +258,56 @@ for (let i = 0; i < data.length; ++i) {
   }
 }
 
+//Creates Data Points
+function createDataPoints(chart) {
+  //In case you have to redraw chart
+  removeAllChildNodes(chart)
 
-function test(id) {
-  console.log(id)
+  for (let i = 0; i < data.length; ++i) {
+    let li = document.createElement('li')
+    yPos = getY(data[i].birthyear, maxValue, chartWidth)
+    xPos = getX(chartWidth, data.length, i)
+
+    li.setAttribute('id', i)
+    li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`)
+    li.innerHTML += `<div class="data-point" data-value="${data[i].birthyear}" ><button id='button${i+1}' onclick='addToConfirmBox(${i+1})'></button></div>`
+  
+    chart.appendChild(li)
+  }
 }
 
-
-
-function removeRelationship() {
-  let box = document.getElementById('confirmBox')
-  box.innerHTML = "<button onclick='removeRelationship()'>Remove Relationship</button>"
+function removeAllChildNodes(parent) {
+  while (parent.firstChild) {
+      parent.removeChild(parent.firstChild);
+  }
 }
 
+function removeRelationship(childId, momId) {
+  //removes Child from momArray
+  for (let i = 0; i < momArray.length; ++i) {
+
+    if (momArray[i][0].data.image == momId) {
+
+      for (let j = 0; j < momArray[i][0].children.length; ++j) {
+        let childArray = momArray[i][0].children
+        if (childArray[j].image == childId) {
+          childArray.splice(j,1)
+          break;
+        }
+      }
+    }
+    break;
+  }
+  
+  //Adds node to temporary confirm box
+  //TODO add if statement to make sure it is done correctly before erasing from 
+  let box = document.getElementById('confirmBox');
+  box.innerHTML = "<button class='remove-relationship-buttton' onclick='removeRelationship()'>Remove Relationship</button>"
+}
 function addToConfirmBox(id) {
   let box = document.getElementById('confirmBox')
 
-  box.innerHTML += `<img src='../../static/tree/images/pictures/${id}.PNG'/>`
+  box.innerHTML += `<img class='node-image' src='../../static/tree/images/pictures/${id}.PNG'/>`
 }
 
 
