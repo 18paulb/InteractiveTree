@@ -273,7 +273,6 @@ function createSpouseLines() {
   }
 }
 
-
 function removeAllChildNodes(parent) {
   while (parent.firstChild) {
       parent.removeChild(parent.firstChild);
@@ -307,7 +306,6 @@ function removeRelationship(childId, momId) {
   createChildLines();
   createSpouseLines();
 
-
   box.innerHTML = "<button class='remove-relationship-buttton' onclick='removeRelationship()'>Remove Relationship</button>"
 }
 
@@ -316,8 +314,6 @@ function addToConfirmBox(id) {
 
   box.innerHTML += `<img id='node${id}' class='node-image' src='../../static/tree/images/pictures/${id}.PNG'/>`
 
-  //let removeButton = document.getElementById('removeButton')
-  //removeButton.onclick = removeRelationship(something, something)
 }
 
 
