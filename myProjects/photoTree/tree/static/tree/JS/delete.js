@@ -103,6 +103,8 @@ let data = [
   },
 ]
 
+let nodeBoxData = []
+
 //randomizeDataOrder(data)
 //console.log(data)
 
@@ -184,9 +186,7 @@ for (let i = 0; i < momArray.length; ++i) {
   }
 }
 momArray = tmpMomArray
-
 console.log("Mom Array: ", momArray)
-console.log(data)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -194,9 +194,89 @@ console.log(data)
 
 let chartList = document.getElementById('chart')
 
-createDataPoints(chartList)
-createChildLines()
-createSpouseLines()
+createChart(chartList)
+
+function removeAllChildNodes(parent) {
+  while (parent.firstChild) {
+      parent.removeChild(parent.firstChild);
+  }
+}
+
+function removeRelationship(childId, momId) {
+  //removes Child from momArray
+  let isRelated = false
+  for (let i = 0; i < momArray.length; ++i) {
+    if (momArray[i][0].data.image == momId || momArray[i][0].data.image == childId) {
+      for (let j = 0; j < momArray[i][0].children.length; ++j) {
+        let childArray = momArray[i][0].children
+        if (childArray[j].image == childId || childArray[j].image == momId) {
+          isRelated = true;
+          childArray.splice(j,1)
+
+          //FIXME updating nodeBoxData, data
+          //nodeBoxData.push(data[childArray[j].image - 1])
+          //data.splice(childArray[j].image - 1, 1)
+
+          break;
+        }
+      }
+    }
+  }
+
+  let box = document.getElementById('confirmBox');
+
+  if (!isRelated) {
+    alert("Error, are not related.")
+  }
+
+  createChart(chartList)
+
+  box.innerHTML = ''
+}
+
+
+//FIXME Works but make better, taking substr of Id is hardly ideal
+function changeButtonParameters() {
+  let box = document.getElementById('confirmBox')
+  let children = []
+
+  for (let i = 0; i < box.children.length; ++i) {
+    children.push(box.children[i].id.substr(4))
+  }
+
+  let button = document.getElementById('removeButton')
+
+  if (children.length != 0) {
+    let param1 = children[0]
+    let param2 = children[1]
+    button.setAttribute('onclick',`changeButtonParameters(), removeRelationship(${param1}, ${param2})`)
+  }
+}
+
+
+function addToConfirmBox(id) {
+  let box = document.getElementById('confirmBox')
+  let nodeId = `node${id}`
+  let img = document.createElement('img')
+
+  img.setAttribute('id', nodeId)
+  img.setAttribute('class', 'node-image')
+  img.setAttribute('src', `../../static/tree/images/pictures/${id}.PNG`)
+
+  box.appendChild(img)
+
+  changeButtonParameters()
+}
+
+
+
+
+
+function createChart(chart) {
+  createDataPoints(chart)
+  createChildLines()
+  createSpouseLines()
+}
 
 //Creates Data Points
 function createDataPoints(chart) {
@@ -272,58 +352,6 @@ function createSpouseLines() {
     }
   }
 }
-
-function removeAllChildNodes(parent) {
-  while (parent.firstChild) {
-      parent.removeChild(parent.firstChild);
-  }
-}
-
-function removeRelationship(childId, momId) {
-  //removes Child from momArray
-  let isRelated = false
-  for (let i = 0; i < momArray.length; ++i) {
-    if (momArray[i][0].data.image == momId) {
-      for (let j = 0; j < momArray[i][0].children.length; ++j) {
-        let childArray = momArray[i][0].children
-        if (childArray[j].image == childId) {
-          isRelated = true;
-          childArray.splice(j,1)
-          break;
-        }
-      }
-    }
-  }
-
-  let box = document.getElementById('confirmBox');
-
-  if (!isRelated) {
-    box.innerHTML += "<p>Error: Are Not Related</p>"
-    return
-  }
-
-  createDataPoints(chartList)
-  createChildLines();
-  createSpouseLines();
-
-  box.innerHTML = "<button class='remove-relationship-buttton' onclick='removeRelationship()'>Remove Relationship</button>"
-}
-
-function addToConfirmBox(id) {
-  let box = document.getElementById('confirmBox')
-
-  box.innerHTML += `<img id='node${id}' class='node-image' src='../../static/tree/images/pictures/${id}.PNG'/>`
-
-}
-
-
-
-
-
-
-
-
-
 
 
 function getY(value, maxValue, chartWidth) {
