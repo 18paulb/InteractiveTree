@@ -105,9 +105,6 @@ let data = [
 
 let nodeBoxData = []
 
-//randomizeDataOrder(data)
-//console.log(data)
-
 //Variables to work with, will change if I need to change graph size
 let chartWidth = 900;
 let maxValue = 0;
@@ -190,8 +187,6 @@ console.log("Mom Array: ", momArray)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-//TODO Will want to have middle child in array be exactly under mom, xPos will be same and other children will calculate around that
-
 let chartList = document.getElementById('chart')
 
 createChart(chartList)
@@ -202,20 +197,25 @@ function removeAllChildNodes(parent) {
   }
 }
 
-function removeRelationship(childId, momId) {
+function removeRelationship(id1, id2) {
   //removes Child from momArray
   let isRelated = false
+  //debugger
   for (let i = 0; i < momArray.length; ++i) {
-    if (momArray[i][0].data.image == momId || momArray[i][0].data.image == childId) {
+    if (momArray[i][0].data.image == id2 || momArray[i][0].data.image == id1) {
       for (let j = 0; j < momArray[i][0].children.length; ++j) {
         let childArray = momArray[i][0].children
-        if (childArray[j].image == childId || childArray[j].image == momId) {
+        if (childArray[j].image == id1 || childArray[j].image == id2) {
           isRelated = true;
-          childArray.splice(j,1)
 
-          //FIXME updating nodeBoxData, data
-          //nodeBoxData.push(data[childArray[j].image - 1])
-          //data.splice(childArray[j].image - 1, 1)
+          let childDataIndex = getDataIndex(childArray[j].image)
+
+          childArray.splice(j,1)
+          
+          data.splice(childDataIndex,1)
+
+          console.log("Data", data)
+          //console.log("NodeBox",  nodeBoxData)
 
           break;
         }
@@ -235,7 +235,6 @@ function removeRelationship(childId, momId) {
 }
 
 
-//FIXME Works but make better, taking substr of Id is hardly ideal
 function changeButtonParameters() {
   let box = document.getElementById('confirmBox')
   let children = []
@@ -268,10 +267,6 @@ function addToConfirmBox(id) {
   changeButtonParameters()
 }
 
-
-
-
-
 function createChart(chart) {
   createDataPoints(chart)
   createChildLines()
@@ -288,12 +283,13 @@ function createDataPoints(chart) {
     yPos = getY(data[i].birthyear, maxValue, chartWidth)
     xPos = getX(chartWidth, data.length, i)
 
-    li.setAttribute('id', i)
+    li.setAttribute('id', data[i].image)  //FIXME Doesn't match id, but if i change this all the indexes get off
     li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`)
-    li.innerHTML += `<div class="data-point" data-value="${data[i].birthyear}"><button id='button${i+1}' onclick='addToConfirmBox(${i+1})'></button></div>`
+    li.innerHTML += `<div class="data-point" data-value="${data[i].birthyear}"><button id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'></button></div>`
   
     chart.appendChild(li)
   }
+
 }
 
 //Draws Line To Children
@@ -301,7 +297,7 @@ function createChildLines() {
   for (let i = 0; i < data.length; ++i) {
 
     if (isMom(data[i])) {
-      let li = document.getElementById(i)
+      let li = document.getElementById(data[i].image)
   
       yPos = parseAttribute('y', li.getAttribute('style'))
       xPos = parseAttribute('x', li.getAttribute('style'))
@@ -329,7 +325,8 @@ function createChildLines() {
 //Draws Line Connecting to Spouse
 function createSpouseLines() {
   for (let i = 0; i < data.length; ++i) {
-    let li = document.getElementById(i)
+
+    let li = document.getElementById(data[i].image)  //FIXME BEFORE WAS I     This way combined with the change i made with above function data[i].image for ids will cause issues
 
     yPos = parseAttribute('y', li.getAttribute('style'))
     xPos = parseAttribute('x', li.getAttribute('style'))
