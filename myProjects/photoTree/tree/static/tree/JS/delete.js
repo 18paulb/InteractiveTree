@@ -186,10 +186,14 @@ momArray = tmpMomArray
 console.log("Mom Array: ", momArray)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
 let chartList = document.getElementById('chart')
 
 createChart(chartList)
+
+
+
+
+
 
 function removeAllChildNodes(parent) {
   while (parent.firstChild) {
@@ -197,10 +201,15 @@ function removeAllChildNodes(parent) {
   }
 }
 
-function removeRelationship(id1, id2) {
-  //removes Child from momArray
+function addRelationShip(id1, id2) {
+
   let isRelated = false
-  //debugger
+
+}
+
+function removeRelationship(id1, id2) {
+  //removes Child from momArray and Data
+  let isRelated = false
   for (let i = 0; i < momArray.length; ++i) {
     if (momArray[i][0].data.image == id2 || momArray[i][0].data.image == id1) {
       for (let j = 0; j < momArray[i][0].children.length; ++j) {
@@ -209,13 +218,14 @@ function removeRelationship(id1, id2) {
           isRelated = true;
 
           let childDataIndex = getDataIndex(childArray[j].image)
+          
+          if (!(hasRelationship(childArray[j]))) { 
+            nodeBoxData.push(data[childDataIndex])
+            data.splice(childDataIndex,1)
+            addToNodeContainer(childArray[j].image)
+          }
 
           childArray.splice(j,1)
-          
-          data.splice(childDataIndex,1)
-
-          console.log("Data", data)
-          //console.log("NodeBox",  nodeBoxData)
 
           break;
         }
@@ -223,7 +233,7 @@ function removeRelationship(id1, id2) {
     }
   }
 
-  let box = document.getElementById('confirmBox');
+  //TODO add spouse functionality
 
   if (!isRelated) {
     alert("Error, are not related.")
@@ -231,6 +241,7 @@ function removeRelationship(id1, id2) {
 
   createChart(chartList)
 
+  let box = document.getElementById('confirmBox');
   box.innerHTML = ''
 }
 
@@ -252,7 +263,6 @@ function changeButtonParameters() {
   }
 }
 
-
 function addToConfirmBox(id) {
   let box = document.getElementById('confirmBox')
   let nodeId = `node${id}`
@@ -265,6 +275,22 @@ function addToConfirmBox(id) {
   box.appendChild(img)
 
   changeButtonParameters()
+}
+
+function addToNodeContainer(id) {
+  let container = document.getElementById('nodeContainer')
+  let nodeId = `node${id}`
+  let button = document.createElement('button')
+  let img = document.createElement('img')
+
+  img.setAttribute('id', nodeId)
+  img.setAttribute('class', 'node-image')
+  img.setAttribute('src', `../../static/tree/images/pictures/${id}.PNG`)
+
+  button.appendChild(img)
+
+  container.appendChild(button)
+
 }
 
 function createChart(chart) {
@@ -326,7 +352,7 @@ function createChildLines() {
 function createSpouseLines() {
   for (let i = 0; i < data.length; ++i) {
 
-    let li = document.getElementById(data[i].image)  //FIXME BEFORE WAS I     This way combined with the change i made with above function data[i].image for ids will cause issues
+    let li = document.getElementById(data[i].image)
 
     yPos = parseAttribute('y', li.getAttribute('style'))
     xPos = parseAttribute('x', li.getAttribute('style'))
@@ -349,7 +375,6 @@ function createSpouseLines() {
     }
   }
 }
-
 
 function getY(value, maxValue, chartWidth) {
   //Scales values so that it fits evenly in size of chart
@@ -448,4 +473,20 @@ function parseAttribute(lookFor, attribute) {
     }
   }
   return numString
+}
+
+function hasRelationship(node) {
+
+  let hasRelationship = false;
+
+  let nodeIndex = getDataIndex(node.image)
+
+  if (data[nodeIndex].spouse != null) {
+    hasRelationship = true
+  }
+
+  if (isMom(data[nodeIndex])) {
+    hasRelationship = true;
+  }
+
 }
