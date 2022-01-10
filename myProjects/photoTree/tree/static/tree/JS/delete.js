@@ -209,7 +209,24 @@ function addRelationShip(id1, id2) {
 
 function removeRelationship(id1, id2) {
   //removes Child from momArray and Data
+
+
+  //TODO finish spouse functionality
+  let id1Index = getDataIndex(id1)
+  let id2Index = getDataIndex(id2)
+
   let isRelated = false
+
+  if (data[id1Index].spouse == id2) {
+    isRelated = true
+
+    //FIXME, spouse still has relationship so technically it doesn't work. change data correctly
+    if (!(hasRelationship(data[id1Index]))) {
+      data.splice(data[id1.index])
+    }
+  }
+
+
   for (let i = 0; i < momArray.length; ++i) {
     if (momArray[i][0].data.image == id2 || momArray[i][0].data.image == id1) {
       for (let j = 0; j < momArray[i][0].children.length; ++j) {
@@ -233,10 +250,10 @@ function removeRelationship(id1, id2) {
     }
   }
 
-  //TODO add spouse functionality
+
 
   if (!isRelated) {
-    alert("Error, are not related.")
+    alert("Error, Not Related.")
   }
 
   createChart(chartList)
