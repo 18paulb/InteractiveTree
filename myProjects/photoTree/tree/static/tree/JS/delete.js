@@ -105,6 +105,8 @@ let data = [
 
 let nodeBoxData = []
 
+console.log(data)
+
 //Variables to work with, will change if I need to change graph size
 let chartWidth = 900;
 let maxValue = 0;
@@ -208,34 +210,29 @@ function addRelationShip(id1, id2) {
 }
 
 function removeRelationship(id1, id2) {
-  //removes Child from momArray and Data
 
-
-  //TODO finish spouse functionality
   let id1Index = getDataIndex(id1)
   let id2Index = getDataIndex(id2)
 
   let isRelated = false
-/*
+
   if (data[id1Index].spouse == id2) {
     isRelated = true
 
-    //TEST Changing relationship
     data[id1Index].spouse = null
     data[id2Index].spouse = null
 
-    //FIXME, spouse still has relationship so technically it doesn't work. change data correctly
     if (!(hasRelationship(data[id1Index]))) {
+      addToNodeContainer(id1)
       data.splice(id1Index, 1)
-      nodeBoxData.push(data[id1Index])
     }
 
-    else if (!(hasRelationship(data[id2Index]))) {
-      data.splice(id1Index, 1)
-      nodeBoxData.push(data[id2Index])
+    if (!(hasRelationship(data[id2Index]))) {
+      addToNodeContainer(id2)
+      data.splice(id2Index, 1)
     }
   }
-*/
+
   for (let i = 0; i < momArray.length; ++i) {
     if (momArray[i][0].data.image == id2 || momArray[i][0].data.image == id1) {
       for (let j = 0; j < momArray[i][0].children.length; ++j) {
@@ -244,14 +241,24 @@ function removeRelationship(id1, id2) {
           isRelated = true;
 
           let childDataIndex = getDataIndex(childArray[j].image)
-          
-          if (!(hasRelationship(childArray[j]))) { 
-            nodeBoxData.push(data[childDataIndex])
-            data.splice(childDataIndex,1)
+
+          data[childDataIndex].mother = null
+
+          if (!hasRelationship(data[childDataIndex])) {
             addToNodeContainer(childArray[j].image)
+            momArray[i][0].children.splice(j,1)
+            data.splice(childDataIndex, 1)
+          }
+          
+          if (momArray[i][0].children.length == 0) {
+            momArray.splice(i,1)
           }
 
-          childArray.splice(j,1)
+          let momDataIndex = getDataIndex(momArray[i][0].data.image)
+          if (!hasRelationship(data[momDataIndex])) {
+            addToNodeContainer(momArray[i][0].image)
+            data.splice(momDataIndex, 1)
+          }
 
           break;
         }
@@ -259,10 +266,11 @@ function removeRelationship(id1, id2) {
     }
   }
 
-
+  console.log(data)
+  console.log(momArray)
 
   if (!isRelated) {
-    alert("Error, Not Related.")
+    alert("Error, No Direct Relationship")
   }
 
   createChart(chartList)
@@ -304,6 +312,11 @@ function addToConfirmBox(id) {
 }
 
 function addToNodeContainer(id) {
+
+  let index = getDataIndex(id)
+
+  nodeBoxData.push = data[index]
+
   let container = document.getElementById('nodeContainer')
   let nodeId = `node${id}`
   let button = document.createElement('button')
@@ -316,7 +329,6 @@ function addToNodeContainer(id) {
   button.appendChild(img)
 
   container.appendChild(button)
-
 }
 
 function createChart(chart) {
@@ -335,7 +347,7 @@ function createDataPoints(chart) {
     yPos = getY(data[i].birthyear, maxValue, chartWidth)
     xPos = getX(chartWidth, data.length, i)
 
-    li.setAttribute('id', data[i].image)  //FIXME Doesn't match id, but if i change this all the indexes get off
+    li.setAttribute('id', data[i].image)
     li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`)
     li.innerHTML += `<div class="data-point" data-value="${data[i].birthyear}"><button id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'></button></div>`
   
@@ -470,7 +482,7 @@ function isMom(node) {
   return isMom
 }
 
-//FIXME Not best way but a way
+
 function parseAttribute(lookFor, attribute) {
   let numString = ''
   //debugger
@@ -501,18 +513,23 @@ function parseAttribute(lookFor, attribute) {
   return numString
 }
 
+
 function hasRelationship(node) {
 
   let hasRelationship = false;
 
-  let nodeIndex = getDataIndex(node.image)
-
-  if (data[nodeIndex].spouse != null) {
+  if (node.spouse != null) {
     hasRelationship = true
   }
 
-  if (isMom(data[nodeIndex])) {
+  if (isMom(node)) {
     hasRelationship = true;
   }
+
+  if (node.mother != null) {
+    hasRelationship = true
+  }
+
+  return hasRelationship
 
 }
