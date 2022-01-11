@@ -145,47 +145,55 @@ class mom {
 
 let momArray = []
 
-for (let i = 0; i < data.length; ++i) {
-  momArray.push([])
-  momArray[i].push(new mom)
-}
+function makeMomArray() {
+  let tmpArray = []
 
-//Pushes children to moms
-for (let i = 0; i < data.length; ++i) {
-  if (data[i].mother != null) {
-    for (let j = 0; j < data.length; j++) {
-      if (data[j].image == data[i].mother) {
-        momArray[j][0].children.push(data[i])
+  for (let i = 0; i < data.length; ++i) {
+    tmpArray.push([])
+    tmpArray[i].push(new mom)
+  }
+
+  //Pushes children to moms
+  for (let i = 0; i < data.length; ++i) {
+    if (data[i].mother != null) {
+      for (let j = 0; j < data.length; j++) {
+        if (data[j].image == data[i].mother) {
+          tmpArray[j][0].children.push(data[i])
+        }
       }
     }
   }
-}
 
-//Pushes spouse to moms
-for (let i = 0; i < data.length; ++i) {
-  if (data[i].spouse != null) {
-    for (let j = 0; j < data.length; j++) {
-      if (data[j].image == data[i].spouse) {
-        momArray[j][0].spouse = data[j].image
+  //Pushes spouse to moms
+  for (let i = 0; i < data.length; ++i) {
+    if (data[i].spouse != null) {
+      for (let j = 0; j < data.length; j++) {
+        if (data[j].image == data[i].spouse) {
+          tmpArray[j][0].spouse = data[j].image
+        }
       }
     }
   }
-}
 
-//Pushes data to mom
-for (let i = 0; i < data.length; ++i) {
-  momArray[i][0].data = data[i]
-}
-
-//Cleaning Up Array to only leave moms
-let tmpMomArray = []
-for (let i = 0; i < momArray.length; ++i) {
-  if (momArray[i][0].children.length != 0) {
-    tmpMomArray.push(momArray[i])
+  //Pushes data to mom
+  for (let i = 0; i < data.length; ++i) {
+    tmpArray[i][0].data = data[i]
   }
+
+  //Cleaning Up Array to only leave moms
+  let tmpMomArray = []
+  for (let i = 0; i < tmpArray.length; ++i) {
+    if (tmpArray[i][0].children.length != 0) {
+      tmpMomArray.push(tmpArray[i])
+    }
+  }
+  tmpArray = tmpMomArray
+
+  return tmpArray
 }
-momArray = tmpMomArray
-console.log("Mom Array: ", momArray)
+
+momArray = makeMomArray()
+console.log(momArray)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 let chartList = document.getElementById('chart')
@@ -234,6 +242,8 @@ function removeRelationship(id1, id2) {
   }
 
   for (let i = 0; i < momArray.length; ++i) {
+
+    //FIXME the OR with the ids might not work if child or mother is both child and mother
     if (momArray[i][0].data.image == id2 || momArray[i][0].data.image == id1) {
       for (let j = 0; j < momArray[i][0].children.length; ++j) {
         let childArray = momArray[i][0].children
@@ -246,12 +256,7 @@ function removeRelationship(id1, id2) {
 
           if (!hasRelationship(data[childDataIndex])) {
             addToNodeContainer(childArray[j].image)
-            momArray[i][0].children.splice(j,1)
             data.splice(childDataIndex, 1)
-          }
-          
-          if (momArray[i][0].children.length == 0) {
-            momArray.splice(i,1)
           }
 
           let momDataIndex = getDataIndex(momArray[i][0].data.image)
@@ -259,6 +264,9 @@ function removeRelationship(id1, id2) {
             addToNodeContainer(momArray[i][0].image)
             data.splice(momDataIndex, 1)
           }
+
+          //FIXME placement of this is very important, this might not be in right place
+          momArray = makeMomArray()
 
           break;
         }
