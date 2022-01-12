@@ -205,11 +205,7 @@ createChart(chartList)
 
 
 
-function removeAllChildNodes(parent) {
-  while (parent.firstChild) {
-      parent.removeChild(parent.firstChild);
-  }
-}
+
 
 function addRelationShip(id1, id2) {
 
@@ -244,6 +240,22 @@ function removeRelationship(id1, id2) {
   for (let i = 0; i < momArray.length; ++i) {
 
     //FIXME the OR with the ids might not work if child or mother is both child and mother
+
+    for (let j = 0; j < momArray[i][0].children.length; ++j) {
+      if (momArray[i][0].data.image == id1 && momArray[i][0].data.mother != null) {
+
+      }
+
+      else if (momArray[i][0].data.image == id2 && momArray[i][0].data.mother != null) {
+
+      }
+    }
+
+
+
+
+
+
     if (momArray[i][0].data.image == id2 || momArray[i][0].data.image == id1) {
       for (let j = 0; j < momArray[i][0].children.length; ++j) {
         let childArray = momArray[i][0].children
@@ -419,6 +431,12 @@ function createSpouseLines() {
         li.innerHTML += `<div class="spouse-line" style="--hypotenuse: ${spouseHypotenuse}; --angle: ${spouseAngle}"></div>`
       }
     }
+  }
+}
+
+function removeAllChildNodes(parent) {
+  while (parent.firstChild) {
+      parent.removeChild(parent.firstChild);
   }
 }
 
