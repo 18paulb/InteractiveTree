@@ -37,6 +37,26 @@
   
 }
 
+/* Testing to make lines buttons */
+.button-line {
+  background-color: blue;
+  bottom: var(--y);
+  height: 3px;
+  left: var(--x);
+  position: absolute;
+  width: 5px;
+
+  transform: rotate(calc(var(--angle) * 1deg)); 
+  transform-origin: left bottom;
+  width: calc(var(--hypotenuse) * 1px);
+  z-index: -1;
+}
+.button-line:hover {
+  color: red;
+  background-color: red;
+}
+
+
 .child-line {
   background-color: blue;
   bottom: var(--y);

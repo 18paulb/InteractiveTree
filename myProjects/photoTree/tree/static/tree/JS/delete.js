@@ -209,8 +209,6 @@ createChart(chartList)
 
 function addRelationShip(id1, id2) {
 
-  let isRelated = false
-
 }
 
 function removeRelationship(id1, id2) {
@@ -321,7 +319,6 @@ function removeRelationship(id1, id2) {
   box.innerHTML = ''
 }
 
-
 function changeButtonParameters() {
   let box = document.getElementById('confirmBox')
   let children = []
@@ -423,6 +420,7 @@ function createChildLines() {
         }
   
         li.innerHTML += `<div class="child-line" style="--hypotenuse: ${childHypotenuse}; --angle: ${angle}"></div>`
+        //li.innerHTML += `<button class="button-line" onclick="hi()" style="--hypotenuse: ${childHypotenuse}; --angle: ${angle}">test</button>`
       }
     }
   }
@@ -530,7 +528,6 @@ function isMom(node) {
   return isMom
 }
 
-
 function parseAttribute(lookFor, attribute) {
   let numString = ''
   //debugger
@@ -561,7 +558,6 @@ function parseAttribute(lookFor, attribute) {
   return numString
 }
 
-
 function hasRelationship(node) {
 
   let hasRelationship = false;
@@ -580,41 +576,4 @@ function hasRelationship(node) {
 
   return hasRelationship
 
-}
-
-function fusRohDah() {
-  /*
-  for (let i = 0; i < momArray.length; ++i) {
-    //FIXME the OR with the ids might not work if child or mother is both child and mother
-
-    if (momArray[i][0].data.image == id2 || momArray[i][0].data.image == id1) {
-      for (let j = 0; j < momArray[i][0].children.length; ++j) {
-        let childArray = momArray[i][0].children
-        if (childArray[j].image == id1 || childArray[j].image == id2) {
-          isRelated = true;
-
-          let childDataIndex = getDataIndex(childArray[j].image)
-
-          data[childDataIndex].mother = null
-
-          if (!hasRelationship(data[childDataIndex])) {
-            addToNodeContainer(childArray[j].image)
-            data.splice(childDataIndex, 1)
-          }
-
-          let momDataIndex = getDataIndex(momArray[i][0].data.image)
-          if (!hasRelationship(data[momDataIndex])) {
-            addToNodeContainer(momArray[i][0].image)
-            data.splice(momDataIndex, 1)
-          }
-
-          //FIXME placement of this is very important, this might not be in right place
-          momArray = makeMomArray()
-
-          break;
-        }
-      }
-    }
-  }
-*/
 }
