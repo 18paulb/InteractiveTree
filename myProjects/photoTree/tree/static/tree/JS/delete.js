@@ -220,6 +220,7 @@ function removeRelationship(id1, id2) {
 
   let isRelated = false
 
+  //Removes Spouse Relationship
   if (data[id1Index].spouse == id2) {
     isRelated = true
 
@@ -231,63 +232,84 @@ function removeRelationship(id1, id2) {
       data.splice(id1Index, 1)
     }
 
+    id2Index = getDataIndex(id2)
+
     if (!(hasRelationship(data[id2Index]))) {
       addToNodeContainer(id2)
       data.splice(id2Index, 1)
     }
+
+    createChart(chartList)
+  
+    let box = document.getElementById('confirmBox');
+    box.innerHTML = ''
+
+    return;
   }
 
-  for (let i = 0; i < momArray.length; ++i) {
+  //Removes Mother/Child Relationship
+  id1Index = getDataIndex(id1)
+  id2Index = getDataIndex(id2)
 
-    //FIXME the OR with the ids might not work if child or mother is both child and mother
+  if (data[id1Index].mother == id2) {
+    for (let i = 0; i < momArray.length; ++i) {
+      if (momArray[i][0].data.image == id2) {
+        for (let j = 0; j < momArray[i][0].children.length; ++j) {
+          if (momArray[i][0].children[j].image == id1) {
+            isRelated = true;
 
-    for (let j = 0; j < momArray[i][0].children.length; ++j) {
-      if (momArray[i][0].data.image == id1 && momArray[i][0].data.mother != null) {
+            data[id1Index].mother = null
 
-      }
+            if (!hasRelationship(data[id1Index])) {
+              addToNodeContainer(data[id1Index].image)
+              data.splice(id1Index, 1)
+            }
 
-      else if (momArray[i][0].data.image == id2 && momArray[i][0].data.mother != null) {
+            id2Index = getDataIndex(id2)
+            
+            momArray = makeMomArray()
 
-      }
-    }
+            if (!hasRelationship(data[id2Index])) {
+              addToNodeContainer(data[id2Index].image)
+              data.splice(id2Index, 1)
+            }
 
-
-
-
-
-
-    if (momArray[i][0].data.image == id2 || momArray[i][0].data.image == id1) {
-      for (let j = 0; j < momArray[i][0].children.length; ++j) {
-        let childArray = momArray[i][0].children
-        if (childArray[j].image == id1 || childArray[j].image == id2) {
-          isRelated = true;
-
-          let childDataIndex = getDataIndex(childArray[j].image)
-
-          data[childDataIndex].mother = null
-
-          if (!hasRelationship(data[childDataIndex])) {
-            addToNodeContainer(childArray[j].image)
-            data.splice(childDataIndex, 1)
+            break;
           }
-
-          let momDataIndex = getDataIndex(momArray[i][0].data.image)
-          if (!hasRelationship(data[momDataIndex])) {
-            addToNodeContainer(momArray[i][0].image)
-            data.splice(momDataIndex, 1)
-          }
-
-          //FIXME placement of this is very important, this might not be in right place
-          momArray = makeMomArray()
-
-          break;
         }
       }
     }
   }
 
-  console.log(data)
-  console.log(momArray)
+  else if (data[id2Index].mother == id1) {
+    for (let i = 0; i < momArray.length; ++i) {
+      if (momArray[i][0].data.image == id1) {
+        for (let j = 0; j < momArray[i][0].children.length; ++j) {
+          if (momArray[i][0].children[j].image == id2) {
+            isRelated = true;
+
+            data[id2Index].mother = null
+
+            if (!hasRelationship(data[id2Index])) {
+              addToNodeContainer(data[id2Index].image)
+              data.splice(id2Index, 1)
+            }
+
+            id1Index = getDataIndex(id1)
+
+            momArray = makeMomArray()
+
+            if (!hasRelationship(data[id1Index])) {
+              addToNodeContainer(data[id1Index].image)
+              data.splice(id1Index, 1)
+            }
+
+            break;
+          }
+        }
+      }
+    }
+  }
 
   if (!isRelated) {
     alert("Error, No Direct Relationship")
@@ -558,4 +580,41 @@ function hasRelationship(node) {
 
   return hasRelationship
 
+}
+
+function fusRohDah() {
+  /*
+  for (let i = 0; i < momArray.length; ++i) {
+    //FIXME the OR with the ids might not work if child or mother is both child and mother
+
+    if (momArray[i][0].data.image == id2 || momArray[i][0].data.image == id1) {
+      for (let j = 0; j < momArray[i][0].children.length; ++j) {
+        let childArray = momArray[i][0].children
+        if (childArray[j].image == id1 || childArray[j].image == id2) {
+          isRelated = true;
+
+          let childDataIndex = getDataIndex(childArray[j].image)
+
+          data[childDataIndex].mother = null
+
+          if (!hasRelationship(data[childDataIndex])) {
+            addToNodeContainer(childArray[j].image)
+            data.splice(childDataIndex, 1)
+          }
+
+          let momDataIndex = getDataIndex(momArray[i][0].data.image)
+          if (!hasRelationship(data[momDataIndex])) {
+            addToNodeContainer(momArray[i][0].image)
+            data.splice(momDataIndex, 1)
+          }
+
+          //FIXME placement of this is very important, this might not be in right place
+          momArray = makeMomArray()
+
+          break;
+        }
+      }
+    }
+  }
+*/
 }
