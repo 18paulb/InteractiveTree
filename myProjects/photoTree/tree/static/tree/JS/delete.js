@@ -105,6 +105,8 @@ let data = [
 
 let nodeBoxData = []
 
+//TODO eventually, fix naming scheme for ID's to make more simple to work with
+
 console.log(data)
 
 //Variables to work with, will change if I need to change graph size
@@ -193,7 +195,6 @@ function makeMomArray() {
 }
 
 momArray = makeMomArray()
-console.log(momArray)
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 let chartList = document.getElementById('chart')
@@ -206,8 +207,35 @@ createChart(chartList)
 
 
 
+//TODO fix issues
+function addRelationship(id1, id2) {
+  //Just for now we'll say id1 is mom and id2 is kid
+  
+  //FIXME Perfect functionality for adding children works, however different cases do not
+  //SOLVE:
+  //1. What if id1 is child and id2 mom   --RIGHT NOW MOST IMPORTANT
+  //2. Children are just added to end of data so don't go back to OG positions
+  //3. Spouse adding
+  //4. Impossible to do with current data but if male, you can't make it mother
+  //5. If moved from nodeBoxData into confirmBox and error occurs (ie more than 2 nodes) and confirmBox is cleared, the data from nodeBoxData is lost forever
+  
+  let childIndex = getNodeBoxDataIndex(id2)
 
-function addRelationShip(id1, id2) {
+  data.push(nodeBoxData[childIndex])
+
+  nodeBoxData.splice(childIndex, 1)
+
+  let childDataIndex = getDataIndex(id2)
+
+  data[childDataIndex].mother = id1
+
+  momArray = makeMomArray()
+  
+  sortData()
+  console.log(data)
+  createChart(chartList)
+
+  document.getElementById('confirmBox').innerHTML = ''
 
 }
 
@@ -241,8 +269,6 @@ function removeRelationship(id1, id2) {
   
     let box = document.getElementById('confirmBox');
     box.innerHTML = ''
-
-    return;
   }
 
   //Removes Mother/Child Relationship
@@ -319,7 +345,24 @@ function removeRelationship(id1, id2) {
   box.innerHTML = ''
 }
 
-function changeButtonParameters() {
+function changeAddButtonParameters() {
+  let box = document.getElementById('confirmBox')
+  let children = []
+
+  for (let i = 0; i < box.children.length; ++i) {
+    children.push(box.children[i].id.substr(4))
+  }
+
+  let button = document.getElementById('addButton')
+
+  if (children.length != 0) {
+    let param1 = children[0]
+    let param2 = children[1]
+    button.setAttribute('onclick',`changeAddButtonParameters(), addRelationship(${param1}, ${param2})`)
+  }
+}
+
+function changeRemoveButtonParameters() {
   let box = document.getElementById('confirmBox')
   let children = []
 
@@ -332,12 +375,19 @@ function changeButtonParameters() {
   if (children.length != 0) {
     let param1 = children[0]
     let param2 = children[1]
-    button.setAttribute('onclick',`changeButtonParameters(), removeRelationship(${param1}, ${param2})`)
+    button.setAttribute('onclick',`changeRemoveButtonParameters(), removeRelationship(${param1}, ${param2})`)
   }
 }
 
 function addToConfirmBox(id) {
   let box = document.getElementById('confirmBox')
+
+  if (box.children.length >= 2) {
+    alert("Can't have more than 2 nodes in confirmation box.")
+    box.innerHTML = ''
+    return
+  }
+
   let nodeId = `node${id}`
   let img = document.createElement('img')
 
@@ -347,14 +397,16 @@ function addToConfirmBox(id) {
 
   box.appendChild(img)
 
-  changeButtonParameters()
+  changeRemoveButtonParameters()
+  //TEST
+  changeAddButtonParameters()
 }
 
 function addToNodeContainer(id) {
 
   let index = getDataIndex(id)
 
-  nodeBoxData.push = data[index]
+  nodeBoxData.push(data[index])
 
   let container = document.getElementById('nodeContainer')
   let nodeId = `node${id}`
@@ -365,10 +417,38 @@ function addToNodeContainer(id) {
   img.setAttribute('class', 'node-image')
   img.setAttribute('src', `../../static/tree/images/pictures/${id}.PNG`)
 
+  //FIXME this button ID might not be needed
+  button.setAttribute('id', `button${id}`)
+  button.setAttribute('onclick', `addToConfirmBox(${id}), removeFromNodeContainer(${id})`)
+
   button.appendChild(img)
 
   container.appendChild(button)
 }
+
+function removeFromNodeContainer(id) {
+
+  let container = document.getElementById('nodeContainer')
+
+  let child = document.getElementById("button" + id)
+
+  container.removeChild(child)
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function createChart(chart) {
   createDataPoints(chart)
@@ -388,7 +468,8 @@ function createDataPoints(chart) {
 
     li.setAttribute('id', data[i].image)
     li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`)
-    li.innerHTML += `<div class="data-point" data-value="${data[i].birthyear}"><button id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'></button></div>`
+    //li.innerHTML += `<div class="data-point" data-value="${data[i].birthyear}"><button id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'></button></div>`
+    li.innerHTML += `<button id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'><img class="data-point" data-value="${data[i].birthyear}" src="../../static/tree/images/pictures/${data[i].image}.PNG"></button>`
   
     chart.appendChild(li)
   }
@@ -498,6 +579,14 @@ function getDataIndex(id) {
   }
 }
 
+function getNodeBoxDataIndex(id) {
+  for (let i = 0; i < nodeBoxData.length; ++i) {
+    if (id === nodeBoxData[i].image) {
+      return i;
+    }
+  }
+}
+
 function getMomArrayIndex(array, id) {
   for (let i = 0; i < array.length; ++i) {
     if (array[i][0].data.image == id) {
@@ -576,4 +665,17 @@ function hasRelationship(node) {
 
   return hasRelationship
 
+}
+
+//JUST FOR TESTING, WILL REPLACE WITH POSITIONING ALGORITHM
+function sortData() {
+  for (let i = 0; i < data.length; ++i) {
+    for (let j = i+1; j < data.length; ++j) {
+      if (data[j].image < data[i].image) {
+        let tmp = data[i]
+        data[i] = data[j]
+        data[j] = tmp
+      }
+    }
+  }
 }
