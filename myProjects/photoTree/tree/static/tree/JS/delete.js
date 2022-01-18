@@ -113,7 +113,7 @@ console.log(data)
 let chartWidth = 900;
 let maxValue = 0;
 let minValue = data[0].birthyear //initial value for comparing
-let spacing = chartWidth / data.length
+//let spacing = chartWidth / (data.length) 
 
 //Sets min and max values for yPos calculation
 for (let i = 0; i < data.length; ++i) {
@@ -632,6 +632,7 @@ function removeAllChildNodes(parent) {
   }
 }
 
+//FIXME change for spacing
 function getY(value, maxValue, chartWidth) {
   //Scales values so that it fits evenly in size of chart
   //Makes it so that lowest value (oldest person) is top of graph
@@ -641,8 +642,9 @@ function getY(value, maxValue, chartWidth) {
   return bottom;
 }
 
+//FIXME change for spacing
 function getX(chartWidth, numValues, positionInData) {
-  let left = (chartWidth / numValues) * (positionInData + 1)
+  let left = (chartWidth / (numValues / 1.5)) * (positionInData + 1)
   return left;
 }
 
