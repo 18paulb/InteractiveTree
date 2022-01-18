@@ -203,36 +203,125 @@ createChart(chartList)
 
 
 
+function addSpouseRelationship(id1, id2) {
+  let node1;
+  let node2;
 
+  //Delete if i can
+  for (let i = 0; i < data.length; ++i) {
+    if (data[i].image == id1) {
+      node1 = data[i];
+    }
+    if (data[i].image == id2) {
+      node2 = data[i];
+    }
+  }
+
+  for (let i = 0; i < nodeBoxData.length; ++i) {
+    if (nodeBoxData[i].image == id1) {
+      node1 = nodeBoxData[i];
+    }
+    if (nodeBoxData[i].image == id2) {
+     node2 = nodeBoxData[i];
+    }
+  }
+  //
+  
+  //For Spouse -> Spouse
+  let spouse1 = node1;
+  let spouse2 = node2;
+
+  if (getNodeBoxDataIndex(spouse1.image) != null) {
+    spouse1Index = getNodeBoxDataIndex(spouse1.image);
+    data.push(nodeBoxData[spouse1Index]);
+    nodeBoxData.splice(spouse1Index, 1)
+  } 
+  //What if spouse2 is in nodeBoxData
+  if (getNodeBoxDataIndex(spouse2.image) != null) {
+    spouse2Index = getNodeBoxDataIndex(spouse2.image);
+    data.push(nodeBoxData[spouse2Index]);
+    nodeBoxData.splice(spouse2Index, 1)
+  }
+
+  if (getDataIndex(spouse1.image) != null) {
+    spouse1Index = getDataIndex(spouse1.image);
+    data[spouse1Index].spouse = spouse2.image;
+  }
+
+  if (getDataIndex(spouse2.image) != null) {
+    spouse2Index = getDataIndex(spouse2.image);
+    data[spouse2Index].spouse = spouse1.image
+  }
+
+  sortData()
+  createChart(chartList)
+
+  document.getElementById('confirmBox').innerHTML = ''
+
+}
 
 
 
 //TODO fix issues
-function addRelationship(id1, id2) {
-  //Just for now we'll say id1 is mom and id2 is kid
-  
-  //FIXME Perfect functionality for adding children works, however different cases do not
+function addMotherRelationship(id1, id2) {
   //SOLVE:
-  //1. What if id1 is child and id2 mom   --RIGHT NOW MOST IMPORTANT
-  //2. Children are just added to end of data so don't go back to OG positions
-  //3. Spouse adding
   //4. Impossible to do with current data but if male, you can't make it mother
   //5. If moved from nodeBoxData into confirmBox and error occurs (ie more than 2 nodes) and confirmBox is cleared, the data from nodeBoxData is lost forever
   
-  let childIndex = getNodeBoxDataIndex(id2)
+  let id1Node;
+  let id2Node;
 
-  data.push(nodeBoxData[childIndex])
+  for (let i = 0; i < data.length; ++i) {
+    if (data[i].image == id1) {
+      id1Node = data[i];
+    }
+    if (data[i].image == id2) {
+      id2Node = data[i];
+    }
+  }
 
-  nodeBoxData.splice(childIndex, 1)
+  for (let i = 0; i < nodeBoxData.length; ++i) {
+    if (nodeBoxData[i].image == id1) {
+      id1Node = nodeBoxData[i];
+    }
+    if (nodeBoxData[i].image == id2) {
+      id2Node = nodeBoxData[i];
+    }
+  }
 
-  let childDataIndex = getDataIndex(id2)
+  let mother;
+  let child;
 
-  data[childDataIndex].mother = id1
+  if (id1Node.birthyear > id2Node.birthyear) {
+    mother = id2Node;
+    child = id1Node;
+  } else {
+    mother = id1Node;
+    child = id2Node;
+  }
+
+  let childIndex;
+  let momIndex
+  if (getNodeBoxDataIndex(child.image) != null) {
+    childIndex = getNodeBoxDataIndex(child.image);
+    data.push(nodeBoxData[childIndex]);
+    nodeBoxData.splice(childIndex, 1)
+  } 
+  //What if mom is in nodeBoxData
+  if (getNodeBoxDataIndex(mother.image) != null) {
+    momIndex = getNodeBoxDataIndex(mother.image);
+    data.push(nodeBoxData[momIndex]);
+    nodeBoxData.splice(momIndex, 1)
+  }
+
+  if (getDataIndex(child.image) != null) {
+    childIndex = getDataIndex(child.image);
+    data[childIndex].mother = mother.image;
+  }
 
   momArray = makeMomArray()
   
   sortData()
-  console.log(data)
   createChart(chartList)
 
   document.getElementById('confirmBox').innerHTML = ''
@@ -353,12 +442,14 @@ function changeAddButtonParameters() {
     children.push(box.children[i].id.substr(4))
   }
 
-  let button = document.getElementById('addButton')
+  let button = document.getElementById('addMotherButton')
+  let button2 = document.getElementById('addSpouseButton')
 
   if (children.length != 0) {
     let param1 = children[0]
     let param2 = children[1]
-    button.setAttribute('onclick',`changeAddButtonParameters(), addRelationship(${param1}, ${param2})`)
+    button.setAttribute('onclick',`changeAddButtonParameters(), addMotherRelationship(${param1}, ${param2})`)
+    button2.setAttribute('onclick',`changeAddButtonParameters(), addSpouseRelationship(${param1}, ${param2})`)
   }
 }
 
@@ -577,6 +668,7 @@ function getDataIndex(id) {
       return i;
     }
   }
+  return null
 }
 
 function getNodeBoxDataIndex(id) {
@@ -585,6 +677,7 @@ function getNodeBoxDataIndex(id) {
       return i;
     }
   }
+  return null
 }
 
 function getMomArrayIndex(array, id) {
