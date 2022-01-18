@@ -25,15 +25,17 @@
 .data-point {
   background-color: white;
   border: 2px solid lightblue;
-  border-radius: 45%;
-  height: 25px; /*height and width originally 12px*/
+  border-radius: 35%;
+  height: 50px; /*height and width originally 12px*/
   position: absolute;
-  width: 25px;
+  width: 50px;
   
   /* The data points have a radius of 8px and the line segment has a width of 3px, 
     so we split the difference to center the data points on the line segment origins */
-  bottom: calc(var(--y) - 6.5px);
-  left: calc(var(--x) - 9.5px);
+  bottom: calc(var(--y) - 15.5px);
+  left: calc(var(--x) - 18.5px);
+
+  /*originals 6.5 px and 9.5 px*/
   
 }
 
