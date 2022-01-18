@@ -113,7 +113,6 @@ console.log(data)
 let chartWidth = 900;
 let maxValue = 0;
 let minValue = data[0].birthyear //initial value for comparing
-//let spacing = chartWidth / (data.length) 
 
 //Sets min and max values for yPos calculation
 for (let i = 0; i < data.length; ++i) {
@@ -196,6 +195,33 @@ function makeMomArray() {
 
 momArray = makeMomArray()
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 let chartList = document.getElementById('chart')
 
@@ -542,6 +568,19 @@ function removeFromNodeContainer(id) {
 
 
 function createChart(chart) {
+  let generationCount = 1;
+  for (let i = 0; i < data.length; ++i) {
+
+    let tmpCount = getGenerationCount(data[i], 1)
+
+    if (tmpCount > generationCount) {
+      generationCount = tmpCount
+    }
+
+  }
+
+  console.log("Generation Count", generationCount)
+
   createDataPoints(chart)
   createChildLines()
   createSpouseLines()
@@ -774,3 +813,16 @@ function sortData() {
     }
   }
 }
+
+function getGenerationCount(node, count) {=
+  if (node.mother == null) {
+    return count;
+  }
+
+  if (node.mother != null) {
+    let motherIndex = getDataIndex(node.mother)
+    return count += getGenerationCount(data[motherIndex], count);
+  }
+}
+
+
