@@ -4,19 +4,31 @@
   <head>
     <title>Chart</title>
     <link rel='stylesheet' href='../../static/tree/CSS/chart.css'/>
-    
   </head>
 
 
   <body>
     <figure class="css-chart" style="--widget-size: 900px;">
       <ul id='chart' class="line-chart">
-
+          
       </ul>
     </figure>
 
+    <div class='footer-box'>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+      <div id='nodeContainer' class='node-container'>
+      </div>
+
+      <div id='confirmBox' class='confirm-box'>
+
+      </div>
+
+      <button id='removeButton' class='remove-relationship-buttton' onclick='changeRemoveButtonParameters()'>Remove Relationship</button>
+      <button id='addMotherButton' class='add-relationship-buttton' onclick=changeAddButtonParameters()>Add Mother/Child Relationship</button>
+      <button id='addSpouseButton' class='add-relationship-buttton' onclick=changeAddButtonParameters()>Add Spouse Relationship</button>
+
+    </div>
+
     <script src='../../static/tree/JS/chart.js'></script>
   </body>
 
