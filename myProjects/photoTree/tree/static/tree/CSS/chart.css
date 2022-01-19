@@ -25,18 +25,32 @@
 .data-point {
   background-color: white;
   border: 2px solid lightblue;
-  border-radius: 35%;
+  border-radius: 50%;
   height: 60px; /*height and width originally 12px*/
   position: absolute;
   width: 60px;
   
   /* The data points have a radius of 8px and the line segment has a width of 3px, 
     so we split the difference to center the data points on the line segment origins */
-  bottom: calc(var(--y) - 18.5px);
-  left: calc(var(--x) - 21.5px);
+  bottom: calc(var(--y) - 21.5px);
+  left: calc(var(--x) - 24.5px);
 
   /*originals 6.5 px and 9.5 px*/
   
+}
+/* FIXME doesn't work*/
+
+.data-button {
+  /*color: blue;*/
+}
+
+.data-button:active {
+  color: black;
+  background-color: black;
+}
+.data-button:visted {
+  color: yellow;
+  background-color: yellow;
 }
 
 /* Testing to make lines buttons */
@@ -88,7 +102,7 @@
 
 .footer-box {
   display: flex;
-  border: 1px solid black;
+  justify-content: space-between;
   width: 100%;
 }
 
@@ -100,6 +114,13 @@
 
 .node-image {
   width: 100px;
+  height: 100px;
+
+  background-color: white;
+}
+
+.nodeBox-button {
+  background-color: white;
 }
 
 .tree-image {
@@ -108,14 +129,29 @@
 
 .footer-node {
   display: flex;
-  border: 1px solid red;
+  border: 2px solid black;
 }
 
 .confirm-box {
   display: flex;
-  border: 1px solid green;
+  border: 2px solid black;
+  height: 100px;
+  width: 200px;
 }
 
 .remove-relationship-button {
   display: flex;
+}
+
+
+
+
+/*testing hover*/
+.hide {
+  display: none;
+}
+
+.info-box:hover + .hide {
+  display: block;
+  color: red;
 }
