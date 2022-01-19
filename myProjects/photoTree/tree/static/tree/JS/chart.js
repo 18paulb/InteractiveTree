@@ -422,6 +422,8 @@ function removeRelationship(id1, id2) {
   
     let box = document.getElementById('confirmBox');
     box.innerHTML = ''
+
+    return;
   }
 
   //Removes Mother/Child Relationship
@@ -539,6 +541,12 @@ function changeRemoveButtonParameters() {
 function addToConfirmBox(id) {
   let box = document.getElementById('confirmBox')
 
+  for (let i = 0; i < box.children.length; ++i) {
+    if (box.children[i].id == `node${id}`) {
+      return;
+    }
+  } 
+
   if (box.children.length >= 2) {
     alert("Can't have more than 2 nodes in confirmation box.")
     box.innerHTML = ''
@@ -576,6 +584,7 @@ function addToNodeContainer(id) {
 
   //FIXME this button ID might not be needed
   button.setAttribute('id', `button${id}`)
+  button.setAttribute('class', 'nodeBox-button')
   button.setAttribute('onclick', `addToConfirmBox(${id}), removeFromNodeContainer(${id})`)
 
   button.appendChild(img)
@@ -630,7 +639,7 @@ function createDataPoints(chart) {
     li.setAttribute('id', data[i].image)
     li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`)
     //li.innerHTML += `<div class="data-point" data-value="${data[i].birthyear}"><button id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'></button></div>`
-    li.innerHTML += `<button id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'><img class="data-point" data-value="${data[i].birthyear}" src="../../static/tree/images/pictures/${data[i].image}.PNG"></button>`
+    li.innerHTML += `<button id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'><img class="data-point data-button" data-value="${data[i].birthyear}" src="../../static/tree/images/pictures/${data[i].image}.PNG"></button>`
   
     chart.appendChild(li)
   }
@@ -936,7 +945,3 @@ function getNumInGeneration(generation) {
   }
   return numInGen;
 }
-
-console.log(getGeneration(data[7]))
-//debugger
-console.log(getGenerationWidth(data[7]))
