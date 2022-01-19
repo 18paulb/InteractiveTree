@@ -49,16 +49,18 @@ let data = [
   },
   {
     "image": 9,
-    "mother": 10,
+    "mother": null,  //FIXME CHANGED
     "spouse": 8,
     "birthyear": 1979
   },
+  /*
   {
     "image": 10,
     "mother": null,
     "spouse": null,
     "birthyear": 1950
   },
+  */
   {
     "image": 11,
     "mother": null,
@@ -621,6 +623,10 @@ function createDataPoints(chart) {
     yPos = getY(data[i].birthyear, maxValue, chartWidth)
     xPos = getX(chartWidth, data.length, i)
 
+    //Testing
+    //let generation = getGeneration(data[i])
+    
+
     li.setAttribute('id', data[i].image)
     li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`)
     //li.innerHTML += `<div class="data-point" data-value="${data[i].birthyear}"><button id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'></button></div>`
@@ -710,10 +716,6 @@ function getY(value, maxValue, chartWidth) {
 function getX(chartWidth, numValues, positionInData) {
   let left = (chartWidth / (numValues / 1.5)) * (positionInData + 1)
   return left;
-}
-
-function setX(chartWidth, numValues, positionInData) {
-
 }
 
 
@@ -845,6 +847,23 @@ function sortData() {
   }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//Generational XPositioning
 function getGenerationCount(node, count) {
   if (node.mother == null) {
       if (node.spouse != null) {
@@ -873,7 +892,11 @@ function getGenerationCount(node, count) {
 function getGenerationWidth(node) {
   let generation = getGeneration(node)
 
-  
+  let numInGen = getNumInGeneration(generation)
+
+  let spacing = chartWidth / numInGen / generation;
+
+  return spacing
 }
 
 
@@ -885,3 +908,35 @@ function getGeneration(node) {
   return count;
 }
 
+/*
+function setX(node, numNodesInGeneration, generation, position) {
+  //FIXME this should get spacing right but it would put all nodes in one spot
+    let spacing;
+
+    spacing = chartWidth / numNodesInGeneration / generation;
+    spacing = spacing * position;
+
+    let tmpGen = getGeneration(node);
+
+    let width = getGenerationWidth(node)
+
+  
+    return spacing;
+  
+  }
+*/
+
+function getNumInGeneration(generation) {
+  let numInGen = 0;
+  for (let i = 0; i < data.length; ++i) {
+    console.log(getGeneration(data[i]))
+    if (getGeneration(data[i]) == generation) {
+      numInGen++;
+    }
+  }
+  return numInGen;
+}
+
+console.log(getGeneration(data[7]))
+//debugger
+console.log(getGenerationWidth(data[7]))
