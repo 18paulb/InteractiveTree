@@ -606,21 +606,6 @@ function removeFromNodeContainer(id) {
 
 
 function createChart(chart) {
-  /*
-  let generationCount = 1;
-  for (let i = 0; i < data.length; ++i) {
-
-    let tmpCount = getGenerationCount(data[i], 1)
-
-    if (tmpCount > generationCount) {
-      generationCount = tmpCount
-    }
-
-  }
-
-  console.log("Generation Count", generationCount)
-  */
-
   createDataPoints(chart)
   createChildLines()
   createSpouseLines()
@@ -726,6 +711,12 @@ function getX(chartWidth, numValues, positionInData) {
   let left = (chartWidth / (numValues / 1.5)) * (positionInData + 1)
   return left;
 }
+
+function setX(chartWidth, numValues, positionInData) {
+
+}
+
+
 
 function getHypotenuse(datapoint1, datapoint2, left1, left2) {
   triSide = datapoint1 - datapoint2
@@ -853,16 +844,44 @@ function sortData() {
     }
   }
 }
-/*
+
 function getGenerationCount(node, count) {
   if (node.mother == null) {
-    return count;
+      if (node.spouse != null) {
+      let spouseIndex = getDataIndex(node.spouse) 
+      if (data[spouseIndex].mother != null) {
+        let motherIndex = getDataIndex(data[spouseIndex].mother)
+        return count += getGenerationCount(data[motherIndex], count);
+      }
+      else {
+        return count;
+      }
+    }
+    else {
+      return count;
+    }
   }
 
+  let motherIndex = getDataIndex(node.mother);
+
   if (node.mother != null) {
-    let motherIndex = getDataIndex(node.mother)
     return count += getGenerationCount(data[motherIndex], count);
   }
 }
-*/
+
+
+function getGenerationWidth(node) {
+  let generation = getGeneration(node)
+
+  
+}
+
+
+function getGeneration(node) {
+  let count = 1;
+
+  count = getGenerationCount(node, count)
+
+  return count;
+}
 
