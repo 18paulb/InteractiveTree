@@ -200,7 +200,44 @@ momArray = makeMomArray()
 
 
 
+function swapRelationship(id1, id2) {
 
+  //Assuming both are in data
+
+  let id1Index = getDataIndex(id1);
+  let id2Index = getDataIndex(id2);
+
+  let tmpMom = data[id1Index].mother;
+  data[id1Index].mother = data[id2Index].mother
+  data[id2Index].mother = tmpMom;
+
+  let tmpSpouse = data[id1Index].spouse;
+  data[id1Index].spouse = data[id2Index].spouse
+  data[id2Index].spouse = tmpSpouse;
+
+  if (isMom(data[id1Index])) {
+    let momIndex = getMomArrayIndex(momArray, id1)
+    for (let i = 0; i < momArray[momIndex][0].children.length; ++i) {
+      momArray[momIndex][0].children[i].mother = id2;
+    }
+  }
+
+  if (isMom(data[id2Index])) {
+    let momIndex = getMomArrayIndex(momArray, id2)
+    for (let i = 0; i < momArray[momIndex][0].children.length; ++i) {
+      momArray[momIndex][0].children[i].mother = id1;
+    }
+  }
+
+  momArray = makeMomArray()
+  
+  sortData()
+  createChart(chartList)
+
+  document.getElementById('confirmBox').innerHTML = ''
+
+
+}
 
 
 
@@ -233,7 +270,6 @@ function addSpouseRelationship(id1, id2) {
   let node1;
   let node2;
 
-  //Delete if i can
   for (let i = 0; i < data.length; ++i) {
     if (data[i].image == id1) {
       node1 = data[i];
@@ -251,8 +287,7 @@ function addSpouseRelationship(id1, id2) {
      node2 = nodeBoxData[i];
     }
   }
-  //
-  
+
   //For Spouse -> Spouse
   let spouse1 = node1;
   let spouse2 = node2;
@@ -262,6 +297,7 @@ function addSpouseRelationship(id1, id2) {
     data.push(nodeBoxData[spouse1Index]);
     nodeBoxData.splice(spouse1Index, 1)
   } 
+
   //What if spouse2 is in nodeBoxData
   if (getNodeBoxDataIndex(spouse2.image) != null) {
     spouse2Index = getNodeBoxDataIndex(spouse2.image);
@@ -470,12 +506,14 @@ function changeAddButtonParameters() {
 
   let button = document.getElementById('addMotherButton')
   let button2 = document.getElementById('addSpouseButton')
+  let button3 = document.getElementById('swapButton')
 
   if (children.length != 0) {
     let param1 = children[0]
     let param2 = children[1]
     button.setAttribute('onclick',`changeAddButtonParameters(), addMotherRelationship(${param1}, ${param2})`)
     button2.setAttribute('onclick',`changeAddButtonParameters(), addSpouseRelationship(${param1}, ${param2})`)
+    //button3.setAttribute('onclick',`changeAddButtonParameters(), swapRelationship(${param1}, ${param2})`)
   }
 }
 
@@ -568,6 +606,7 @@ function removeFromNodeContainer(id) {
 
 
 function createChart(chart) {
+  /*
   let generationCount = 1;
   for (let i = 0; i < data.length; ++i) {
 
@@ -580,6 +619,7 @@ function createChart(chart) {
   }
 
   console.log("Generation Count", generationCount)
+  */
 
   createDataPoints(chart)
   createChildLines()
@@ -813,8 +853,8 @@ function sortData() {
     }
   }
 }
-
-function getGenerationCount(node, count) {=
+/*
+function getGenerationCount(node, count) {
   if (node.mother == null) {
     return count;
   }
@@ -824,5 +864,5 @@ function getGenerationCount(node, count) {=
     return count += getGenerationCount(data[motherIndex], count);
   }
 }
-
+*/
 
