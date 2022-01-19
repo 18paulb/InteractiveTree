@@ -774,3 +774,18 @@ function sortData() {
     }
   }
 }
+
+function getNumInGeneration(generation) {
+  let numInGen = 0;
+  for (let i = 0; i < data.length; ++i) {
+    console.log(getGeneration(data[i]))
+    if (getGeneration(data[i]) == generation) {
+      numInGen++;
+    }
+  }
+  return numInGen;
+}
+
+console.log(getGeneration(data[7]))
+//debugger
+console.log(getGenerationWidth(data[7]))
