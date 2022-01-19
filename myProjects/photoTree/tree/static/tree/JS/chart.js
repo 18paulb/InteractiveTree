@@ -937,6 +937,8 @@ function getNumInGeneration(generation) {
   return numInGen;
 }
 
+
+
 console.log(getGeneration(data[7]))
 //debugger
 console.log(getGenerationWidth(data[7]))
