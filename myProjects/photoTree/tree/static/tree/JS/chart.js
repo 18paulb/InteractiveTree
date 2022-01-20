@@ -696,7 +696,19 @@ function createDataPoints(chart) {
     xPos = getX(chartWidth, data.length, i)
 
     //Testing
-    //let generation = getGeneration(data[i])
+    let genCount = 0;
+    for (let j = 0; j < data.length; ++j) {
+      let tmp = getGenerationCount(data[j], 1);
+      if (tmp > genCount) {
+        genCount = tmp;
+      }
+    }
+    
+    let dividedHeight = chartWidth / genCount;
+
+    let gen = getGeneration(data[i])
+
+    yPos = testY(dividedHeight, gen)
     
 
     li.setAttribute('id', data[i].image)
@@ -920,17 +932,14 @@ function sortData() {
 }
 
 
+function testY(dividedHeight, generation) {
+  //Added 150 for better centered spacing
+  return (900  + 150) - dividedHeight * generation;
+}
 
+function testX() {
 
-
-
-
-
-
-
-
-
-
+}
 
 
 
