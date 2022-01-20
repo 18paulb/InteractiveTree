@@ -636,6 +636,8 @@ function removeAllChildNodes(parent) {
 function getY(value, maxValue, chartWidth) {
   //Scales values so that it fits evenly in size of chart
   //Makes it so that lowest value (oldest person) is top of graph
+
+  console.log("The max and min values are", maxValue, minValue)
   scaledValue = (Math.abs(value - maxValue)) * scaleFactor
   scaledMaxValue = (Math.abs(minValue - maxValue)) * scaleFactor
   let bottom = (scaledValue / scaledMaxValue) * chartWidth
@@ -644,7 +646,7 @@ function getY(value, maxValue, chartWidth) {
 
 //FIXME change for spacing
 function getX(chartWidth, numValues, positionInData) {
-  let left = (chartWidth / (numValues / 1.5)) * (positionInData + 1)
+  let left = (chartWidth / (numValues / 1.5)) * (positionInData + 1);
   return left;
 }
 
@@ -652,7 +654,7 @@ function getHypotenuse(datapoint1, datapoint2, left1, left2) {
   triSide = datapoint1 - datapoint2
   tmpSpacing = left1 - left2
   hypotenuse = Math.sqrt((triSide * triSide) + (tmpSpacing * tmpSpacing))
-  return hypotenuse
+  return hypotenuse;
 }
 
 //Get the angle to place line in between nodes
@@ -784,6 +786,13 @@ function getNumInGeneration(generation) {
     }
   }
   return numInGen;
+}
+
+function fixSpacing() {
+  let yAxis = getY() / numOfGenerations; //return even spots to put each generation (total pixels in Y-axis divided by num of generations)
+  let xAxis = getX() / 
+  
+
 }
 
 console.log(getGeneration(data[7]))
