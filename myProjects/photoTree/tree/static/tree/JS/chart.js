@@ -427,6 +427,8 @@ function removeRelationship(id1, id2) {
     let box = document.getElementById('confirmBox');
     box.innerHTML = ''
 
+    closeMenu()
+
     return;
   }
 
@@ -580,12 +582,14 @@ function addToConfirmBox(id) {
 
   let button = document.getElementById('changeButton')
 
-  if (children.length == 0) {
+  //Open Menu immediately when there are two nodes in confirmBox
+  if (children.length == 2) {
     let param1 = children[0]
     let param2 = children[1]
 
-    button.setAttribute('onclick', `openMenu(${param1}, ${param2})`)
+    //button.setAttribute('onclick', `openMenu(${param1}, ${param2})`)
 
+    openMenu(param1, param2)
   }
 }
 
@@ -597,13 +601,21 @@ function openMenu(id1, id2) {
     let menu = document.getElementById('center-menu');
 
     menu.innerHTML = `<div id='center-menu' class='center-menu'>
-    <div>Space</div>
-    <div>
+  
+    <div><button onclick='closeMenu()'>X</button></div>
+
+    <div class='menu-pics-container'>
+      <img class='menu-pic' src='../../static/tree/images/pictures/${id1}.PNG'/>
+      <img class='menu-pic' src='../../static/tree/images/pictures/${id2}.PNG'/>
+    </div>
+
+    <div class='menu-button'>
       <button id='removeButton' class='button-34' onclick='removeRelationship(${id1}, ${id2})'>Remove Relationship</button>
       <button id='addMotherButton' class='button-34' onclick=addMotherRelationship(${id1}, ${id2})>Add Mother/Child Relationship</button>
       <button id='addSpouseButton' class='button-34' onclick=addSpouseRelationship(${id1}, ${id2})>Add Spouse Relationship</button>
     </div>
     </div>`
+
   } else {
     let menu = document.getElementById('center-menu');
     menu.innerHTML = '';
@@ -634,7 +646,6 @@ function addToNodeContainer(id) {
   img.setAttribute('class', 'node-image')
   img.setAttribute('src', `../../static/tree/images/pictures/${id}.PNG`)
 
-  //FIXME this button ID might not be needed
   button.setAttribute('id', `button${id}`)
   button.setAttribute('class', 'nodeBox-button')
   button.setAttribute('onclick', `addToConfirmBox(${id}), removeFromNodeContainer(${id})`)
