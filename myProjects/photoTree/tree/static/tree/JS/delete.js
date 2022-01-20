@@ -788,9 +788,10 @@ function getNumInGeneration(generation) {
   return numInGen;
 }
 
+
 function fixSpacing() {
-  let yAxis = getY() / numOfGenerations; //return even spots to put each generation (total pixels in Y-axis divided by num of generations)
-  let xAxis = getX() / 
+  //let yAxis = getY() / numOfGenerations; //return even spots to put each generation (total pixels in Y-axis divided by num of generations)
+  //let xAxis = getX() / 
   
 
 }
