@@ -1,8 +1,10 @@
 /* The parent element */
 .css-chart {
   /* The chart borders */
-  border-bottom: 1px solid;
-  border-left: 1px solid;
+  /*
+    border-bottom: 1px solid;
+    border-left: 1px solid;
+  */
   /* The height, which is initially defined in the HTML */
   height: var(--widget-size);
   /* A little breathing room should there be others items around the chart */
@@ -139,13 +141,6 @@
   width: 200px;
 }
 
-.remove-relationship-button {
-  display: flex;
-}
-
-
-
-
 /*testing hover*/
 .hide {
   display: none;
@@ -154,4 +149,54 @@
 .info-box:hover + .hide {
   display: block;
   color: red;
+}
+
+/* CSS */
+.button-34 {
+  display: flex;
+  margin: 5px;
+
+
+  background: #5E5DF0;
+  border-radius: 999px;
+  box-shadow: #5E5DF0 0 10px 20px -10px;
+  box-sizing: border-box;
+  color: #FFFFFF;
+  cursor: pointer;
+  font-family: Inter,Helvetica,"Apple Color Emoji","Segoe UI Emoji",NotoColorEmoji,"Noto Color Emoji","Segoe UI Symbol","Android Emoji",EmojiSymbols,-apple-system,system-ui,"Segoe UI",Roboto,"Helvetica Neue","Noto Sans",sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+  opacity: 1;
+  outline: 0 solid transparent;
+  padding: 8px 18px;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  width: fit-content;
+  word-break: break-word;
+  border: 0;
+}
+
+body {
+  background-color: #eefcff;
+}
+
+
+.center-menu {
+  padding: 10px;
+
+  position: fixed;
+  width: 400px;
+  height: 300px;
+  z-index: 1;
+  top: 50%;
+  left: 50%;
+  margin: -100px 0 0 -150px;
+  background: #abcdef;
+}
+
+.menu-pics {
+  display: flex;
+  justify-content: space-around;
 }

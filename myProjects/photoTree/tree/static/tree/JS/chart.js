@@ -322,6 +322,8 @@ function addSpouseRelationship(id1, id2) {
 
   document.getElementById('confirmBox').innerHTML = ''
 
+  closeMenu();
+
 }
 
 
@@ -389,6 +391,8 @@ function addMotherRelationship(id1, id2) {
   createChart(chartList)
 
   document.getElementById('confirmBox').innerHTML = ''
+
+  closeMenu();
 
 }
 
@@ -498,6 +502,8 @@ function removeRelationship(id1, id2) {
 
   let box = document.getElementById('confirmBox');
   box.innerHTML = ''
+
+  closeMenu();
 }
 
 function changeAddButtonParameters() {
@@ -529,12 +535,14 @@ function changeRemoveButtonParameters() {
     children.push(box.children[i].id.substr(4))
   }
 
+  //FIXME Remove button doesn't exist
   let button = document.getElementById('removeButton')
 
   if (children.length != 0) {
     let param1 = children[0]
     let param2 = children[1]
     button.setAttribute('onclick',`changeRemoveButtonParameters(), removeRelationship(${param1}, ${param2})`)
+
   }
 }
 
@@ -545,7 +553,7 @@ function addToConfirmBox(id) {
     if (box.children[i].id == `node${id}`) {
       return;
     }
-  } 
+  }
 
   if (box.children.length >= 2) {
     alert("Can't have more than 2 nodes in confirmation box.")
@@ -562,9 +570,53 @@ function addToConfirmBox(id) {
 
   box.appendChild(img)
 
+  //Changes Parameters for Change Relationship button
+  //FIXME consider making this part its own function
+  let children = []
+
+  for (let i = 0; i < box.children.length; ++i) {
+    children.push(box.children[i].id.substr(4))
+  }
+
+  let button = document.getElementById('changeButton')
+
+  if (children.length == 0) {
+    let param1 = children[0]
+    let param2 = children[1]
+
+    button.setAttribute('onclick', `openMenu(${param1}, ${param2})`)
+
+  }
+}
+
+function openMenu(id1, id2) {
+  let box = document.getElementById('confirmBox');
+
+
+  if (box.children.length == 2) {
+    let menu = document.getElementById('center-menu');
+
+    menu.innerHTML = `<div id='center-menu' class='center-menu'>
+    <div>Space</div>
+    <div>
+      <button id='removeButton' class='button-34' onclick='removeRelationship(${id1}, ${id2})'>Remove Relationship</button>
+      <button id='addMotherButton' class='button-34' onclick=addMotherRelationship(${id1}, ${id2})>Add Mother/Child Relationship</button>
+      <button id='addSpouseButton' class='button-34' onclick=addSpouseRelationship(${id1}, ${id2})>Add Spouse Relationship</button>
+    </div>
+    </div>`
+  } else {
+    let menu = document.getElementById('center-menu');
+    menu.innerHTML = '';
+  }
+
+
   changeRemoveButtonParameters()
-  //TEST
   changeAddButtonParameters()
+}
+
+function closeMenu() {
+  let menu = document.getElementById('center-menu') 
+  menu.innerHTML = '';
 }
 
 function addToNodeContainer(id) {
@@ -917,23 +969,6 @@ function getGeneration(node) {
   return count;
 }
 
-/*
-function setX(node, numNodesInGeneration, generation, position) {
-  //FIXME this should get spacing right but it would put all nodes in one spot
-    let spacing;
-
-    spacing = chartWidth / numNodesInGeneration / generation;
-    spacing = spacing * position;
-
-    let tmpGen = getGeneration(node);
-
-    let width = getGenerationWidth(node)
-
-  
-    return spacing;
-  
-  }
-*/
 
 function getNumInGeneration(generation) {
   let numInGen = 0;
@@ -944,14 +979,4 @@ function getNumInGeneration(generation) {
     }
   }
   return numInGen;
-<<<<<<< HEAD
 }
-
-
-
-console.log(getGeneration(data[7]))
-//debugger
-console.log(getGenerationWidth(data[7]))
-=======
-}
->>>>>>> a6650af036ae83cb312bf01d0384e059b3c6de1b
