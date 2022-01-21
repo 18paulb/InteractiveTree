@@ -107,16 +107,13 @@ let data = [
 
 let nodeBoxData = []
 
-//TODO eventually, fix naming scheme for ID's to make more simple to work with
-
-console.log(data)
-
 //Variables to work with, will change if I need to change graph size
 let chartWidth = 1200;
-let maxValue = 0;
-let minValue = data[0].birthyear //initial value for comparing
+//let maxValue = 0;
+//let minValue = data[0].birthyear //initial value for comparing
 
 //Sets min and max values for yPos calculation
+/*
 for (let i = 0; i < data.length; ++i) {
   if (data[i].birthyear > maxValue) {
     maxValue = data[i].birthyear
@@ -126,9 +123,10 @@ for (let i = 0; i < data.length; ++i) {
     minValue = data[i].birthyear
   }
 }
+*/
 
 //Important otherwise nodes would be too close together
-let scaleFactor = maxValue - minValue;  
+//let scaleFactor = maxValue - minValue;  
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Defines class to be used for the objects of the values in momMap
@@ -700,7 +698,7 @@ function createDataPoints(chart) {
     let dividedHeight = chartWidth / genCount;
     let gen = getGeneration(data[i])
 
-    yPos = testY(dividedHeight, gen)
+    yPos = getY(dividedHeight, gen)
     //xPos = testX(data[i])
     
 
@@ -738,7 +736,7 @@ function createChildLines() {
 
         let dividedHeight = chartWidth / genCount;
         let gen = getGeneration(momArray[index][0].children[j])
-        let childYPos = testY(dividedHeight, gen)
+        let childYPos = getY(dividedHeight, gen)
 
         let childXPos = getX(chartWidth, data.length, getDataIndex(momArray[index][0].children[j].image))
         let childHypotenuse = getHypotenuse(yPos, childYPos, xPos, childXPos)
@@ -778,12 +776,14 @@ function createSpouseLines() {
 
       let dividedHeight = chartWidth / genCount;
       let gen = getGeneration(data[i])
-      let spouseYPos = testY(dividedHeight, gen)
+      let spouseYPos = getY(dividedHeight, gen)
 
 
       let spouseXPos = getX(chartWidth, data.length, getDataIndex(data[i].spouse))
       let spouseHypotenuse = getHypotenuse(yPos, spouseYPos, xPos, spouseXPos)
       let spouseAngle = getAngle(yPos - spouseYPos, spouseHypotenuse)
+
+      let derivativeOverBisectionTheory = 1;
 
       if (spouseXPos < xPos) {
         spouseAngle = (-1 * spouseAngle) + 180.5
@@ -939,7 +939,7 @@ function sortData() {
 }
 
 
-function testY(dividedHeight, generation) {
+function getY(dividedHeight, generation) {
   //Added chartWidth / 6 for better centered spacing
   return (chartWidth  + (chartWidth / 6)) - dividedHeight * generation;
 }
@@ -947,9 +947,9 @@ function testY(dividedHeight, generation) {
 function testX(node) {
   let generation = getGeneration(node);
 
-  let width = getGenerationWidth(node)
+  let width = getNumInGeneration(generation)
 
-  return width 
+  return (chartWidth / width) * generation
 }
 
 
