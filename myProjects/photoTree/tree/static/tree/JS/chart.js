@@ -112,7 +112,7 @@ let nodeBoxData = []
 console.log(data)
 
 //Variables to work with, will change if I need to change graph size
-let chartWidth = 900;
+let chartWidth = 1200;
 let maxValue = 0;
 let minValue = data[0].birthyear //initial value for comparing
 
@@ -201,7 +201,7 @@ momArray = makeMomArray()
 
 
 
-
+/*
 function swapRelationship(id1, id2) {
 
   //Assuming both are in data
@@ -237,10 +237,8 @@ function swapRelationship(id1, id2) {
   createChart(chartList)
 
   document.getElementById('confirmBox').innerHTML = ''
-
-
 }
-
+*/
 
 
 
@@ -525,7 +523,6 @@ function changeAddButtonParameters() {
     let param2 = children[1]
     button.setAttribute('onclick',`changeAddButtonParameters(), addMotherRelationship(${param1}, ${param2})`)
     button2.setAttribute('onclick',`changeAddButtonParameters(), addSpouseRelationship(${param1}, ${param2})`)
-    //button3.setAttribute('onclick',`changeAddButtonParameters(), swapRelationship(${param1}, ${param2})`)
   }
 }
 
@@ -537,7 +534,6 @@ function changeRemoveButtonParameters() {
     children.push(box.children[i].id.substr(4))
   }
 
-  //FIXME Remove button doesn't exist
   let button = document.getElementById('removeButton')
 
   if (children.length != 0) {
@@ -586,8 +582,6 @@ function addToConfirmBox(id) {
   if (children.length == 2) {
     let param1 = children[0]
     let param2 = children[1]
-
-    //button.setAttribute('onclick', `openMenu(${param1}, ${param2})`)
 
     openMenu(param1, param2)
   }
@@ -692,7 +686,6 @@ function createDataPoints(chart) {
 
   for (let i = 0; i < data.length; ++i) {
     let li = document.createElement('li')
-    yPos = getY(data[i].birthyear, maxValue, chartWidth)
     xPos = getX(chartWidth, data.length, i)
 
     //Testing
@@ -703,17 +696,16 @@ function createDataPoints(chart) {
         genCount = tmp;
       }
     }
-    
-    let dividedHeight = chartWidth / genCount;
 
+    let dividedHeight = chartWidth / genCount;
     let gen = getGeneration(data[i])
 
     yPos = testY(dividedHeight, gen)
+    //xPos = testX(data[i])
     
 
     li.setAttribute('id', data[i].image)
     li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`)
-    //li.innerHTML += `<div class="data-point" data-value="${data[i].birthyear}"><button id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'></button></div>`
     li.innerHTML += `<button id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'><img class="data-point data-button" data-value="${data[i].birthyear}" src="../../static/tree/images/pictures/${data[i].image}.PNG"></button>`
   
     chart.appendChild(li)
@@ -732,10 +724,22 @@ function createChildLines() {
       xPos = parseAttribute('x', li.getAttribute('style'))
       
       let index = getMomArrayIndex(momArray, data[i].image)
-  
+
+      //Getting longest generation chain
+      let genCount = 0;
+      for (let j = 0; j < data.length; ++j) {
+        let tmp = getGenerationCount(data[j], 1);
+        if (tmp > genCount) {
+          genCount = tmp;
+        }
+      }
+
       for (let j = 0; j < momArray[index][0].children.length; ++j) {
-  
-        let childYPos = getY(momArray[index][0].children[j].birthyear, maxValue, chartWidth)
+
+        let dividedHeight = chartWidth / genCount;
+        let gen = getGeneration(momArray[index][0].children[j])
+        let childYPos = testY(dividedHeight, gen)
+
         let childXPos = getX(chartWidth, data.length, getDataIndex(momArray[index][0].children[j].image))
         let childHypotenuse = getHypotenuse(yPos, childYPos, xPos, childXPos)
         let angle = getAngle(yPos - childYPos, childHypotenuse)
@@ -761,9 +765,22 @@ function createSpouseLines() {
     yPos = parseAttribute('y', li.getAttribute('style'))
     xPos = parseAttribute('x', li.getAttribute('style'))
 
+    //Getting longest generation chain
+    let genCount = 0;
+    for (let j = 0; j < data.length; ++j) {
+      let tmp = getGenerationCount(data[j], 1);
+      if (tmp > genCount) {
+        genCount = tmp;
+      }
+    }
+
     if (data[i].spouse != null) {
 
-      let spouseYPos = getY(data[getDataIndex(data[i].spouse)].birthyear, maxValue, chartWidth)
+      let dividedHeight = chartWidth / genCount;
+      let gen = getGeneration(data[i])
+      let spouseYPos = testY(dividedHeight, gen)
+
+
       let spouseXPos = getX(chartWidth, data.length, getDataIndex(data[i].spouse))
       let spouseHypotenuse = getHypotenuse(yPos, spouseYPos, xPos, spouseXPos)
       let spouseAngle = getAngle(yPos - spouseYPos, spouseHypotenuse)
@@ -786,23 +803,12 @@ function removeAllChildNodes(parent) {
   }
 }
 
-//FIXME change for spacing
-function getY(value, maxValue, chartWidth) {
-  //Scales values so that it fits evenly in size of chart
-  //Makes it so that lowest value (oldest person) is top of graph
-  scaledValue = (Math.abs(value - maxValue)) * scaleFactor
-  scaledMaxValue = (Math.abs(minValue - maxValue)) * scaleFactor
-  let bottom = (scaledValue / scaledMaxValue) * chartWidth
-  return bottom;
-}
 
 //FIXME change for spacing
 function getX(chartWidth, numValues, positionInData) {
   let left = (chartWidth / (numValues / 1.5)) * (positionInData + 1)
   return left;
 }
-
-
 
 function getHypotenuse(datapoint1, datapoint2, left1, left2) {
   triSide = datapoint1 - datapoint2
@@ -919,6 +925,7 @@ function hasRelationship(node) {
 }
 
 //JUST FOR TESTING, WILL REPLACE WITH POSITIONING ALGORITHM
+
 function sortData() {
   for (let i = 0; i < data.length; ++i) {
     for (let j = i+1; j < data.length; ++j) {
@@ -933,18 +940,21 @@ function sortData() {
 
 
 function testY(dividedHeight, generation) {
-  //Added 150 for better centered spacing
-  return (900  + 150) - dividedHeight * generation;
+  //Added chartWidth / 6 for better centered spacing
+  return (chartWidth  + (chartWidth / 6)) - dividedHeight * generation;
 }
 
-function testX() {
+function testX(node) {
+  let generation = getGeneration(node);
 
+  let width = getGenerationWidth(node)
+
+  return width 
 }
 
 
 
-
-//Generational XPositioning
+//Gets highest generation count
 function getGenerationCount(node, count) {
   if (node.mother == null) {
       if (node.spouse != null) {
@@ -975,7 +985,7 @@ function getGenerationWidth(node) {
 
   let numInGen = getNumInGeneration(generation)
 
-  let spacing = chartWidth / numInGen / generation;
+  let spacing = chartWidth / numInGen;
 
   return spacing
 }

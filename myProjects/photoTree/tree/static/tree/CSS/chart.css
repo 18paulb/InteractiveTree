@@ -76,9 +76,9 @@
 
 
 .child-line {
-  background-color: #7A510A;
+  background-color: #2e2922;
   bottom: var(--y);
-  height: 3px;
+  height: 5px;
   left: var(--x);
   position: absolute;
 
@@ -89,9 +89,9 @@
 }
 
 .spouse-line {
-  background-color: #FBC25F;
+  background-color: #dd961a;
   bottom: var(--y);
-  height: 3px;
+  height: 5px;
   left: var(--x);
   position: absolute;
 
@@ -158,11 +158,11 @@
 
 
   /*background: #5E5DF0;*/
-  background: #67C77F;
+  background: aliceblue;
   border-radius: 999px;
   box-shadow: #5E5DF0 0 10px 20px -10px;
   box-sizing: border-box;
-  color: #FFFFFF;
+  color: black;
   cursor: pointer;
   font-family: Inter,Helvetica,"Apple Color Emoji","Segoe UI Emoji",NotoColorEmoji,"Noto Color Emoji","Segoe UI Symbol","Android Emoji",EmojiSymbols,-apple-system,system-ui,"Segoe UI",Roboto,"Helvetica Neue","Noto Sans",sans-serif;
   font-size: 16px;
@@ -198,7 +198,7 @@ body {
   left: 50%;
   margin: -100px 0 0 -150px;
   /*background: #4056A1;*/
-  background: #407A4E;
+  background: #50bb89;
 }
 
 .menu-pics-container {
