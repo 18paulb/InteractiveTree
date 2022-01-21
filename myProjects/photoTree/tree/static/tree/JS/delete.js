@@ -788,14 +788,22 @@ function getNumInGeneration(generation) {
   return numInGen;
 }
 
+function getGenerationCount(node, count) {
+  if (node.mother == null) {
+      if (node.spouse != null) {
+      let spouseIndex = getDataIndex(node.spouse) 
+      if (data[spouseIndex].mother != null) {
+        let motherIndex = getDataIndex(data[spouseIndex].mother)
+        return count += getGenerationCount(data[motherIndex], count);
+      }
+      else {
+        return count;
+      }
+    }
+    else {
+      return count;
+    }
+  }
 
-function fixSpacing() {
-  //let yAxis = getY() / numOfGenerations; //return even spots to put each generation (total pixels in Y-axis divided by num of generations)
-  //let xAxis = getX() / 
-  
-
+  return chartWidth / numGenerations;
 }
-
-console.log(getGeneration(data[7]))
-//debugger
-console.log(getGenerationWidth(data[7]))
