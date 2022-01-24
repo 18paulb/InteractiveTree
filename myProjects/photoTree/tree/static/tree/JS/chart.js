@@ -107,26 +107,11 @@ let data = [
 
 let nodeBoxData = []
 
-//Variables to work with, will change if I need to change graph size
+//Change this and HTML in order to change graph size
 let chartWidth = 1200;
-//let maxValue = 0;
-//let minValue = data[0].birthyear //initial value for comparing
 
-//Sets min and max values for yPos calculation
-/*
-for (let i = 0; i < data.length; ++i) {
-  if (data[i].birthyear > maxValue) {
-    maxValue = data[i].birthyear
-  }
-
-  if (data[i].birthyear < minValue) {
-    minValue = data[i].birthyear
-  }
-}
-*/
-
-//Important otherwise nodes would be too close together
-//let scaleFactor = maxValue - minValue;  
+//Used to connect children to moms
+let momArray = []
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Defines class to be used for the objects of the values in momMap
@@ -144,7 +129,6 @@ class mom {
   }
 }
 
-let momArray = []
 
 function makeMomArray() {
   let tmpArray = []
@@ -238,31 +222,9 @@ function swapRelationship(id1, id2) {
 }
 */
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 let chartList = document.getElementById('chart')
 
 createChart(chartList)
-
-
 
 function addSpouseRelationship(id1, id2) {
   let node1;
@@ -321,8 +283,6 @@ function addSpouseRelationship(id1, id2) {
   closeMenu();
 
 }
-
-
 
 //TODO fix issues
 function addMotherRelationship(id1, id2) {
@@ -585,6 +545,39 @@ function addToConfirmBox(id) {
   }
 }
 
+function addToNodeContainer(id) {
+
+  let index = getDataIndex(id)
+
+  nodeBoxData.push(data[index])
+
+  let container = document.getElementById('nodeContainer')
+  let nodeId = `node${id}`
+  let button = document.createElement('button')
+  let img = document.createElement('img')
+
+  img.setAttribute('id', nodeId)
+  img.setAttribute('class', 'node-image')
+  img.setAttribute('src', `../../static/tree/images/pictures/${id}.PNG`)
+
+  button.setAttribute('id', `button${id}`)
+  button.setAttribute('class', 'nodeBox-button')
+  button.setAttribute('onclick', `addToConfirmBox(${id}), removeFromNodeContainer(${id})`)
+
+  button.appendChild(img)
+
+  container.appendChild(button)
+}
+
+function removeFromNodeContainer(id) {
+
+  let container = document.getElementById('nodeContainer')
+
+  let child = document.getElementById("button" + id)
+
+  container.removeChild(child)
+}
+
 function openMenu(id1, id2) {
   let box = document.getElementById('confirmBox');
 
@@ -623,47 +616,6 @@ function closeMenu() {
   menu.innerHTML = '';
 }
 
-function addToNodeContainer(id) {
-
-  let index = getDataIndex(id)
-
-  nodeBoxData.push(data[index])
-
-  let container = document.getElementById('nodeContainer')
-  let nodeId = `node${id}`
-  let button = document.createElement('button')
-  let img = document.createElement('img')
-
-  img.setAttribute('id', nodeId)
-  img.setAttribute('class', 'node-image')
-  img.setAttribute('src', `../../static/tree/images/pictures/${id}.PNG`)
-
-  button.setAttribute('id', `button${id}`)
-  button.setAttribute('class', 'nodeBox-button')
-  button.setAttribute('onclick', `addToConfirmBox(${id}), removeFromNodeContainer(${id})`)
-
-  button.appendChild(img)
-
-  container.appendChild(button)
-}
-
-function removeFromNodeContainer(id) {
-
-  let container = document.getElementById('nodeContainer')
-
-  let child = document.getElementById("button" + id)
-
-  container.removeChild(child)
-}
-
-
-
-
-
-
-
-
-
 
 
 
@@ -684,7 +636,7 @@ function createDataPoints(chart) {
 
   for (let i = 0; i < data.length; ++i) {
     let li = document.createElement('li')
-    xPos = getX(chartWidth, data.length, i)
+    //xPos = getX(chartWidth, data.length, i)
 
     //Testing
     let genCount = 0;
@@ -695,18 +647,38 @@ function createDataPoints(chart) {
       }
     }
 
-    let dividedHeight = chartWidth / genCount;
+    //FIXME Testing
+    //debugger
+    //Works
     let gen = getGeneration(data[i])
+    let nodeGeneration = getNodesInGeneration(gen);
+    //
 
-    yPos = getY(dividedHeight, gen)
-    //xPos = testX(data[i])
+    for (let j = 0; j < nodeGeneration.length; ++j) {
+
+      let dividedHeight = chartWidth / genCount;
+
+      yPos = getY(dividedHeight, gen)
+
+      xPos = (chartWidth / getNumInGeneration(gen)) * j
+
+      li.setAttribute('id', data[i].image)
+      li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`)
+      li.innerHTML += `<button id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'><img class="data-point data-button" data-value="${data[i].birthyear}" src="../../static/tree/images/pictures/${data[i].image}.PNG"></button>`
+    
+      chart.appendChild(li)
+
+    }
+  
     
 
+    /*
     li.setAttribute('id', data[i].image)
     li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`)
     li.innerHTML += `<button id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'><img class="data-point data-button" data-value="${data[i].birthyear}" src="../../static/tree/images/pictures/${data[i].image}.PNG"></button>`
   
     chart.appendChild(li)
+    */
   }
 
 }
@@ -734,6 +706,8 @@ function createChildLines() {
 
       for (let j = 0; j < momArray[index][0].children.length; ++j) {
 
+//debugger
+
         let dividedHeight = chartWidth / genCount;
         let gen = getGeneration(momArray[index][0].children[j])
         let childYPos = getY(dividedHeight, gen)
@@ -748,10 +722,15 @@ function createChildLines() {
         }
   
         li.innerHTML += `<div class="child-line" style="--hypotenuse: ${childHypotenuse}; --angle: ${angle}"></div>`
-        //li.innerHTML += `<button class="button-line" onclick="hi()" style="--hypotenuse: ${childHypotenuse}; --angle: ${angle}">test</button>`
+        //FIXME kind of works but positionins is all wrong
+        //li.innerHTML += `<button class="button-line" onclick="hi()"><div class="child-line" style="--hypotenuse: ${childHypotenuse}; --angle: ${angle}; z-index:-1;"></div></button>`
       }
     }
   }
+}
+
+function hi() {
+  console.log("Hello World!")
 }
 
 //Draws Line Connecting to Spouse
@@ -803,6 +782,10 @@ function removeAllChildNodes(parent) {
   }
 }
 
+function getY(dividedHeight, generation) {
+  //Added chartWidth / 6 for better centered spacing
+  return (chartWidth  + (chartWidth / 6)) - dividedHeight * generation;
+}
 
 //FIXME change for spacing
 function getX(chartWidth, numValues, positionInData) {
@@ -925,7 +908,6 @@ function hasRelationship(node) {
 }
 
 //JUST FOR TESTING, WILL REPLACE WITH POSITIONING ALGORITHM
-
 function sortData() {
   for (let i = 0; i < data.length; ++i) {
     for (let j = i+1; j < data.length; ++j) {
@@ -936,12 +918,6 @@ function sortData() {
       }
     }
   }
-}
-
-
-function getY(dividedHeight, generation) {
-  //Added chartWidth / 6 for better centered spacing
-  return (chartWidth  + (chartWidth / 6)) - dividedHeight * generation;
 }
 
 function testX(node) {
@@ -1003,10 +979,25 @@ function getGeneration(node) {
 function getNumInGeneration(generation) {
   let numInGen = 0;
   for (let i = 0; i < data.length; ++i) {
-    console.log(getGeneration(data[i]))
+    //console.log(getGeneration(data[i]))
     if (getGeneration(data[i]) == generation) {
       numInGen++;
     }
   }
   return numInGen;
 }
+
+//Testing
+function getNodesInGeneration(generation) {
+  let nodeGeneration = []
+  for (let i = 0; i < data.length; ++i) {
+    if (getGeneration(data[i]) == generation) {
+      nodeGeneration.push(data[i])
+    }
+  }
+
+  return nodeGeneration;
+}
+
+
+//chart width / how many are in generation
