@@ -228,6 +228,19 @@ let chartList = document.getElementById('chart')
 
 createChart(chartList)
 
+//Working on a hover event
+/*
+function showNodeInfo(id1) {
+  let hover = document.getElementById('hover-menu');
+  hover.addEventListener("mouseenter", function(event) {
+    event.innerHTML = menu.innerHTML = 
+    `<div id='hover-menu' class='hover-menu'>
+    <div><button onclick='closeMenu()'>X</button></div>
+    </div>`
+  }
+}
+*/
+
 function addSpouseRelationship(id1, id2) {
   let node1;
   let node2;
