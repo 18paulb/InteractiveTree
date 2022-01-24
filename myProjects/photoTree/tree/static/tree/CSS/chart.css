@@ -31,14 +31,13 @@
   height: 60px; /*height and width originally 12px*/
   position: absolute;
   width: 60px;
-  
+
   /* The data points have a radius of 8px and the line segment has a width of 3px, 
     so we split the difference to center the data points on the line segment origins */
   bottom: calc(var(--y) - 21.5px);
   left: calc(var(--x) - 24.5px);
 
   /*originals 6.5 px and 9.5 px*/
-  
 }
 /* FIXME doesn't work*/
 
@@ -64,7 +63,7 @@
   position: absolute;
   width: 5px;
 
-  transform: rotate(calc(var(--angle) * 1deg)); 
+  transform: rotate(calc(var(--angle) * 1deg));
   transform-origin: left bottom;
   width: calc(var(--hypotenuse) * 1px);
   z-index: -1;
@@ -74,7 +73,6 @@
   background-color: red;
 }
 
-
 .child-line {
   background-color: #2e2922;
   bottom: var(--y);
@@ -82,7 +80,7 @@
   left: var(--x);
   position: absolute;
 
-  transform: rotate(calc(var(--angle) * 1deg)); 
+  transform: rotate(calc(var(--angle) * 1deg));
   transform-origin: left bottom;
   width: calc(var(--hypotenuse) * 1px);
   z-index: -1;
@@ -100,7 +98,6 @@
   width: calc(var(--hypotenuse) * 1px);
   z-index: -1;
 }
-
 
 .footer-box {
   display: flex;
@@ -156,15 +153,17 @@
   display: flex;
   margin: 5px;
 
-
   /*background: #5E5DF0;*/
   background: aliceblue;
   border-radius: 999px;
-  box-shadow: #5E5DF0 0 10px 20px -10px;
+  box-shadow: #5e5df0 0 10px 20px -10px;
   box-sizing: border-box;
   color: black;
   cursor: pointer;
-  font-family: Inter,Helvetica,"Apple Color Emoji","Segoe UI Emoji",NotoColorEmoji,"Noto Color Emoji","Segoe UI Symbol","Android Emoji",EmojiSymbols,-apple-system,system-ui,"Segoe UI",Roboto,"Helvetica Neue","Noto Sans",sans-serif;
+  font-family: Inter, Helvetica, "Apple Color Emoji", "Segoe UI Emoji",
+    NotoColorEmoji, "Noto Color Emoji", "Segoe UI Symbol", "Android Emoji",
+    EmojiSymbols, -apple-system, system-ui, "Segoe UI", Roboto, "Helvetica Neue",
+    "Noto Sans", sans-serif;
   font-size: 16px;
   font-weight: 700;
   line-height: 24px;
@@ -180,10 +179,8 @@
 }
 
 body {
-  background-color: #FFFAF0;
-  ;
+  background-color: #fffaf0;
 }
-
 
 .center-menu {
   padding: 10px;
@@ -221,4 +218,12 @@ body {
   align-items: center;
   margin-bottom: 5px;
   margin-top: 15px;
+}
+
+.hover-menu {
+  display: flex;
+  flex-direction: column;
+  align-items: top;
+  margin-bottom: 5px;
+  margin-top: 10px;
 }
