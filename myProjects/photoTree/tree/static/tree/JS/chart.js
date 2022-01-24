@@ -106,6 +106,7 @@ let data = [
 ]
 
 let nodeBoxData = []
+//randomizeDataOrder(data);
 
 //Change this and HTML in order to change graph size
 let chartWidth = 1200;
@@ -634,11 +635,24 @@ function createDataPoints(chart) {
   //In case you have to redraw chart
   removeAllChildNodes(chart)
 
+  let generationMap = new Map();
+
+  let genCount = 0;
+  for (let j = 0; j < data.length; ++j) {
+    let tmp = getGenerationCount(data[j], 1);
+    if (tmp > genCount) {
+      genCount = tmp;
+    }
+  }
+
+  for (let j = 0; j < genCount; ++j) {
+    generationMap.set(j+1, 1)
+  }
+
+
   for (let i = 0; i < data.length; ++i) {
     let li = document.createElement('li')
-    //xPos = getX(chartWidth, data.length, i)
 
-    //Testing
     let genCount = 0;
     for (let j = 0; j < data.length; ++j) {
       let tmp = getGenerationCount(data[j], 1);
@@ -647,38 +661,30 @@ function createDataPoints(chart) {
       }
     }
 
-    //FIXME Testing
-    //debugger
-    //Works
+
+    //Getting X and Y Positions
     let gen = getGeneration(data[i])
-    let nodeGeneration = getNodesInGeneration(gen);
-    //
 
-    for (let j = 0; j < nodeGeneration.length; ++j) {
+    let dividedHeight = chartWidth / genCount;
+    let yPos = getY(dividedHeight, gen)
 
-      let dividedHeight = chartWidth / genCount;
+    let xPos = getX(data[i], generationMap, chartWidth)
 
-      yPos = getY(dividedHeight, gen)
+//TESTING For placing right next to Spouse
+    if (data[i].spouse != null) {
+      let spouseIndex = getDataIndex(data[i].spouse)
 
-      xPos = (chartWidth / getNumInGeneration(gen)) * j
-
-      li.setAttribute('id', data[i].image)
-      li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`)
-      li.innerHTML += `<button id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'><img class="data-point data-button" data-value="${data[i].birthyear}" src="../../static/tree/images/pictures/${data[i].image}.PNG"></button>`
-    
-      chart.appendChild(li)
-
+      if (data[i].image < data[spouseIndex].image) {
+        xPos = getX(data[spouseIndex], generationMap, chartWidth) + 25
+      }
     }
-  
-    
+//
 
-    /*
     li.setAttribute('id', data[i].image)
     li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`)
     li.innerHTML += `<button id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'><img class="data-point data-button" data-value="${data[i].birthyear}" src="../../static/tree/images/pictures/${data[i].image}.PNG"></button>`
   
     chart.appendChild(li)
-    */
   }
 
 }
@@ -706,13 +712,14 @@ function createChildLines() {
 
       for (let j = 0; j < momArray[index][0].children.length; ++j) {
 
-//debugger
-
         let dividedHeight = chartWidth / genCount;
         let gen = getGeneration(momArray[index][0].children[j])
         let childYPos = getY(dividedHeight, gen)
 
-        let childXPos = getX(chartWidth, data.length, getDataIndex(momArray[index][0].children[j].image))
+        let childElement = document.getElementById(momArray[index][0].children[j].image)
+        let childXPos = parseAttribute('x', childElement.getAttribute('style'))
+
+
         let childHypotenuse = getHypotenuse(yPos, childYPos, xPos, childXPos)
         let angle = getAngle(yPos - childYPos, childHypotenuse)
   
@@ -757,12 +764,11 @@ function createSpouseLines() {
       let gen = getGeneration(data[i])
       let spouseYPos = getY(dividedHeight, gen)
 
+      let spouseElement = document.getElementById(data[i].spouse)
+      let spouseXPos = parseAttribute('x', spouseElement.getAttribute('style'))
 
-      let spouseXPos = getX(chartWidth, data.length, getDataIndex(data[i].spouse))
       let spouseHypotenuse = getHypotenuse(yPos, spouseYPos, xPos, spouseXPos)
       let spouseAngle = getAngle(yPos - spouseYPos, spouseHypotenuse)
-
-      let derivativeOverBisectionTheory = 1;
 
       if (spouseXPos < xPos) {
         spouseAngle = (-1 * spouseAngle) + 180.5
@@ -787,10 +793,30 @@ function getY(dividedHeight, generation) {
   return (chartWidth  + (chartWidth / 6)) - dividedHeight * generation;
 }
 
-//FIXME change for spacing
-function getX(chartWidth, numValues, positionInData) {
-  let left = (chartWidth / (numValues / 1.5)) * (positionInData + 1)
-  return left;
+function getX(node, map, width) {
+  let genCount = 0;
+  let xPos
+
+  //Gets highest Generation
+  for (let j = 0; j < data.length; ++j) {
+    let tmp = getGenerationCount(data[j], 1);
+    if (tmp > genCount) {
+      genCount = tmp;
+    }
+  }
+
+  let currGeneration;
+  let keyGen = getGeneration(node)
+
+  currGeneration = map.get(keyGen)
+
+  xPos = (width / getNumInGeneration(keyGen)) * currGeneration
+  currGeneration++;
+
+  map.set(keyGen, currGeneration)
+
+  return xPos
+
 }
 
 function getHypotenuse(datapoint1, datapoint2, left1, left2) {
@@ -859,7 +885,6 @@ function isMom(node) {
 
 function parseAttribute(lookFor, attribute) {
   let numString = ''
-  //debugger
   if (lookFor == 'y') {
     for (let i = 0; i < attribute.length; ++i) {
       if (attribute[i] == 'y') {
@@ -884,7 +909,7 @@ function parseAttribute(lookFor, attribute) {
       }
     }
   }
-  return numString
+  return parseInt(numString)
 }
 
 function hasRelationship(node) {
@@ -920,13 +945,7 @@ function sortData() {
   }
 }
 
-function testX(node) {
-  let generation = getGeneration(node);
 
-  let width = getNumInGeneration(generation)
-
-  return (chartWidth / width) * generation
-}
 
 
 
@@ -956,7 +975,7 @@ function getGenerationCount(node, count) {
 }
 
 
-function getGenerationWidth(node) {
+function getGenerationWidth(width, node) {
   let generation = getGeneration(node)
 
   let numInGen = getNumInGeneration(generation)
@@ -965,7 +984,6 @@ function getGenerationWidth(node) {
 
   return spacing
 }
-
 
 function getGeneration(node) {
   let count = 1;
@@ -979,7 +997,6 @@ function getGeneration(node) {
 function getNumInGeneration(generation) {
   let numInGen = 0;
   for (let i = 0; i < data.length; ++i) {
-    //console.log(getGeneration(data[i]))
     if (getGeneration(data[i]) == generation) {
       numInGen++;
     }
@@ -987,7 +1004,6 @@ function getNumInGeneration(generation) {
   return numInGen;
 }
 
-//Testing
 function getNodesInGeneration(generation) {
   let nodeGeneration = []
   for (let i = 0; i < data.length; ++i) {
@@ -998,6 +1014,3 @@ function getNodesInGeneration(generation) {
 
   return nodeGeneration;
 }
-
-
-//chart width / how many are in generation
