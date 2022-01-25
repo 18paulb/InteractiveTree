@@ -51,8 +51,7 @@ let data = [
     "image": 9,
     "mother": null,  //FIXME CHANGED
     "spouse": 8,
-    "birthyear": 1979,
-    "name": 'Joe Price'
+    "birthyear": 1979
   },
   /*
   {
@@ -228,19 +227,6 @@ let chartList = document.getElementById('chart')
 
 createChart(chartList)
 
-//Working on a hover event
-/*
-function showNodeInfo(id1) {
-  let hover = document.getElementById('hover-menu');
-  hover.addEventListener("mouseenter", function(event) {
-    event.innerHTML = menu.innerHTML = 
-    `<div id='hover-menu' class='hover-menu'>
-    <div><button onclick='closeMenu()'>X</button></div>
-    </div>`
-  }
-}
-*/
-
 function addSpouseRelationship(id1, id2) {
   let node1;
   let node2;
@@ -261,12 +247,6 @@ function addSpouseRelationship(id1, id2) {
     if (nodeBoxData[i].image == id2) {
      node2 = nodeBoxData[i];
     }
-  }
-
-
-  if (hasSpouse) {
-    alert("Error, There already exists a spouse");
-    return;
   }
 
   //For Spouse -> Spouse
@@ -302,14 +282,7 @@ function addSpouseRelationship(id1, id2) {
   document.getElementById('confirmBox').innerHTML = ''
 
   closeMenu();
-}
 
-function hasSpouse(id1, id2) {
-  if (data[id1].spouse != null || data[id2].spouse != null) {
-    return true;
-  } else {
-    return false;
-  }
 }
 
 //TODO fix issues
@@ -619,15 +592,7 @@ function openMenu(id1, id2) {
 
     <div class='menu-pics-container'>
       <img class='menu-pic' src='../../static/tree/images/pictures/${id1}.PNG'/>
-      <div class='menu-node1-info'>
-        <b>Name: ${data[id1]?.name} <br></br></b>
-        <b>Birthyear: ${data[id1]?.birthyear}</b>
-      </div>
       <img class='menu-pic' src='../../static/tree/images/pictures/${id2}.PNG'/>
-      <div class='menu-node2-info'>
-        <b>Name: ${data[id2]?.name} <br></br></b>
-        <b>Birthyear: ${data[id2]?.birthyear}</b>
-      </div>
     </div>
 
     <div class='menu-button'>
@@ -650,6 +615,9 @@ function openMenu(id1, id2) {
 function closeMenu() {
   let menu = document.getElementById('center-menu') 
   menu.innerHTML = '';
+
+  let confirmBox = document.getElementById('confirmBox');
+  confirmBox.innerHTML = '';
 }
 
 
@@ -705,12 +673,14 @@ function createDataPoints(chart) {
 
     let xPos = getX(data[i], generationMap, chartWidth)
 
-//TESTING For placing right next to Spouse
+//TESTING For placing right next to Spouse`
     if (data[i].spouse != null) {
       let spouseIndex = getDataIndex(data[i].spouse)
 
+      //tmpMap created so that generationMap doesn't get updated too early
+      let tmpMap = generationMap
       if (data[i].image < data[spouseIndex].image) {
-        xPos = getX(data[spouseIndex], generationMap, chartWidth) + 25
+        xPos = getX(data[spouseIndex], tmpMap, chartWidth)
       }
     }
 //
@@ -1028,7 +998,6 @@ function getGeneration(node) {
   return count;
 }
 
-
 function getNumInGeneration(generation) {
   let numInGen = 0;
   for (let i = 0; i < data.length; ++i) {
@@ -1048,4 +1017,42 @@ function getNodesInGeneration(generation) {
   }
 
   return nodeGeneration;
+}
+
+
+
+
+
+
+
+
+
+//XSpacing For Children Testing
+function getChildren(motherNode) {
+  let children = []
+  if (isMom(node)) {
+    let index = getMomArrayIndex(momArray, node.image);
+    children = momArray[index][0].children 
+  }
+
+  return children
+}
+
+function getSiblings(childNode) {
+  let siblings = []
+
+  let momIndex = getDataIndex(node.mother)
+
+  siblings = getChildren(data[momIndex])
+
+  return siblings
+}
+
+function adjustChildNodes() {
+  let chart = document.getElementById('chart')
+
+  for (let i = 0; i < chart.children; ++i) {
+    let node = chart.children[i]
+    let MomXPos = parseAttribute('x', node.getAttribute('style'))
+  }
 }
