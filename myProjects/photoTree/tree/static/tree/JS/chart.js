@@ -629,6 +629,10 @@ function closeMenu() {
 
 function createChart(chart) {
   createDataPoints(chart)
+
+  adjustChildNodesXPos(data[8])
+  adjustChildNodesXPos(data[13])
+
   createChildLines()
   createSpouseLines()
 }
@@ -683,7 +687,7 @@ function createDataPoints(chart) {
         xPos = getX(data[spouseIndex], tmpMap, chartWidth)
       }
     }
-//
+    //
 
     li.setAttribute('id', data[i].image)
     li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`)
@@ -1030,9 +1034,11 @@ function getNodesInGeneration(generation) {
 //XSpacing For Children Testing
 function getChildren(motherNode) {
   let children = []
-  if (isMom(node)) {
-    let index = getMomArrayIndex(momArray, node.image);
-    children = momArray[index][0].children 
+  if (isMom(motherNode)) {
+    let index = getMomArrayIndex(momArray, motherNode.image);
+    for (let i = 0; i < momArray[index][0].children.length; ++i) {
+      children.push(momArray[index][0].children[i])
+    }
   }
 
   return children
@@ -1048,11 +1054,82 @@ function getSiblings(childNode) {
   return siblings
 }
 
-function adjustChildNodes() {
+
+//You have at to adjust them after all children have been placed already
+//TODO finish function to get spacing of the section that each node "family" gets from chartwidth
+//This function works I just need to figure out spacing and fix bugs
+//Will probably merge with the getX function
+function adjustChildNodesXPos(momNode) {
+
+  let children = getChildren(momNode);
+
+  //If there are an odd number of children
+  if (children.length % 2 == 1) {
+
+    let mom = document.getElementById(`${momNode.image}`)
+    let momXPos = parseAttribute('x', mom.style.cssText)
+    let spacing = 100
+
+
+    //FIXME there are already drawn nodes in xPos's so this causes errors
+    //TRY setting up children x to 0 and then go from there
+    for (let i = 0; i < children.length; ++i) {
+      let child = document.getElementById(`${children[i].image}`)
+      let originalY = parseAttribute('y', child.style.cssText)
+      child.setAttribute('style', `--y: ${originalY}px; --x: ${0}px`)
+    }
+    //End Try
+
+    for (let i = 0; i < children.length; ++i) {
+
+      let child = document.getElementById(`${children[i].image}`)
+
+      let newXPos;
+      let originalY = parseAttribute('y', child.style.cssText)
+
+      let childGeneration = getGeneration(children[i])
+
+      if (i == 0) {
+        newXPos = momXPos
+        child.setAttribute('style', `--y: ${Math.round(originalY)}px; --x: ${Math.round(newXPos)}px`)
+      }
+
+      else if (emptyXLocation(momXPos + spacing, childGeneration)) {
+        newXPos = momXPos + spacing;
+        child.setAttribute('style', `--y: ${Math.round(originalY)}px; --x: ${Math.round(newXPos)}px`)
+      }
+    
+      else if (emptyXLocation(momXPos - spacing, childGeneration)) {
+        newXPos = momXPos - spacing;
+        child.setAttribute('style', `--y: ${Math.round(originalY)}px; --x: ${Math.round(newXPos)}px`)
+      }
+
+      else {
+        spacing += 100;
+        //Don't ask me i tried it and it works, think it out yourself, something about repeating loop iteration to make sure it gets placed with proper spacing
+        i -= 1
+      }
+    }
+  }
+}
+
+//Need to check only in that generation
+function emptyXLocation(xPos, generation) {
   let chart = document.getElementById('chart')
 
-  for (let i = 0; i < chart.children; ++i) {
-    let node = chart.children[i]
-    let MomXPos = parseAttribute('x', node.getAttribute('style'))
+  let isEmpty = true;
+
+  let nodesInGeneration = getNodesInGeneration(generation);
+
+  for (let i = 0; i < nodesInGeneration.length; ++i) {
+    let node = document.getElementById(`${nodesInGeneration[i].image}`)
+    let tmpX = parseAttribute('x', node.style.cssText)
+
+    if ((xPos == tmpX)) {
+      isEmpty = false;
+      return isEmpty
+    }
   }
+
+  return isEmpty
 }
