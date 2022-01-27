@@ -174,7 +174,21 @@ function makeMomArray() {
     }
   }
   tmpArray = tmpMomArray;
-
+/*
+  //Sorts children oldest to youngest
+  //n^3 bigO, gross
+  for (i = 0; i < momArray.length; i++) {
+    for (k = 0; k < momArray[i][0].children.length; ++k) {
+      for (j = 0; j < momArray[i][0].children.length - i - 1; j++) {
+        if (momArray[i][0].children[j].birthyear > momArray[i][0].children[j+1].birthyear) {
+          let tmp = momArray[i][0].children[j];
+          momArray[i][0].children[j] = momArray[i][0].children[j+1];
+          momArray[i][0].children[j+1] = tmp;
+        }
+      }
+    }
+  }
+*/
   return tmpArray;
 }
 
@@ -183,49 +197,223 @@ momArray = makeMomArray();
 
 
 
-
-/*
-function swapRelationship(id1, id2) {
-
-  //Assuming both are in data
-
-  let id1Index = getDataIndex(id1);
-  let id2Index = getDataIndex(id2);
-
-  let tmpMom = data[id1Index].mother;
-  data[id1Index].mother = data[id2Index].mother;
-  data[id2Index].mother = tmpMom;
-
-  let tmpSpouse = data[id1Index].spouse;
-  data[id1Index].spouse = data[id2Index].spouse;
-  data[id2Index].spouse = tmpSpouse;
-
-  if (isMom(data[id1Index])) {
-    let momIndex = getMomArrayIndex(momArray, id1);
-    for (let i = 0; i < momArray[momIndex][0].children.length; ++i) {
-      momArray[momIndex][0].children[i].mother = id2;
-    }
-  }
-
-  if (isMom(data[id2Index])) {
-    let momIndex = getMomArrayIndex(momArray, id2);
-    for (let i = 0; i < momArray[momIndex][0].children.length; ++i) {
-      momArray[momIndex][0].children[i].mother = id1;
-    }
-  }
-
-  momArray = makeMomArray();
-  
-  sortData();
-  createChart(chartList);
-
-  document.getElementById('confirmBox').innerHTML = '';
-}
-*/
-
 let chartList = document.getElementById('chart');
 
 createChart(chartList);
+
+
+
+//All functions for chart creation and functionality
+
+
+
+function createChart(chart) {
+  createDataPoints(chart);
+
+  //Testing
+  for (let i = 0; i < data.length; ++i) {
+    if (data[i].spouse != null) {
+      adjustSpouseXPos(data[i]);
+    }
+  }
+
+  for (let i = 0; i < momArray.length; ++i) {
+    if (momArray[i][0].data.image == 11) {
+      continue;
+    }
+    adjustChildNodesXPos(momArray[i][0].data);
+  }
+
+  createChildLines();
+  createSpouseLines();
+}
+
+//Creates Data Points
+function createDataPoints(chart) {
+  //In case you have to redraw chart
+  removeAllChildNodes(chart);
+
+  let generationMap = new Map();
+
+  let genCount = 0;
+  for (let j = 0; j < data.length; ++j) {
+    let tmp = getGenerationCount(data[j], 1);
+    if (tmp > genCount) {
+      genCount = tmp;
+    }
+  }
+
+  for (let j = 0; j < genCount; ++j) {
+    generationMap.set(j+1, 1);
+  }
+
+
+  for (let i = 0; i < data.length; ++i) {
+    let li = document.createElement('li');
+
+    let genCount = 0;
+    for (let j = 0; j < data.length; ++j) {
+      let tmp = getGenerationCount(data[j], 1);
+      if (tmp > genCount) {
+        genCount = tmp;
+      }
+    }
+
+
+    //Getting X and Y Positions
+    let gen = getGeneration(data[i]);
+
+    let dividedHeight = chartWidth / genCount;
+    let yPos = getY(dividedHeight, gen);
+
+    let xPos = getX(data[i], generationMap, chartWidth);
+
+    li.setAttribute('id', data[i].image);
+    li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`);
+    li.innerHTML += `<button id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'><img class="data-point data-button" data-value="${data[i].birthyear}" src="../../static/tree/images/pictures/${data[i].image}.PNG"></button>`;
+  
+    chart.appendChild(li);
+  }
+
+}
+
+function createChildLines() {
+  for (let i = 0; i < data.length; ++i) {
+
+    if (isMom(data[i])) {
+      let li = document.getElementById(data[i].image);
+  
+      yPos = parseAttribute('y', li.getAttribute('style'));
+      xPos = parseAttribute('x', li.getAttribute('style'));
+      
+      let index = getMomArrayIndex(momArray, data[i].image);
+
+      //Getting longest generation chain
+      let genCount = 0;
+      for (let j = 0; j < data.length; ++j) {
+        let tmp = getGenerationCount(data[j], 1);
+        if (tmp > genCount) {
+          genCount = tmp;
+        }
+      }
+
+      for (let j = 0; j < momArray[index][0].children.length; ++j) {
+
+        let dividedHeight = chartWidth / genCount;
+        let gen = getGeneration(momArray[index][0].children[j]);
+        let childYPos = getY(dividedHeight, gen);
+
+        let childElement = document.getElementById(momArray[index][0].children[j].image);
+        let childXPos = parseAttribute('x', childElement.getAttribute('style'));
+
+
+        let childHypotenuse = getHypotenuse(yPos, childYPos, xPos, childXPos);
+        let angle = getAngle(yPos - childYPos, childHypotenuse);
+  
+        //Adjusts angle if child is before mom in x-axis
+        if (childXPos < xPos) {
+          angle = (-1 * angle) + 180.5;
+        }
+  
+        li.innerHTML += `<div class="child-line" style="--hypotenuse: ${childHypotenuse}; --angle: ${angle}"></div>`;
+        //FIXME kind of works but positionins is all wrong
+        //li.innerHTML += `<button class="button-line" onclick="hi()"><div class="child-line" style="--hypotenuse: ${childHypotenuse}; --angle: ${angle}; z-index:-1;"></div></button>`;
+      }
+    }
+  }
+}
+
+function hi() {
+  console.log("Hello World!");
+}
+
+function createSpouseLines() {
+  for (let i = 0; i < data.length; ++i) {
+
+    let li = document.getElementById(data[i].image);
+
+    yPos = parseAttribute('y', li.getAttribute('style'));
+    xPos = parseAttribute('x', li.getAttribute('style'));
+
+    //Getting longest generation chain
+    let genCount = 0;
+    for (let j = 0; j < data.length; ++j) {
+      let tmp = getGenerationCount(data[j], 1);
+      if (tmp > genCount) {
+        genCount = tmp;
+      }
+    }
+
+    if (data[i].spouse != null) {
+
+      let dividedHeight = chartWidth / genCount;
+      let gen = getGeneration(data[i]);
+      let spouseYPos = getY(dividedHeight, gen);
+
+      let spouseElement = document.getElementById(data[i].spouse);
+      let spouseXPos = parseAttribute('x', spouseElement.getAttribute('style'));
+
+      let spouseHypotenuse = getHypotenuse(yPos, spouseYPos, xPos, spouseXPos);
+      let spouseAngle = getAngle(yPos - spouseYPos, spouseHypotenuse);
+
+      if (spouseXPos < xPos) {
+        spouseAngle = (-1 * spouseAngle) + 180.5;
+      }
+
+      //if statement so that two spouse lines aren't drawn between spouses
+      if (spouseXPos > xPos) {
+        li.innerHTML += `<div class="spouse-line" style="--hypotenuse: ${spouseHypotenuse}; --angle: ${spouseAngle}"></div>`;
+      }
+    }
+  }
+}
+
+function getY(dividedHeight, generation) {
+  //Added chartWidth / 6 for better centered spacing
+  //FIXME Avoid magic numbers
+  return (chartWidth  + (chartWidth / 6)) - dividedHeight * generation;
+}
+
+function getX(node, map, width) {
+  let genCount = 0;
+  let xPos;
+
+  //Gets highest Generation
+  for (let j = 0; j < data.length; ++j) {
+    let tmp = getGenerationCount(data[j], 1);
+    if (tmp > genCount) {
+      genCount = tmp;
+    }
+  }
+
+  let currGeneration;
+  let keyGen = getGeneration(node);
+
+  currGeneration = map.get(keyGen);
+
+  xPos = (width / getNumInGeneration(keyGen)) * currGeneration;
+  currGeneration++;
+
+  map.set(keyGen, currGeneration);
+
+  return xPos;
+
+}
+
+function getHypotenuse(datapoint1, datapoint2, left1, left2) {
+  triSide = datapoint1 - datapoint2;
+  tmpSpacing = left1 - left2;
+  hypotenuse = Math.sqrt((triSide * triSide) + (tmpSpacing * tmpSpacing));
+  return hypotenuse;
+}
+
+function getAngle(opposite, hypotenuse) {
+  let sine = Math.asin(opposite / hypotenuse);
+  //Convert from radians to degrees
+  sine = sine * (180 / Math.PI);
+
+  return sine;
+}
 
 function addSpouseRelationship(id1, id2) {
   let node1;
@@ -276,7 +464,6 @@ function addSpouseRelationship(id1, id2) {
     data[spouse2Index].spouse = spouse1.image;
   }
 
-  sortData();
   createChart(chartList);
 
   document.getElementById('confirmBox').innerHTML = '';
@@ -344,7 +531,6 @@ function addMotherRelationship(id1, id2) {
 
   momArray = makeMomArray()
   
-  sortData()
   createChart(chartList)
 
   document.getElementById('confirmBox').innerHTML = ''
@@ -390,8 +576,11 @@ function removeRelationship(id1, id2) {
   }
 
   //Removes Mother/Child Relationship
-  id1Index = getDataIndex(id1)
-  id2Index = getDataIndex(id2)
+  id1Index = getDataIndex(id1);
+  id2Index = getDataIndex(id2);
+
+  debugger
+
 
   if (data[id1Index].mother == id2) {
     for (let i = 0; i < momArray.length; ++i) {
@@ -400,20 +589,20 @@ function removeRelationship(id1, id2) {
           if (momArray[i][0].children[j].image == id1) {
             isRelated = true;
 
-            data[id1Index].mother = null
+            data[id1Index].mother = null;
 
             if (!hasRelationship(data[id1Index])) {
-              addToNodeContainer(data[id1Index].image)
-              data.splice(id1Index, 1)
+              addToNodeContainer(data[id1Index].image);
+              data.splice(id1Index, 1);
             }
 
-            id2Index = getDataIndex(id2)
+            id2Index = getDataIndex(id2);
             
-            momArray = makeMomArray()
+            momArray = makeMomArray();
 
             if (!hasRelationship(data[id2Index])) {
-              addToNodeContainer(data[id2Index].image)
-              data.splice(id2Index, 1)
+              addToNodeContainer(data[id2Index].image);
+              data.splice(id2Index, 1);
             }
 
             break;
@@ -430,20 +619,20 @@ function removeRelationship(id1, id2) {
           if (momArray[i][0].children[j].image == id2) {
             isRelated = true;
 
-            data[id2Index].mother = null
+            data[id2Index].mother = null;
 
             if (!hasRelationship(data[id2Index])) {
-              addToNodeContainer(data[id2Index].image)
-              data.splice(id2Index, 1)
+              addToNodeContainer(data[id2Index].image);
+              data.splice(id2Index, 1);
             }
 
-            id1Index = getDataIndex(id1)
+            id1Index = getDataIndex(id1);
 
-            momArray = makeMomArray()
+            momArray = makeMomArray();
 
             if (!hasRelationship(data[id1Index])) {
-              addToNodeContainer(data[id1Index].image)
-              data.splice(id1Index, 1)
+              addToNodeContainer(data[id1Index].image);
+              data.splice(id1Index, 1);
             }
 
             break;
@@ -454,7 +643,7 @@ function removeRelationship(id1, id2) {
   }
 
   if (!isRelated) {
-    alert("Error, No Direct Relationship")
+    alert("Error, No Direct Relationship");
   }
 
   createChart(chartList)
@@ -470,18 +659,18 @@ function changeAddButtonParameters() {
   let children = []
 
   for (let i = 0; i < box.children.length; ++i) {
-    children.push(box.children[i].id.substr(4))
+    children.push(box.children[i].id.substr(4));
   }
 
-  let button = document.getElementById('addMotherButton')
-  let button2 = document.getElementById('addSpouseButton')
-  let button3 = document.getElementById('swapButton')
+  let button = document.getElementById('addMotherButton');
+  let button2 = document.getElementById('addSpouseButton');
+  let button3 = document.getElementById('swapButton');
 
   if (children.length != 0) {
-    let param1 = children[0]
-    let param2 = children[1]
-    button.setAttribute('onclick',`changeAddButtonParameters(), addMotherRelationship(${param1}, ${param2})`)
-    button2.setAttribute('onclick',`changeAddButtonParameters(), addSpouseRelationship(${param1}, ${param2})`)
+    let param1 = children[0];
+    let param2 = children[1];
+    button.setAttribute('onclick',`changeAddButtonParameters(), addMotherRelationship(${param1}, ${param2})`);
+    button2.setAttribute('onclick',`changeAddButtonParameters(), addSpouseRelationship(${param1}, ${param2})`);
   }
 }
 
@@ -579,6 +768,12 @@ function removeFromNodeContainer(id) {
   container.removeChild(child);
 }
 
+function removeAllChildNodes(parent) {
+  while (parent.firstChild) {
+      parent.removeChild(parent.firstChild);
+  }
+}
+
 function openMenu(id1, id2) {
   let box = document.getElementById('confirmBox');
 
@@ -623,235 +818,10 @@ function closeMenu() {
 
 
 
+//All helper functions to access data, etc.
 
 
 
-
-function createChart(chart) {
-  createDataPoints(chart);
-
-  //Testing
-  for (let i = 0; i < data.length; ++i) {
-    if (data[i].spouse != null) {
-      adjustSpouseXPos(data[i]);
-    }
-  }
-
-
-  adjustChildNodesXPos(data[8]);
-  adjustChildNodesXPos(data[13]);
-  //adjustChildNodesXPos(data[getDataIndex(11)])
-
-  createChildLines();
-  createSpouseLines();
-}
-
-//Creates Data Points
-function createDataPoints(chart) {
-  //In case you have to redraw chart
-  removeAllChildNodes(chart);
-
-  let generationMap = new Map();
-
-  let genCount = 0;
-  for (let j = 0; j < data.length; ++j) {
-    let tmp = getGenerationCount(data[j], 1);
-    if (tmp > genCount) {
-      genCount = tmp;
-    }
-  }
-
-  for (let j = 0; j < genCount; ++j) {
-    generationMap.set(j+1, 1);
-  }
-
-
-  for (let i = 0; i < data.length; ++i) {
-    let li = document.createElement('li');
-
-    let genCount = 0;
-    for (let j = 0; j < data.length; ++j) {
-      let tmp = getGenerationCount(data[j], 1);
-      if (tmp > genCount) {
-        genCount = tmp;
-      }
-    }
-
-
-    //Getting X and Y Positions
-    let gen = getGeneration(data[i]);
-
-    let dividedHeight = chartWidth / genCount;
-    let yPos = getY(dividedHeight, gen);
-
-    let xPos = getX(data[i], generationMap, chartWidth);
-/*
-//TESTING For placing right next to Spouse`
-    if (data[i].spouse != null) {
-      let spouseIndex = getDataIndex(data[i].spouse)
-
-      //tmpMap created so that generationMap doesn't get updated too early
-      let tmpMap = generationMap
-      if (data[i].image < data[spouseIndex].image) {
-        xPos = getX(data[spouseIndex], tmpMap, chartWidth)
-      }
-    }
-    //
-*/
-    li.setAttribute('id', data[i].image);
-    li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`);
-    li.innerHTML += `<button id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'><img class="data-point data-button" data-value="${data[i].birthyear}" src="../../static/tree/images/pictures/${data[i].image}.PNG"></button>`;
-  
-    chart.appendChild(li);
-  }
-
-}
-
-//Draws Line To Children
-function createChildLines() {
-  for (let i = 0; i < data.length; ++i) {
-
-    if (isMom(data[i])) {
-      let li = document.getElementById(data[i].image);
-  
-      yPos = parseAttribute('y', li.getAttribute('style'));
-      xPos = parseAttribute('x', li.getAttribute('style'));
-      
-      let index = getMomArrayIndex(momArray, data[i].image);
-
-      //Getting longest generation chain
-      let genCount = 0;
-      for (let j = 0; j < data.length; ++j) {
-        let tmp = getGenerationCount(data[j], 1);
-        if (tmp > genCount) {
-          genCount = tmp;
-        }
-      }
-
-      for (let j = 0; j < momArray[index][0].children.length; ++j) {
-
-        let dividedHeight = chartWidth / genCount;
-        let gen = getGeneration(momArray[index][0].children[j]);
-        let childYPos = getY(dividedHeight, gen);
-
-        let childElement = document.getElementById(momArray[index][0].children[j].image);
-        let childXPos = parseAttribute('x', childElement.getAttribute('style'));
-
-
-        let childHypotenuse = getHypotenuse(yPos, childYPos, xPos, childXPos);
-        let angle = getAngle(yPos - childYPos, childHypotenuse);
-  
-        //Adjusts angle if child is before mom in x-axis
-        if (childXPos < xPos) {
-          angle = (-1 * angle) + 180.5;
-        }
-  
-        li.innerHTML += `<div class="child-line" style="--hypotenuse: ${childHypotenuse}; --angle: ${angle}"></div>`;
-        //FIXME kind of works but positionins is all wrong
-        //li.innerHTML += `<button class="button-line" onclick="hi()"><div class="child-line" style="--hypotenuse: ${childHypotenuse}; --angle: ${angle}; z-index:-1;"></div></button>`;
-      }
-    }
-  }
-}
-
-function hi() {
-  console.log("Hello World!");
-}
-
-//Draws Line Connecting to Spouse
-function createSpouseLines() {
-  for (let i = 0; i < data.length; ++i) {
-
-    let li = document.getElementById(data[i].image);
-
-    yPos = parseAttribute('y', li.getAttribute('style'));
-    xPos = parseAttribute('x', li.getAttribute('style'));
-
-    //Getting longest generation chain
-    let genCount = 0;
-    for (let j = 0; j < data.length; ++j) {
-      let tmp = getGenerationCount(data[j], 1);
-      if (tmp > genCount) {
-        genCount = tmp;
-      }
-    }
-
-    if (data[i].spouse != null) {
-
-      let dividedHeight = chartWidth / genCount;
-      let gen = getGeneration(data[i]);
-      let spouseYPos = getY(dividedHeight, gen);
-
-      let spouseElement = document.getElementById(data[i].spouse);
-      let spouseXPos = parseAttribute('x', spouseElement.getAttribute('style'));
-
-      let spouseHypotenuse = getHypotenuse(yPos, spouseYPos, xPos, spouseXPos);
-      let spouseAngle = getAngle(yPos - spouseYPos, spouseHypotenuse);
-
-      if (spouseXPos < xPos) {
-        spouseAngle = (-1 * spouseAngle) + 180.5;
-      }
-
-      //if statement so that two spouse lines aren't drawn between spouses
-      if (spouseXPos > xPos) {
-        li.innerHTML += `<div class="spouse-line" style="--hypotenuse: ${spouseHypotenuse}; --angle: ${spouseAngle}"></div>`;
-      }
-    }
-  }
-}
-
-function removeAllChildNodes(parent) {
-  while (parent.firstChild) {
-      parent.removeChild(parent.firstChild);
-  }
-}
-
-function getY(dividedHeight, generation) {
-  //Added chartWidth / 6 for better centered spacing
-  return (chartWidth  + (chartWidth / 6)) - dividedHeight * generation;
-}
-
-function getX(node, map, width) {
-  let genCount = 0;
-  let xPos;
-
-  //Gets highest Generation
-  for (let j = 0; j < data.length; ++j) {
-    let tmp = getGenerationCount(data[j], 1);
-    if (tmp > genCount) {
-      genCount = tmp;
-    }
-  }
-
-  let currGeneration;
-  let keyGen = getGeneration(node);
-
-  currGeneration = map.get(keyGen);
-
-  xPos = (width / getNumInGeneration(keyGen)) * currGeneration;
-  currGeneration++;
-
-  map.set(keyGen, currGeneration);
-
-  return xPos;
-
-}
-
-function getHypotenuse(datapoint1, datapoint2, left1, left2) {
-  triSide = datapoint1 - datapoint2;
-  tmpSpacing = left1 - left2;
-  hypotenuse = Math.sqrt((triSide * triSide) + (tmpSpacing * tmpSpacing));
-  return hypotenuse;
-}
-
-//Get the angle to place line in between nodes
-function getAngle(opposite, hypotenuse) {
-  let sine = Math.asin(opposite / hypotenuse);
-  //Convert from radians to degrees
-  sine = sine * (180 / Math.PI);
-
-  return sine;
-}
 
 function getDataIndex(id) {
   for (let i = 0; i < data.length; ++i) {
@@ -889,7 +859,6 @@ function randomizeDataOrder(data) {
   }
 }
 
-//Possible functions I might need
 function isMom(node) {
   let isMom = false;
   for (let j = 0; j < momArray.length; ++j) {
@@ -950,18 +919,7 @@ function hasRelationship(node) {
 
 }
 
-//JUST FOR TESTING, WILL REPLACE WITH POSITIONING ALGORITHM
-function sortData() {
-  for (let i = 0; i < data.length; ++i) {
-    for (let j = i+1; j < data.length; ++j) {
-      if (data[j].image < data[i].image) {
-        let tmp = data[i];
-        data[i] = data[j];
-        data[j] = tmp;
-      }
-    }
-  }
-}
+
 
 
 
@@ -1021,15 +979,6 @@ function getNodesInGeneration(generation) {
   return nodeGeneration;
 }
 
-
-
-
-
-
-
-
-
-//XSpacing For Children Testing
 function getChildren(motherNode) {
   let children = [];
   if (isMom(motherNode)) {
