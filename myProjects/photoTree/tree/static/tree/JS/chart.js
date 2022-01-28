@@ -270,7 +270,11 @@ function createDataPoints(chart) {
 
     li.setAttribute('id', data[i].image);
     li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`);
-    li.innerHTML += `<button id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'><img class="data-point data-button" data-value="${data[i].birthyear}" src="../../static/tree/images/pictures/${data[i].image}.PNG"></button>`;
+    //Maybe nest in div and make the style be invisible
+    li.innerHTML += `<div><button id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'>
+    <img class="data-point data-button tooltip" data-value="${data[i].birthyear}" src="../../static/tree/images/pictures/${data[i].image}.PNG">
+    <div class='tooltip'>test<span class='tooltiptext'>test</span></div>
+    </button></div>`
   
     chart.appendChild(li);
   }
@@ -1026,7 +1030,6 @@ function getSpacing(numChildren, spacing) {
 
 
 //You have at to adjust them after all children have been placed already
-//TODO finish function to get spacing of the section that each node "family" gets from chartwidth
 //This function works I just need to figure out spacing and fix bugs
 //Will probably merge with the getX function
 function adjustChildNodesXPos(momNode) {
@@ -1156,7 +1159,7 @@ function adjustSpouseXPos(node) {
 }
 
 //Need to check only in that generation
-//FIXME could potentially be overlap of nodes because this checks for EXACT x, not range of x
+//FIXME could potentially be overlap of nodes because this checks for EXACT x, not range of x to account for node width
 function emptyXLocation(xPos, generation) {
   let chart = document.getElementById('chart');
 
