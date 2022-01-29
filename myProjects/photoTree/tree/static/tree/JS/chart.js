@@ -216,11 +216,15 @@ function createChart(chart) {
       adjustSpouseXPos(data[i]);
     }
   }
+  
 
   for (let i = 0; i < momArray.length; ++i) {
+    
     if (momArray[i][0].data.image == 11) {
       continue;
     }
+    
+    
     adjustChildNodesXPos(momArray[i][0].data);
   }
   
@@ -743,7 +747,6 @@ function addToConfirmBox(id) {
   box.appendChild(img);
 
   //Changes Parameters for Change Relationship button
-  //FIXME consider making this part its own function
   let children = [];
 
   for (let i = 0; i < box.children.length; ++i) {
@@ -1034,7 +1037,7 @@ function getRootNode(node) {
     let spouseIndex = getDataIndex(node.spouse);
     if (node.spouse != null && data[spouseIndex].mother != null) {
       let motherIndex = getDataIndex(data[spouseIndex].mother);
-      return getOldest(data[motherIndex]);
+      return getRootNode(data[motherIndex]);
     }
     else {
       return node;
@@ -1042,47 +1045,84 @@ function getRootNode(node) {
   }
 
   if (node.mother != null) {
-    let momIndex = getDataIndex(node.mother)
-    return getOldest(data[momIndex])
+    let momIndex = getDataIndex(node.mother);
+    return getRootNode(data[momIndex]);
+  }
+}
+
+function partOfFamilyLine(targetNode, node) {
+  let children = [];
+  if (isMom(node)) {
+    children = getChildren(node);
+  }
+
+  //Accounts for if spouse is Mom
+  if (node.spouse != null) {
+    let spouseIndex = getDataIndex(node.spouse);
+    if (isMom(data[spouseIndex])) {
+      children = getChildren(data[spouseIndex]);
+    }
+  }
+
+  if (node == targetNode) {
+    return true;
+  }
+
+  if (children.length != 0) {
+    for (let i = 0; i < children.length; ++i) {
+      if (children[i] == targetNode) {
+        return true;
+      }
+      else {
+        return partOfFamilyLine(targetNode, children[i])
+      }
+    }
+  }
+
+  return false;
+}
+
+
+function getSpacing(rootNode, spacing, targetNode) {
+  //debugger
+  let children = [];
+  if (isMom(rootNode)) {
+    children = getChildren(rootNode);
+  }
+
+  //Accounts for if spouse is Mom
+  if (rootNode.spouse != null) {
+    let spouseIndex = getDataIndex(rootNode.spouse);
+    if (isMom(data[spouseIndex])) {
+      children = getChildren(data[spouseIndex]);
+    }
+  }
+
+  if (children.length == 0) {
+    return spacing;
+  }
+
+  if (children.length != 0) {
+    for (let i = 0; i < children.length; ++i) {
+      if (partOfFamilyLine(targetNode, children[i])) {
+        return getSpacing(children[i], spacing / children.length, targetNode);
+      }
+    }
   }
 }
 
 
-function spacing(rootNode) {
-
-}
-
-
-console.log(getOldest(data[0]))
-
-
-
-
-
-function getSpacing(numChildren, spacing) {
-  //Need to know, how large the spacing is for the generation before it,
-  //Recursive function going from top to bottom??
-
-  //Generation Matters
-
-  let children = getChildren();
-
-
-  return getSpacing(children.length, (spacing / numChildren));
-  
-}
-
-
 //You have at to adjust them after all children have been placed already
-//This function works I just need to figure out spacing and fix bugs
 //Will probably merge with the getX function
+//Spacing works but there is Overlap, implement rule where node can't be placed if it's in a range of x rather than a specific x coord
 function adjustChildNodesXPos(momNode) {
 
   let children = getChildren(momNode);
 
-  let mom = document.getElementById(`${momNode.image}`)
-  let momXPos = parseAttribute('x', mom.style.cssText)
-  let spacing = 100
+  let mom = document.getElementById(`${momNode.image}`);
+  let momXPos = parseAttribute('x', mom.style.cssText);
+  //let spacing = 100;
+  let spacing = Math.round(getSpacing(getRootNode(momNode), chartWidth, children[0]));
 
   //If there are an odd number of children
   if (children.length % 2 == 1) {
@@ -1092,9 +1132,10 @@ function adjustChildNodesXPos(momNode) {
     for (let i = 0; i < children.length; ++i) {
       let child = document.getElementById(`${children[i].image}`)
       let originalY = parseAttribute('y', child.style.cssText)
-      child.setAttribute('style', `--y: ${originalY}px; --x: ${0}px`)
-    }
+      child.setAttribute('style', `--y: ${Math.round(originalY)}px; --x: ${0}px`)
+    }  
     //End Try
+
 
     for (let i = 0; i < children.length; ++i) {
 
