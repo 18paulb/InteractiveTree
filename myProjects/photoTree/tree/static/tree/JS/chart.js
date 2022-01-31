@@ -105,6 +105,8 @@ let data = [
   },
 ]
 
+
+
 let nodeBoxData = [];
 //randomizeDataOrder(data);
 
@@ -211,20 +213,21 @@ function createChart(chart) {
 
   //Testing
   
+  //FIXME consider moving after children
+  /*
   for (let i = 0; i < data.length; ++i) {
     if (data[i].spouse != null) {
       adjustSpouseXPos(data[i]);
     }
   }
-  
+  */
 
   for (let i = 0; i < momArray.length; ++i) {
     
     if (momArray[i][0].data.image == 11) {
-      continue;
+      //debugger;
     }
-    
-    
+  
     adjustChildNodesXPos(momArray[i][0].data);
   }
   
@@ -608,9 +611,6 @@ function removeRelationship(id1, id2) {
   //Removes Mother/Child Relationship
   id1Index = getDataIndex(id1);
   id2Index = getDataIndex(id2);
-
-  debugger
-
 
   if (data[id1Index].mother == id2) {
     for (let i = 0; i < momArray.length; ++i) {
@@ -1030,8 +1030,6 @@ function getSiblings(childNode) {
   return siblings;
 }
 
-//Just calculate chartWidth / numInGen and don't include if there is a spouse, should work for one family tree
-
 function getRootNode(node) {
   if (node.mother == null) {
     let spouseIndex = getDataIndex(node.spouse);
@@ -1098,6 +1096,7 @@ function getSpacing(rootNode, spacing, targetNode) {
     }
   }
 
+  //Base Case
   if (children.length == 0) {
     return spacing;
   }
@@ -1109,19 +1108,23 @@ function getSpacing(rootNode, spacing, targetNode) {
       }
     }
   }
+
+  return spacing
 }
 
 
 //You have at to adjust them after all children have been placed already
 //Will probably merge with the getX function
 //Spacing works but there is Overlap, implement rule where node can't be placed if it's in a range of x rather than a specific x coord
+//Add rules where rightmost child cannot pass leftmost child of adjacent tree and adjust spacing from there
+
+
 function adjustChildNodesXPos(momNode) {
 
   let children = getChildren(momNode);
 
   let mom = document.getElementById(`${momNode.image}`);
   let momXPos = parseAttribute('x', mom.style.cssText);
-  //let spacing = 100;
   let spacing = Math.round(getSpacing(getRootNode(momNode), chartWidth, children[0]));
 
   //If there are an odd number of children
@@ -1129,13 +1132,22 @@ function adjustChildNodesXPos(momNode) {
 
     //FIXME there are already drawn nodes in xPos's so this causes errors
     //TRY setting up children x to 0 and then go from there
+    /*
     for (let i = 0; i < children.length; ++i) {
       let child = document.getElementById(`${children[i].image}`)
       let originalY = parseAttribute('y', child.style.cssText)
       child.setAttribute('style', `--y: ${Math.round(originalY)}px; --x: ${0}px`)
-    }  
+    }
+    */
     //End Try
 
+
+    //Testing assuming that each node is 70 pixels wide, change to not use Magic Number
+    if (spacing < 70) {
+      spacing = 70
+    }
+    
+    let tmpSpacing = spacing;
 
     for (let i = 0; i < children.length; ++i) {
 
@@ -1162,7 +1174,7 @@ function adjustChildNodesXPos(momNode) {
       }
 
       else {
-        spacing += 100;
+        spacing += tmpSpacing;
         //If gets to else and doesn't get placed, then it would skip over the child, thus the i -= 1
         i -= 1;
       }
@@ -1173,7 +1185,7 @@ function adjustChildNodesXPos(momNode) {
   if (children.length % 2 == 0) {
 
     let spacing = 150;
-
+/*
     //TEST
     for (let i = 0; i < children.length; ++i) {
       let child = document.getElementById(`${children[i].image}`);
@@ -1181,6 +1193,8 @@ function adjustChildNodesXPos(momNode) {
       child.setAttribute('style', `--y: ${originalY}px; --x: ${0}px`);
     }
     //
+*/
+
 
     for (let i = 0; i < children.length; ++i) {
 
