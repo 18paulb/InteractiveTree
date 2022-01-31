@@ -220,16 +220,14 @@ body {
 }
 
 .hover-menu {
-  display: flex;
-  flex-direction: column;
-  align-items: top;
-  margin-bottom: 5px;
-  margin-top: 10px;
+  padding: 10px;
+  display: inline-table;
+  position: relative;
+  background: white;
+  border-color: rgb(61, 177, 173);
+  border-style: solid;
+  border-width: 2px;
 }
-
-
-
-
 
 /*Hover Effects*/
 .tooltip {
