@@ -816,7 +816,19 @@ function openMenu(id1, id2) {
 
     <div class='menu-pics-container'>
       <img class='menu-pic' src='../../static/tree/images/pictures/${id1}.PNG'/>
+        <div id ='node-1-info'>
+        <b>
+        Name: ${data[id1]?.name} <br></br>
+        Birthyear: ${data[id1].birthyear}
+        </b>
+        </div>
       <img class='menu-pic' src='../../static/tree/images/pictures/${id2}.PNG'/>
+      <div id ='node-2-info'>
+        <b>
+        Name: ${data[id2]?.name} <br></br>
+        Birthyear: ${data[id2].birthyear}
+        </b>
+        </div>
     </div>
 
     <div class='menu-button'>
