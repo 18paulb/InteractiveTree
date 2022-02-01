@@ -108,7 +108,7 @@ let data = [
 
 
 let nodeBoxData = [];
-//randomizeDataOrder(data);
+//srandomizeDataOrder(data);
 
 //Change this and HTML in order to change graph size
 let chartWidth = 1200;
@@ -178,18 +178,30 @@ function makeMomArray() {
 /*
   //Sorts children oldest to youngest
   //n^3 bigO, gross
-  for (i = 0; i < momArray.length; i++) {
-    for (k = 0; k < momArray[i][0].children.length; ++k) {
-      for (j = 0; j < momArray[i][0].children.length - i - 1; j++) {
-        if (momArray[i][0].children[j].birthyear > momArray[i][0].children[j+1].birthyear) {
-          let tmp = momArray[i][0].children[j];
-          momArray[i][0].children[j] = momArray[i][0].children[j+1];
-          momArray[i][0].children[j+1] = tmp;
+  for (let i = 0; i < tmpArray.length; i++) {
+    for (let k = 0; k < tmpArray[i][0].children.length; ++k) {
+      for (let j = 0; j < tmpArray[i][0].children.length - i - 1; j++) {
+        if (tmpArray[i][0].children[j].birthyear > tmpArray[i][0].children[j+1].birthyear) {
+          let tmp = tmpArray[i][0].children[j];
+          tmpArray[i][0].children[j] = tmpArray[i][0].children[j+1];
+          tmpArray[i][0].children[j+1] = tmp;
         }
       }
     }
   }
 */
+
+  //Sorts momArray from oldest to youngest
+  for (let i = 0; i < tmpArray.length; ++i) {
+    for (let j = 0; j < tmpArray.length - i - 1; ++j) {
+      if (tmpArray[i][0].data.birthyear < tmpArray[j][0].data.birthyear) {
+        let tmp = tmpArray[i]
+        tmpArray[i] = tmpArray[j]
+        tmpArray[j] = tmp;
+      }
+    }
+  }
+
   return tmpArray;
 }
 
@@ -212,24 +224,36 @@ function createChart(chart) {
   createDataPoints(chart);
 
   //Testing
-  
-  //FIXME consider moving after children
-  /*
+    
   for (let i = 0; i < data.length; ++i) {
     if (data[i].spouse != null) {
       adjustSpouseXPos(data[i]);
     }
   }
-  */
 
+  /*
   for (let i = 0; i < momArray.length; ++i) {
-    
     if (momArray[i][0].data.image == 11) {
-      //debugger;
     }
   
     adjustChildNodesXPos(momArray[i][0].data);
   }
+  */
+
+
+
+  
+
+/*
+  for (let i = 0; i < momArray.length; ++i) {
+    
+    if (momArray[i][0].data.image == 11) {
+    }
+  
+    adjustChildNodesXPos(momArray[i][0].data);
+  }
+  */
+  
   
 
   createChildLines();
@@ -275,6 +299,14 @@ function createDataPoints(chart) {
     let yPos = getY(dividedHeight, gen);
 
     let xPos = getX(data[i], generationMap, chartWidth);
+
+    //TESTING
+    /*
+    if (gen != 1) {
+      xPos = 0;
+    }
+    */
+    //
 
     li.setAttribute('id', data[i].image);
     li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`);
@@ -1118,7 +1150,6 @@ function partOfFamilyLine(targetNode, node) {
 
 
 function getSpacing(rootNode, spacing, targetNode) {
-  //debugger
   let children = [];
   if (isMom(rootNode)) {
     children = getChildren(rootNode);
@@ -1151,7 +1182,6 @@ function getSpacing(rootNode, spacing, targetNode) {
 
 //You have at to adjust them after all children have been placed already
 //Will probably merge with the getX function
-//Spacing works but there is Overlap, implement rule where node can't be placed if it's in a range of x rather than a specific x coord
 //Add rules where rightmost child cannot pass leftmost child of adjacent tree and adjust spacing from there
 
 
@@ -1168,21 +1198,21 @@ function adjustChildNodesXPos(momNode) {
 
     //FIXME there are already drawn nodes in xPos's so this causes errors
     //TRY setting up children x to 0 and then go from there
-    /*
+    
     for (let i = 0; i < children.length; ++i) {
       let child = document.getElementById(`${children[i].image}`)
       let originalY = parseAttribute('y', child.style.cssText)
       child.setAttribute('style', `--y: ${Math.round(originalY)}px; --x: ${0}px`)
     }
-    */
     //End Try
 
-
     //Testing assuming that each node is 70 pixels wide, change to not use Magic Number
-    if (spacing < 70) {
-      spacing = 70
+    if (spacing < 80) {
+      spacing = 80
     }
     
+
+    //FIXME, add rule to bring spouse along
     let tmpSpacing = spacing;
 
     for (let i = 0; i < children.length; ++i) {
@@ -1194,19 +1224,46 @@ function adjustChildNodesXPos(momNode) {
 
       let childGeneration = getGeneration(children[i]);
 
+      //debugger
+
       if (i == 0) {
         newXPos = momXPos;
         child.setAttribute('style', `--y: ${Math.round(originalY)}px; --x: ${Math.round(newXPos)}px`);
+
+        /*
+        //TEST
+        if (children[i].spouse != null && emptyXLocation(momXPos + spacing, childGeneration)) {
+          let spouse = document.getElementById(`${children[i].spouse}`);
+          let originalY = parseAttribute('y', spouse.style.cssText);
+          spouse.setAttribute('style', `--y: ${originalY}px; --x: ${newXPos + spacing}px`);
+        }
+        */
       }
 
       else if (emptyXLocation(momXPos + spacing, childGeneration)) {
         newXPos = momXPos + spacing;
         child.setAttribute('style', `--y: ${Math.round(originalY)}px; --x: ${Math.round(newXPos)}px`);
+        /*
+        //TEST
+        if (children[i].spouse != null && emptyXLocation(momXPos + spacing, childGeneration)) {
+          let spouse = document.getElementById(`${children[i].spouse}`);
+          let originalY = parseAttribute('y', spouse.style.cssText);
+          spouse.setAttribute('style', `--y: ${originalY}px; --x: ${newXPos + spacing}px`);
+        }
+        */
       }
     
       else if (emptyXLocation(momXPos - spacing, childGeneration)) {
         newXPos = momXPos - spacing;
         child.setAttribute('style', `--y: ${Math.round(originalY)}px; --x: ${Math.round(newXPos)}px`);
+        /*
+        //TEST
+        if (children[i].spouse != null && emptyXLocation(momXPos - spacing, childGeneration)) {
+          let spouse = document.getElementById(`${children[i].spouse}`);
+          let originalY = parseAttribute('y', spouse.style.cssText);
+          spouse.setAttribute('style', `--y: ${originalY}px; --x: ${newXPos + spacing}px`);
+        }
+        */
       }
 
       else {
@@ -1221,7 +1278,7 @@ function adjustChildNodesXPos(momNode) {
   if (children.length % 2 == 0) {
 
     let spacing = 150;
-/*
+
     //TEST
     for (let i = 0; i < children.length; ++i) {
       let child = document.getElementById(`${children[i].image}`);
@@ -1229,7 +1286,7 @@ function adjustChildNodesXPos(momNode) {
       child.setAttribute('style', `--y: ${originalY}px; --x: ${0}px`);
     }
     //
-*/
+
 
 
     for (let i = 0; i < children.length; ++i) {
@@ -1273,12 +1330,19 @@ function adjustChildNodesXPos(momNode) {
   }
 }
 
+//FIXME prioritize moving spouses with no moms and also spouses who are already on the tree
 function adjustSpouseXPos(node) {
   let spouse = document.getElementById(`${node.spouse}`);
   let currNode = document.getElementById(`${node.image}`);
 
   let spouseXPos = parseAttribute('x', spouse.style.cssText);
   let nodeXPos = parseAttribute('x', currNode.style.cssText);
+
+  //Test set xPos to 0
+  /*
+  let originalY = parseAttribute('y', spouse.style.cssText);
+  spouse.setAttribute('style', `--y: ${originalY}px; --x: ${0}px`);
+  */
 
   let generation = getGeneration(node)
 
@@ -1293,7 +1357,7 @@ function adjustSpouseXPos(node) {
   }
 }
 
-//Need to check only in that generation
+
 //FIXME could potentially be overlap of nodes because this checks for EXACT x, not range of x to account for node width
 function emptyXLocation(xPos, generation) {
   let chart = document.getElementById('chart');
@@ -1306,10 +1370,18 @@ function emptyXLocation(xPos, generation) {
     let node = document.getElementById(`${nodesInGeneration[i].image}`);
     let tmpX = parseAttribute('x', node.style.cssText);
 
+    
     if ((xPos == tmpX)) {
       isEmpty = false;
       return isEmpty;
     }
+    
+    /*
+    if ((xPos >= tmpX - 60) && (xPos <= tmpX + 60)) {
+      isEmpty = false;
+      return isEmpty
+    }
+    */
   }
 
   return isEmpty;
