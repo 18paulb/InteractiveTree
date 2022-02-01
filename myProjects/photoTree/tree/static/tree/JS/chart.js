@@ -280,7 +280,7 @@ function createDataPoints(chart) {
     li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`);
     //Maybe nest in div and make the style be invisible
     li.innerHTML += `<div><button id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'>
-    <img class="data-point data-button" data-value="${data[i].birthyear}" src="../../static/tree/images/pictures/${data[i].image}.PNG" onmouseenter='hoverMenu(${data[i].image})' onmouseleave='closeHoverMenu()'>
+    <img class="data-point data-button" src="../../static/tree/images/pictures/${data[i].image}.PNG" onmouseenter='hoverMenu(${data[i].image})' onmouseleave='closeHoverMenu()'>
     </button></div>`
   
     chart.appendChild(li);
@@ -815,7 +815,7 @@ function hoverMenu(nodeId) {
           <b>
           Name: ${data[nodeId]?.name} 
           <br></br>
-          Birthyear: ${data[nodeId]?.birthyear}
+          Birthyear: ${data[nodeId - 1]?.birthyear}
           </b>
         </div>
   </div>
@@ -843,7 +843,7 @@ function openMenu(id1, id2) {
         <div id ='node-1-info'>
         <b>
         Name: ${data[id1]?.name} <br></br>
-        Birthyear: ${data[id1]?.birthyear}
+        Birthyear: ${data[id1 - 1]?.birthyear}
         </b>
         </div>
       <img class='menu-pic' src='../../static/tree/images/pictures/${id2}.PNG'/>
