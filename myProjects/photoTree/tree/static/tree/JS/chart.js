@@ -51,21 +51,22 @@ let data = [
     "image": 9,
     "mother": null,  //FIXME CHANGED
     "spouse": 8,
-    "birthyear": 1979
+    "birthyear": 1979,
   },
-  /*
+  
   {
     "image": 10,
     "mother": null,
     "spouse": null,
     "birthyear": 1950
   },
-  */
+
   {
     "image": 11,
     "mother": null,
     "spouse": 12,
-    "birthyear": 1955
+    "birthyear": 1955,
+    "name": 'Grandma'
   },
   {
     "image": 12,
@@ -845,7 +846,7 @@ function hoverMenu(nodeId) {
       <img class='menu-pic' src='../../static/tree/images/pictures/${nodeId}.PNG'/>
         <div id ='node-1-info'>
           <b>
-          Name: ${data[nodeId]?.name} 
+          Name: ${data[nodeId - 1]?.name} 
           <br></br>
           Birthyear: ${data[nodeId - 1]?.birthyear}
           </b>
@@ -874,15 +875,15 @@ function openMenu(id1, id2) {
       <img class='menu-pic' src='../../static/tree/images/pictures/${id1}.PNG'/>
         <div id ='node-1-info'>
         <b>
-        Name: ${data[id1]?.name} <br></br>
+        Name: ${data[id1 - 1]?.name} <br></br>
         Birthyear: ${data[id1 - 1]?.birthyear}
         </b>
         </div>
       <img class='menu-pic' src='../../static/tree/images/pictures/${id2}.PNG'/>
       <div id ='node-2-info'>
         <b>
-        Name: ${data[id2]?.name} <br></br>
-        Birthyear: ${data[id2]?.birthyear}
+        Name: ${data[id2 - 1]?.name} <br></br>
+        Birthyear: ${data[id2 - 1]?.birthyear}
         </b>
         </div>
     </div>
