@@ -242,11 +242,7 @@ function createChart(chart) {
     adjustChildNodesXPos(momArray[i][0].data);
   }
 
-  
-  
-  
-
-  
+  //console.log(rightmostChildPos(data[getDataIndex(9)]))
   
 
   createChildLines();
@@ -1219,7 +1215,7 @@ function adjustChildNodesXPos(momNode) {
         child.setAttribute('style', `--y: ${Math.round(originalY)}px; --x: ${Math.round(newXPos)}px`);
 
         if (children[i].spouse != null) {
-          adjustSpouseXPos(children[i])
+          adjustSpouseXPos(children[i]);
         }
 
       }
@@ -1229,7 +1225,7 @@ function adjustChildNodesXPos(momNode) {
         child.setAttribute('style', `--y: ${Math.round(originalY)}px; --x: ${Math.round(newXPos)}px`);
 
         if (children[i].spouse != null) {
-          adjustSpouseXPos(children[i])
+          adjustSpouseXPos(children[i]);
         }
 
       }
@@ -1239,9 +1235,8 @@ function adjustChildNodesXPos(momNode) {
         child.setAttribute('style', `--y: ${Math.round(originalY)}px; --x: ${Math.round(newXPos)}px`);
 
         if (children[i].spouse != null) {
-          adjustSpouseXPos(children[i])
+          adjustSpouseXPos(children[i]);
         }
-
       }
 
       else {
@@ -1328,6 +1323,7 @@ function adjustSpouseXPos(node) {
     let originalY = parseAttribute('y', currNode.style.cssText);
     currNode.setAttribute('style', `--y: ${originalY}px; --x: ${nodeXPos}px`);
   }
+  //Move spouse to node and not node to spouse
   else if (nodeXPos > spouseXPos && emptyXLocation(spouseXPos + spacing, generation)) {
     nodeXPos = spouseXPos + spacing;
 
@@ -1363,4 +1359,56 @@ function emptyXLocation(xPos, generation) {
   }
 
   return isEmpty;
+}
+
+//Used to prevent line overlap
+function leftmostChildPos(momNode) {
+
+  let childElementXPos;
+
+  for (let i = 0; i < momArray.length; ++i) {
+    if (momArray[i][0].data.image == momNode.image) {
+
+      //Initial comparing value
+      let tmpChild = document.getElementById(`${momArray[i][0].children[0].image}`);
+      childElementXPos = parseAttribute('x', tmpChild.style.cssText)
+
+      for (let j = 0; j < momArray[i][0].children.length; ++j) {
+        let child = document.getElementById(`${momArray[i][0].children[j].image}`);
+
+        let childXPos = parseAttribute('x', child.style.cssText);
+
+        if (childXPos < childElementXPos) {
+          childElementXPos = childXPos;
+        }
+      }
+      break;
+    }
+  }
+  return childElementXPos;
+}
+
+function rightmostChildPos(momNode) {
+  let childElementXPos;
+
+  for (let i = 0; i < momArray.length; ++i) {
+    if (momArray[i][0].data.image == momNode.image) {
+
+      //Initial comparing value
+      let tmpChild = document.getElementById(`${momArray[i][0].children[0].image}`);
+      childElementXPos = parseAttribute('x', tmpChild.style.cssText)
+
+      for (let j = 0; j < momArray[i][0].children.length; ++j) {
+        let child = document.getElementById(`${momArray[i][0].children[j].image}`);
+
+        let childXPos = parseAttribute('x', child.style.cssText);
+
+        if (childXPos > childElementXPos) {
+          childElementXPos = childXPos;
+        }
+      }
+      break;
+    }
+  }
+  return childElementXPos;
 }
