@@ -65,8 +65,7 @@ let data = [
     "image": 11,
     "mother": null,
     "spouse": 12,
-    "birthyear": 1955,
-    "name": 'Grandma'
+    "birthyear": 1955
   },
   {
     "image": 12,
@@ -829,9 +828,10 @@ function hoverMenu(nodeId) {
   
   let hMenu = document.getElementById('hover-menu');
 
-  hMenu.innerHTML = `<id='hover-menu' class='hover-menu'> 
+  //hMenu.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`);
 
-  <div class='hover-menu'>
+  hMenu.innerHTML = 
+  `<div class='hover-menu'>
       <img class='menu-pic' src='../../static/tree/images/pictures/${nodeId}.PNG'/>
         <div id ='node-1-info'>
           <b>
