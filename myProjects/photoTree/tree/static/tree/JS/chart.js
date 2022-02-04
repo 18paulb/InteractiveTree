@@ -61,8 +61,12 @@ let data = [
     "spouse": null,
     "birthyear": 1950
   },
+<<<<<<< HEAD
   */
 
+=======
+*/
+>>>>>>> 69e5a2ecce5d2ac46ed95e69bef3702db1ddf282
   {
     "image": 11,
     "mother": null,
@@ -225,17 +229,24 @@ createChart(chartList);
 
 
 function createChart(chart) {
+
   createDataPoints(chart);
 
   //Testing
-  
   for (let i = 0; i < data.length; ++i) {
     if (data[i].spouse != null) {
       adjustSpouseXPos(data[i]);
     }
   }
+<<<<<<< HEAD
   
   /*
+=======
+
+  
+  
+/*
+>>>>>>> 69e5a2ecce5d2ac46ed95e69bef3702db1ddf282
   for (let i = 0; i < momArray.length; ++i) {
     if (momArray[i][0].data.image == 11) {
       //debugger
@@ -243,8 +254,14 @@ function createChart(chart) {
   
     adjustChildNodesXPos(momArray[i][0].data);
   }
+<<<<<<< HEAD
   */
   
+=======
+  
+  */
+
+>>>>>>> 69e5a2ecce5d2ac46ed95e69bef3702db1ddf282
   createChildLines();
   createSpouseLines();
 }
@@ -835,23 +852,45 @@ function removeAllChildNodes(parent) {
 }
 
 function hoverMenu(nodeId) {
-  
+
   let hMenu = document.getElementById('hover-menu');
 
+  let nodeIndex = getDataIndex(nodeId)
+  let node = document.getElementById(nodeId)
+
+  let nodeX = parseAttribute('x', node.style.cssText)
+  let nodeY = parseAttribute('y', node.style.cssText)
+
+  //Make this class a datapoint technically and make XY pos's from there, just get X,Y from node and then adjust slightly for it to be near node
+  hMenu.innerHTML = `
+  <div id='hover-menu' class='hover-menu hover-point' style='--y: ${nodeY - 600}px; --x: ${nodeX - 25}px'>
+      <img class='menu-pic' src='../../static/tree/images/pictures/${nodeId}.PNG'/>
+        <div id ='node-${nodeId}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column;'>
+          <div><b>John Doe</br></div>
+          
+          <div><b>${data[nodeIndex]?.birthyear}</b></div>
+        </div>
+  </div>
+  `
+
+  /*
+  hMenu.innerHTML = `<id='hover-menu' class='hover-menu'>
   //hMenu.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`);
 
   hMenu.innerHTML = 
   `<div class='hover-menu'>
       <img class='menu-pic' src='../../static/tree/images/pictures/${nodeId}.PNG'/>
-        <div id ='node-1-info'>
+        <div id ='node-${nodeId}-info'>
           <b>
+          Name: ${data[nodeIndex]?.name} 
           Name: ${data[nodeId - 1]?.name} 
           <br></br>
-          Birthyear: ${data[nodeId - 1]?.birthyear}
+          Birthyear: ${data[nodeIndex]?.birthyear}
           </b>
         </div>
   </div>
   `
+*/
 }
 
 function closeHoverMenu() {
@@ -1356,11 +1395,12 @@ function emptyXLocation(xPos, generation) {
     let node = document.getElementById(`${nodesInGeneration[i].image}`);
     let tmpX = parseAttribute('x', node.style.cssText);
 
-    
+    /*
     if ((xPos == tmpX)) {
       isEmpty = false;
       return isEmpty;
     }
+    */
     
     /*
     if ((xPos >= tmpX - 60) && (xPos <= tmpX + 60)) {
