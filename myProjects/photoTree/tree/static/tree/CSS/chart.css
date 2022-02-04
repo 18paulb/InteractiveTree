@@ -236,10 +236,11 @@ body {
 
 .hover-menu {
   padding: 10px;
-  display: inline-table;
+  display: inline-block;
   position: relative;
   background: white;
   border-color: rgb(61, 177, 173);
   border-style: solid;
   border-width: 2px;
+  cursor: pointer;
 }

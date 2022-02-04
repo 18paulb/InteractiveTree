@@ -51,16 +51,16 @@ let data = [
     "image": 9,
     "mother": null,  //FIXME CHANGED
     "spouse": 8,
-    "birthyear": 1979
+    "birthyear": 1979,
   },
-  /*
+  
   {
     "image": 10,
     "mother": null,
     "spouse": null,
     "birthyear": 1950
   },
-  */
+
   {
     "image": 11,
     "mother": null,
@@ -849,12 +849,15 @@ function hoverMenu(nodeId) {
 
   /*
   hMenu.innerHTML = `<id='hover-menu' class='hover-menu'>
+  //hMenu.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`);
 
-  <div class='hover-menu'>
+  hMenu.innerHTML = 
+  `<div class='hover-menu'>
       <img class='menu-pic' src='../../static/tree/images/pictures/${nodeId}.PNG'/>
         <div id ='node-${nodeId}-info'>
           <b>
           Name: ${data[nodeIndex]?.name} 
+          Name: ${data[nodeId - 1]?.name} 
           <br></br>
           Birthyear: ${data[nodeIndex]?.birthyear}
           </b>
@@ -884,15 +887,15 @@ function openMenu(id1, id2) {
       <img class='menu-pic' src='../../static/tree/images/pictures/${id1}.PNG'/>
         <div id ='node-1-info'>
         <b>
-        Name: ${data[id1]?.name} <br></br>
+        Name: ${data[id1 - 1]?.name} <br></br>
         Birthyear: ${data[id1 - 1]?.birthyear}
         </b>
         </div>
       <img class='menu-pic' src='../../static/tree/images/pictures/${id2}.PNG'/>
       <div id ='node-2-info'>
         <b>
-        Name: ${data[id2]?.name} <br></br>
-        Birthyear: ${data[id2]?.birthyear}
+        Name: ${data[id2 - 1]?.name} <br></br>
+        Birthyear: ${data[id2 - 1]?.birthyear}
         </b>
         </div>
     </div>
