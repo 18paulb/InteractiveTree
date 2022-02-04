@@ -49,17 +49,19 @@ let data = [
   },
   {
     "image": 9,
+    //"mother": 10,
     "mother": null,  //FIXME CHANGED
     "spouse": 8,
     "birthyear": 1979,
   },
-  
+  /*
   {
     "image": 10,
     "mother": null,
     "spouse": null,
     "birthyear": 1950
   },
+  */
 
   {
     "image": 11,
@@ -108,7 +110,7 @@ let data = [
 
 
 let nodeBoxData = [];
-//srandomizeDataOrder(data);
+//randomizeDataOrder(data);
 
 //Change this and HTML in order to change graph size
 let chartWidth = 1200;
@@ -233,7 +235,7 @@ function createChart(chart) {
     }
   }
   
-
+  /*
   for (let i = 0; i < momArray.length; ++i) {
     if (momArray[i][0].data.image == 11) {
       //debugger
@@ -241,10 +243,8 @@ function createChart(chart) {
   
     adjustChildNodesXPos(momArray[i][0].data);
   }
-
-  //console.log(rightmostChildPos(data[getDataIndex(9)]))
+  */
   
-
   createChildLines();
   createSpouseLines();
 }
@@ -449,7 +449,13 @@ function getX(node, map, width) {
   currGeneration++;
 
   map.set(keyGen, currGeneration);
-
+/*
+  //TEST ADDED THIS RULE TO STOP TOP NODE FROM SHIFTING
+  //SIDEFFECTS, ANY GENERATION WITH 1 node will be placed directly in center, might not be beneficial at all
+  if (getNumInGeneration(keyGen) == 1) {
+    xPos = width / 2
+  } 
+*/
   return xPos;
 
 }
@@ -619,12 +625,15 @@ function removeRelationship(id1, id2) {
       data.splice(id2Index, 1)
     }
 
+    closeMenu()
+    //debugger
+
     createChart(chartList)
   
     let box = document.getElementById('confirmBox');
     box.innerHTML = ''
 
-    closeMenu()
+    //closeMenu()
 
     return;
   }
@@ -692,6 +701,7 @@ function removeRelationship(id1, id2) {
       }
     }
   }
+
 
   if (!isRelated) {
     alert("Error, No Direct Relationship");
@@ -1081,7 +1091,7 @@ function getChildren(motherNode) {
 function getSiblings(childNode) {
   let siblings = [];
 
-  let momIndex = getDataIndex(node.mother);
+  let momIndex = getDataIndex(childNode.mother);
 
   siblings = getChildren(data[momIndex]);
 
@@ -1198,9 +1208,10 @@ function adjustChildNodesXPos(momNode) {
     if (spacing < 80) {
       spacing = 80
     }
-    
 
     let tmpSpacing = spacing;
+
+    //debugger
 
     for (let i = 0; i < children.length; ++i) {
 
@@ -1318,18 +1329,18 @@ function adjustSpouseXPos(node) {
   //FIXME everything below this has to change
   let spacing = 100;
 
-  if (nodeXPos < spouseXPos && emptyXLocation(spouseXPos - spacing, generation)) {
-    nodeXPos = spouseXPos - spacing;
 
-    let originalY = parseAttribute('y', currNode.style.cssText);
-    currNode.setAttribute('style', `--y: ${originalY}px; --x: ${nodeXPos}px`);
+  if (emptyXLocation(nodeXPos + spacing, generation)) {
+    spouseXPos = nodeXPos + spacing;
+
+    let originalY = parseAttribute('y', spouse.style.cssText);
+    spouse.setAttribute('style', `--y: ${originalY}px; --x: ${spouseXPos}px`);
   }
-  //Move spouse to node and not node to spouse
-  else if (nodeXPos > spouseXPos && emptyXLocation(spouseXPos + spacing, generation)) {
-    nodeXPos = spouseXPos + spacing;
+  else if (emptyXLocation(nodeXPos - spacing, generation)) {
+    spouseXPos = nodeXPos + spacing;
 
-    let originalY = parseAttribute('y', currNode.style.cssText);
-    currNode.setAttribute('style', `--y: ${originalY}px; --x: ${nodeXPos}px`);
+    let originalY = parseAttribute('y', spouse.style.cssText);
+    spouse.setAttribute('style', `--y: ${originalY}px; --x: ${spouseXPos}px`);
   }
 }
 
@@ -1357,6 +1368,7 @@ function emptyXLocation(xPos, generation) {
       return isEmpty
     }
     */
+    
   }
 
   return isEmpty;
