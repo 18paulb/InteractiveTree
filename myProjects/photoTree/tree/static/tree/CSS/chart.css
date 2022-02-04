@@ -44,17 +44,10 @@
   background-color: white;
   border: 2px solid lightblue;
   position: absolute;
-  /*
-  height: 100px;
 
-  width: 100px;
-  */
-  /* The data points have a radius of 8px and the line segment has a width of 3px, 
-    so we split the difference to center the data points on the line segment origins */
   bottom: calc(var(--y) - 21.5px);
   left: calc(var(--x) - 24.5px);
 
-  /*originals 6.5 px and 9.5 px*/
 }
 
 .data-button {
@@ -239,7 +232,7 @@ body {
 .hover-menu {
   padding: 10px;
   display: inline-block;
-  position: relative;
+  position: absolute;
   background: white;
   border-color: rgb(61, 177, 173);
   border-style: solid;

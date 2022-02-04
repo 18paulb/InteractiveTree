@@ -61,12 +61,7 @@ let data = [
     "spouse": null,
     "birthyear": 1950
   },
-<<<<<<< HEAD
-  */
-
-=======
 */
->>>>>>> 69e5a2ecce5d2ac46ed95e69bef3702db1ddf282
   {
     "image": 11,
     "mother": null,
@@ -843,6 +838,8 @@ function removeAllChildNodes(parent) {
 
 function hoverMenu(nodeId) {
 
+  //debugger
+
   let hMenu = document.getElementById('hover-menu');
 
   let nodeIndex = getDataIndex(nodeId);
@@ -853,7 +850,7 @@ function hoverMenu(nodeId) {
 
   //Make this class a datapoint technically and make XY pos's from there, just get X,Y from node and then adjust slightly for it to be near node
   hMenu.innerHTML = `
-  <div id='hover-menu' class='hover-menu hover-point' style='--y: ${nodeY - 600}px; --x: ${nodeX - 25}px'>
+  <div id='hover-menu' class='hover-menu hover-point' style='--y: ${nodeY + 100}px; --x: ${nodeX - 25}px'>
       <img class='menu-pic' src='../../static/tree/images/pictures/${nodeId}.PNG'/>
         <div id ='node-${nodeId}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column;'>
           <div><b>John Doe</br></div>
@@ -1372,14 +1369,8 @@ function adjustSpouseXPos(node) {
     let originalY = parseAttribute('y', spouse.style.cssText);
     spouse.setAttribute('style', `--y: ${originalY}px; --x: ${spouseXPos}px`);
   }
-<<<<<<< HEAD
-  //Move spouse to node and not node to spouse
-  else if (nodeXPos > spouseXPos && emptyXLocation(nodeXPos + spacing, generation)) {
-    nodeXPos = spouseXPos + spacing;
-=======
   else if (emptyXLocation(nodeXPos - spacing, generation)) {
     spouseXPos = nodeXPos + spacing;
->>>>>>> a83261f6e589e855e2319d5cf9bf5a4ef8d6c3f8
 
     let originalY = parseAttribute('y', spouse.style.cssText);
     spouse.setAttribute('style', `--y: ${originalY}px; --x: ${spouseXPos}px`);
