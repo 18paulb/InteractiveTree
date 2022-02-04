@@ -108,7 +108,7 @@ let data = [
 
 
 let nodeBoxData = [];
-//srandomizeDataOrder(data);
+//randomizeDataOrder(data);
 
 //Change this and HTML in order to change graph size
 let chartWidth = 1200;
@@ -223,17 +223,19 @@ createChart(chartList);
 
 
 function createChart(chart) {
+
   createDataPoints(chart);
 
   //Testing
-  
   for (let i = 0; i < data.length; ++i) {
     if (data[i].spouse != null) {
       adjustSpouseXPos(data[i]);
     }
   }
-  
 
+  
+  
+/*
   for (let i = 0; i < momArray.length; ++i) {
     if (momArray[i][0].data.image == 11) {
       //debugger
@@ -241,9 +243,8 @@ function createChart(chart) {
   
     adjustChildNodesXPos(momArray[i][0].data);
   }
-
-  //console.log(rightmostChildPos(data[getDataIndex(9)]))
   
+  */
 
   createChildLines();
   createSpouseLines();
@@ -825,22 +826,42 @@ function removeAllChildNodes(parent) {
 }
 
 function hoverMenu(nodeId) {
-  
+
   let hMenu = document.getElementById('hover-menu');
 
-  hMenu.innerHTML = `<id='hover-menu' class='hover-menu'> 
+  let nodeIndex = getDataIndex(nodeId)
+  let node = document.getElementById(nodeId)
+
+  let nodeX = parseAttribute('x', node.style.cssText)
+  let nodeY = parseAttribute('y', node.style.cssText)
+
+  //Make this class a datapoint technically and make XY pos's from there, just get X,Y from node and then adjust slightly for it to be near node
+  hMenu.innerHTML = `
+  <div id='hover-menu' class='hover-menu hover-point' style='--y: ${nodeY - 600}px; --x: ${nodeX - 25}px'>
+      <img class='menu-pic' src='../../static/tree/images/pictures/${nodeId}.PNG'/>
+        <div id ='node-${nodeId}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column;'>
+          <div><b>John Doe</br></div>
+          
+          <div><b>${data[nodeIndex]?.birthyear}</b></div>
+        </div>
+  </div>
+  `
+
+  /*
+  hMenu.innerHTML = `<id='hover-menu' class='hover-menu'>
 
   <div class='hover-menu'>
       <img class='menu-pic' src='../../static/tree/images/pictures/${nodeId}.PNG'/>
-        <div id ='node-1-info'>
+        <div id ='node-${nodeId}-info'>
           <b>
-          Name: ${data[nodeId]?.name} 
+          Name: ${data[nodeIndex]?.name} 
           <br></br>
-          Birthyear: ${data[nodeId - 1]?.birthyear}
+          Birthyear: ${data[nodeIndex]?.birthyear}
           </b>
         </div>
   </div>
   `
+*/
 }
 
 function closeHoverMenu() {
@@ -1344,11 +1365,12 @@ function emptyXLocation(xPos, generation) {
     let node = document.getElementById(`${nodesInGeneration[i].image}`);
     let tmpX = parseAttribute('x', node.style.cssText);
 
-    
+    /*
     if ((xPos == tmpX)) {
       isEmpty = false;
       return isEmpty;
     }
+    */
     
     /*
     if ((xPos >= tmpX - 60) && (xPos <= tmpX + 60)) {
@@ -1356,6 +1378,7 @@ function emptyXLocation(xPos, generation) {
       return isEmpty
     }
     */
+    
   }
 
   return isEmpty;

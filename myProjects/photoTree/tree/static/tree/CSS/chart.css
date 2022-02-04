@@ -40,6 +40,21 @@
   /*originals 6.5 px and 9.5 px*/
 }
 
+.hover-point {
+  background-color: white;
+  border: 2px solid lightblue;
+  height: 100px; /*height and width originally 12px*/
+  position: absolute;
+  width: 100px;
+
+  /* The data points have a radius of 8px and the line segment has a width of 3px, 
+    so we split the difference to center the data points on the line segment origins */
+  bottom: calc(var(--y) - 21.5px);
+  left: calc(var(--x) - 24.5px);
+
+  /*originals 6.5 px and 9.5 px*/
+}
+
 .data-button {
   color: blue;
 }
@@ -227,29 +242,4 @@ body {
   border-color: rgb(61, 177, 173);
   border-style: solid;
   border-width: 2px;
-}
-
-/*Hover Effects*/
-.tooltip {
-  position: absolute; /*Was relative*/
-  display: inline-block;
-  border-bottom: 1px dotted blue;
-}
-
-.tooltip .tooltiptext {
-  visibility: hidden;
-  width: 120px;
-  background-color: blue;
-  color: black;
-  text-align: center;
-  border-radius: 6px;
-  padding: 5px 0;
-
-  /* Position the tooltip */
-  position: absolute;
-  z-index: 1;
-}
-
-.tooltip:hover .tooltiptext {
-  visibility: visible;
 }
