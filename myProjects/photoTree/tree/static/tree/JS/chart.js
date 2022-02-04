@@ -53,14 +53,14 @@ let data = [
     "spouse": 8,
     "birthyear": 1979,
   },
-  
+  /*
   {
     "image": 10,
     "mother": null,
     "spouse": null,
     "birthyear": 1950
   },
-
+*/
   {
     "image": 11,
     "mother": null,
