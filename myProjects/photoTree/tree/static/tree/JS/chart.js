@@ -238,15 +238,10 @@ function createChart(chart) {
       adjustSpouseXPos(data[i]);
     }
   }
-<<<<<<< HEAD
-  
-  /*
-=======
 
   
   
 /*
->>>>>>> 69e5a2ecce5d2ac46ed95e69bef3702db1ddf282
   for (let i = 0; i < momArray.length; ++i) {
     if (momArray[i][0].data.image == 11) {
       //debugger
@@ -254,14 +249,9 @@ function createChart(chart) {
   
     adjustChildNodesXPos(momArray[i][0].data);
   }
-<<<<<<< HEAD
-  */
-  
-=======
   
   */
 
->>>>>>> 69e5a2ecce5d2ac46ed95e69bef3702db1ddf282
   createChildLines();
   createSpouseLines();
 }
@@ -1395,13 +1385,12 @@ function emptyXLocation(xPos, generation) {
     let node = document.getElementById(`${nodesInGeneration[i].image}`);
     let tmpX = parseAttribute('x', node.style.cssText);
 
-    /*
+    
     if ((xPos == tmpX)) {
       isEmpty = false;
       return isEmpty;
     }
-    */
-    
+      
     /*
     if ((xPos >= tmpX - 60) && (xPos <= tmpX + 60)) {
       isEmpty = false;
