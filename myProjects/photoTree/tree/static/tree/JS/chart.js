@@ -829,11 +829,11 @@ function hoverMenu(nodeId) {
 
   let hMenu = document.getElementById('hover-menu');
 
-  let nodeIndex = getDataIndex(nodeId)
-  let node = document.getElementById(nodeId)
+  let nodeIndex = getDataIndex(nodeId);
+  let node = document.getElementById(nodeId);
 
-  let nodeX = parseAttribute('x', node.style.cssText)
-  let nodeY = parseAttribute('y', node.style.cssText)
+  let nodeX = parseAttribute('x', node.style.cssText);
+  let nodeY = parseAttribute('y', node.style.cssText);
 
   //Make this class a datapoint technically and make XY pos's from there, just get X,Y from node and then adjust slightly for it to be near node
   hMenu.innerHTML = `
@@ -841,7 +841,6 @@ function hoverMenu(nodeId) {
       <img class='menu-pic' src='../../static/tree/images/pictures/${nodeId}.PNG'/>
         <div id ='node-${nodeId}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column;'>
           <div><b>John Doe</br></div>
-          
           <div><b>${data[nodeIndex]?.birthyear}</b></div>
         </div>
   </div>
@@ -873,7 +872,11 @@ function closeHoverMenu() {
 }
 
 function openMenu(id1, id2) {
+
   let box = document.getElementById('confirmBox');
+
+  let id1Index = getDataIndex(parseInt(id1));
+  let id2Index = getDataIndex(parseInt(id2));
 
 
   if (box.children.length == 2) {
@@ -884,20 +887,21 @@ function openMenu(id1, id2) {
     <div><button onclick='closeMenu()'>X</button></div>
 
     <div class='menu-pics-container'>
-      <img class='menu-pic' src='../../static/tree/images/pictures/${id1}.PNG'/>
-        <div id ='node-1-info'>
-        <b>
-        Name: ${data[id1 - 1]?.name} <br></br>
-        Birthyear: ${data[id1 - 1]?.birthyear}
-        </b>
+      <div>
+        <img class='menu-pic' src='../../static/tree/images/pictures/${id1}.PNG'/>
+        <div id ='node-${id1}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px;'>
+          <div><b>John Doe</b></div>
+          <div><b>${data[id1Index]?.birthyear}</b></div>
         </div>
-      <img class='menu-pic' src='../../static/tree/images/pictures/${id2}.PNG'/>
-      <div id ='node-2-info'>
-        <b>
-        Name: ${data[id2 - 1]?.name} <br></br>
-        Birthyear: ${data[id2 - 1]?.birthyear}
-        </b>
+      </div>
+
+      <div>
+        <img class='menu-pic' src='../../static/tree/images/pictures/${id2}.PNG'/>
+        <div id ='node-${id2}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px;'>
+          <div><b>John Doe</b></div>
+          <div><b>${data[id2Index]?.birthyear}</b></div>
         </div>
+      </div>
     </div>
 
     <div class='menu-button'>
@@ -919,12 +923,15 @@ function openMenu(id1, id2) {
 
 function closeMenu() {
   let menu = document.getElementById('center-menu') 
+
+  //TODO Add if that put nodedataBox nodes back to nodeBox
+
+
   menu.innerHTML = '';
 
   let confirmBox = document.getElementById('confirmBox');
   confirmBox.innerHTML = '';
 }
-
 
 
 
@@ -1348,7 +1355,7 @@ function adjustSpouseXPos(node) {
     currNode.setAttribute('style', `--y: ${originalY}px; --x: ${nodeXPos}px`);
   }
   //Move spouse to node and not node to spouse
-  else if (nodeXPos > spouseXPos && emptyXLocation(spouseXPos + spacing, generation)) {
+  else if (nodeXPos > spouseXPos && emptyXLocation(nodeXPos + spacing, generation)) {
     nodeXPos = spouseXPos + spacing;
 
     let originalY = parseAttribute('y', currNode.style.cssText);

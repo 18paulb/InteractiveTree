@@ -205,7 +205,7 @@ body {
 
   position: fixed;
   width: 400px;
-  height: 300px;
+  height: 360px;
   z-index: 1;
   top: 50%;
   left: 50%;
@@ -245,4 +245,5 @@ body {
   border-style: solid;
   border-width: 2px;
   cursor: pointer;
+
 }
