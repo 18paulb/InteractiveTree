@@ -26,7 +26,7 @@
 /* Each point on the chart, each a 12px circle with a light border */
 .data-point {
   background-color: white;
-  border: 5px solid lightblue;
+  border: 5px solid #7ab7e6; /*was light blue*/
   border-radius: 50%;
   height: 60px; /*height and width originally 12px*/
   position: absolute;
@@ -41,9 +41,9 @@
 }
 
 .data-point:hover {
-  transition-duration: .25s;
+  transition-duration: 0.25s;
   transform: scale(1.2);
-  }
+}
 
 .hover-point {
   background-color: white;
@@ -87,7 +87,7 @@
 }
 
 .child-line {
-  background-color: #2e2922;
+  background-color: #3b5070;
   bottom: var(--y);
   height: 5px;
   left: var(--x);
@@ -117,7 +117,7 @@
   justify-content: space-between;
   width: 100%;
 
-  background-color: darkgray;
+  background-color: #6486bd; /*#ffda9e;*/
 }
 
 .node-container {
@@ -139,7 +139,7 @@
 
 .nodeBox-button {
   background-color: white;
-
+  border: 5px solid #7ab7e6; /*was light blue*/
   border-radius: 70px;
   margin: 5px;
 }
@@ -153,7 +153,6 @@
   border: 2px solid black;
 
   border-radius: 50px;
-
 }
 
 .confirm-box {
@@ -204,7 +203,7 @@
 }
 
 body {
-  background-color: #fffaf0;
+  background-color: #eef7fe; /*was #fffaf0;*/
   /*background-color: #413fb4;*/
 }
 
