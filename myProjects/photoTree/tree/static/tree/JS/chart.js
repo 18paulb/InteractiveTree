@@ -236,7 +236,7 @@ function createChart(chart) {
 
   
   
-/*
+
   for (let i = 0; i < momArray.length; ++i) {
     if (momArray[i][0].data.image == 11) {
       //debugger
@@ -244,8 +244,7 @@ function createChart(chart) {
   
     adjustChildNodesXPos(momArray[i][0].data);
   }
-  
-  */
+ 
 
   createChildLines();
   createSpouseLines();
