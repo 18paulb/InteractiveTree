@@ -26,7 +26,7 @@
 /* Each point on the chart, each a 12px circle with a light border */
 .data-point {
   background-color: white;
-  border: 2px solid lightblue;
+  border: 5px solid lightblue;
   border-radius: 50%;
   height: 60px; /*height and width originally 12px*/
   position: absolute;
@@ -47,7 +47,6 @@
 
   bottom: calc(var(--y) - 21.5px);
   left: calc(var(--x) - 24.5px);
-
 }
 
 .data-button {
@@ -250,12 +249,7 @@ body {
   /*
   border-color: rgb(61, 177, 173);
   border-style: solid;
-  border-width: 2px;
-  */
+  border-width: 5px;
   cursor: pointer;
-
-  border-radius: 10px;
-
-  box-shadow: #5e5df0 0 10px 20px -10px;
-
+  */
 }
