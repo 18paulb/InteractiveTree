@@ -661,7 +661,6 @@ function removeRelationship(id1, id2) {
     }
 
     closeMenu()
-    //debugger
 
     createChart(chartList)
   
