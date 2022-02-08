@@ -230,7 +230,7 @@ body {
   left: 50%;
   margin: -100px 0 0 -150px;
   /*background: #4056A1;*/
-  background: #50bb89;
+  background: #6486bd; /*#50bb89;*/
 }
 
 .menu-pics-container {
@@ -254,8 +254,6 @@ body {
   margin-bottom: 5px;
   margin-top: 15px;
 }
-
-
 
 .hover-menu {
   padding: 10px;
