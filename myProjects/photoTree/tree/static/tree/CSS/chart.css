@@ -141,7 +141,12 @@
   background-color: white;
   border: 5px solid #7ab7e6; /*was light blue*/
   border-radius: 70px;
-  margin: 5px;
+  margin: 10px;
+}
+
+.nodeBox-button:hover {
+  transition-duration: 0.25s;
+  transform: scale(1.05);
 }
 
 .tree-image {
@@ -201,7 +206,12 @@
   word-break: break-word;
   border: 0;
 }
-
+/*
+.button-34:hover {
+  transition-duration: 0.25s;
+  transform: scale(1.05);
+}
+*/
 body {
   background-color: #eef7fe; /*was #fffaf0;*/
   /*background-color: #413fb4;*/
@@ -244,6 +254,8 @@ body {
   margin-bottom: 5px;
   margin-top: 15px;
 }
+
+
 
 .hover-menu {
   padding: 10px;
