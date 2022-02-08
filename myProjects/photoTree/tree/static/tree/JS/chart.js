@@ -112,7 +112,7 @@ let nodeBoxData = [];
 //randomizeDataOrder(data);
 
 //Change this and HTML in order to change graph size
-let chartWidth = 1200;
+let chartWidth = screen.width;
 
 //Used to connect children to moms
 let momArray = [];
@@ -256,7 +256,6 @@ function createDataPoints(chart) {
   removeAllChildNodes(chart);
 
   let generationMap = new Map();
-
   let genCount = 0;
   for (let j = 0; j < data.length; ++j) {
     let tmp = getGenerationCount(data[j], 1);
@@ -450,7 +449,7 @@ function getX(node, map, width) {
 
   currGeneration = map.get(keyGen);
 
-  xPos = (width / getNumInGeneration(keyGen)) * currGeneration;
+  xPos = (width/ getNumInGeneration(keyGen)) * currGeneration;
   currGeneration++;
 
   map.set(keyGen, currGeneration);

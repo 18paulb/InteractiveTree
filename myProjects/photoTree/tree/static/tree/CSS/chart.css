@@ -87,7 +87,7 @@
 }
 
 .child-line {
-  background-color: #3b5070;
+  background-color: #3b5070; /*was black*/
   bottom: var(--y);
   height: 5px;
   left: var(--x);
