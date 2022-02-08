@@ -112,14 +112,8 @@ let nodeBoxData = [];
 //randomizeDataOrder(data);
 
 //Change this and HTML in order to change graph size
-<<<<<<< HEAD
-let chartWidth = screen.width;
-=======
-let chartWidth = 1200;
 //let chartWidth = screen.width;
-
-//console.log(chartWidth)
->>>>>>> 964450e03af931dd04efaaa9dc30e676c2aeeaba
+let chartWidth = 1200;
 
 //Used to connect children to moms
 let momArray = [];
