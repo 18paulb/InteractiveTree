@@ -113,6 +113,9 @@ let nodeBoxData = [];
 
 //Change this and HTML in order to change graph size
 let chartWidth = 1200;
+//let chartWidth = screen.width;
+
+//console.log(chartWidth)
 
 //Used to connect children to moms
 let momArray = [];
@@ -217,6 +220,21 @@ let chartList = document.getElementById('chart');
 
 createChart(chartList);
 
+//FOR PRESENTATION
+function startEmpty() {
+  //debugger
+  while (data.length != 0) {
+    data[0].mother = null;
+    data[0].spouse = null;
+    addToNodeContainer(data[0].image);
+    data.splice(0,1);
+  }
+
+  momArray = [];
+  createChart(chartList)
+}
+
+
 
 
 //All functions for chart creation and functionality
@@ -236,7 +254,7 @@ function createChart(chart) {
 
   
   
-
+/*
   for (let i = 0; i < momArray.length; ++i) {
     if (momArray[i][0].data.image == 11) {
       //debugger
@@ -244,7 +262,7 @@ function createChart(chart) {
   
     adjustChildNodesXPos(momArray[i][0].data);
   }
- 
+ */
 
   createChildLines();
   createSpouseLines();
@@ -374,6 +392,7 @@ function createChildLines() {
   
         li.innerHTML += `<div class="child-line" style="--hypotenuse: ${childHypotenuse}; --angle: ${angle}"></div>`;
         //FIXME kind of works, position is right but buttons do not work when click line
+        //li.innerHTML += `<div onclick="hi()"><div class="child-line" style="--hypotenuse: ${childHypotenuse}; --angle: ${angle};"></div></div>`;
         //li.innerHTML += `<button onclick="hi()"><div class="child-line" style="--hypotenuse: ${childHypotenuse}; --angle: ${angle};"></div></button>`;
         //li.innerHTML += `<button onclick="hi()" class="child-line" style="--hypotenuse: ${childHypotenuse}; --angle: ${angle};"></button>`;
         
@@ -538,6 +557,7 @@ function addSpouseRelationship(id1, id2) {
 }
 
 //TODO fix issues
+//ADDED TEST SPACING FOR PRESENTATION
 function addMotherRelationship(id1, id2) {
   //SOLVE:
   //4. Impossible to do with current data but if male, you can't make it mother
@@ -577,9 +597,19 @@ function addMotherRelationship(id1, id2) {
 
   let childIndex;
   let momIndex
+
+  //debugger
+
   if (getNodeBoxDataIndex(child.image) != null) {
     childIndex = getNodeBoxDataIndex(child.image);
-    data.push(nodeBoxData[childIndex]);
+    //data.push(nodeBoxData[childIndex]);
+
+    //TESTING FOR PRESENTATION
+    momIndex = getDataIndex(mother.image);
+    data.splice(momIndex - 1, 0, child)
+    //
+
+
     nodeBoxData.splice(childIndex, 1)
   } 
   //What if mom is in nodeBoxData
