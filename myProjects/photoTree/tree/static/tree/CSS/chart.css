@@ -98,7 +98,12 @@
   width: calc(var(--hypotenuse) * 1px);
   z-index: -1;
 }
-
+/*
+.child-line:hover {
+  transition-duration: 0.25s;
+  transform: scale(1.2);
+}
+*/
 .spouse-line {
   background-color: #ffc868;
   bottom: var(--y);

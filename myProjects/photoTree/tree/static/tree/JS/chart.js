@@ -1,4 +1,3 @@
-/*
 let data = [
   {
     "image": 1,
@@ -63,7 +62,7 @@ let data = [
     "birthyear": 1950
   },
 */
-/*
+
   {
     "image": 11,
     "mother": null,
@@ -107,108 +106,6 @@ let data = [
     "birthyear": 1981
   },
 ]
-*/
-
-let data = [
-  {
-    "image": 8,
-    "mother": 11,
-    "spouse": 9,
-    "birthyear": 1978
-  },
-  {
-    "image": 9,
-    "mother": null,
-    "spouse": 8,
-    "birthyear": 1979,
-  },
-  {
-    "image": 1,
-    "mother": 9,
-    "spouse": null,
-    "birthyear": 2006
-  },
-  {
-    "image": 2,
-    "mother": 9,
-    "spouse": null,
-    "birthyear": 2004
-  },
-  {
-    "image": 3,
-    "mother": 9,
-    "spouse": null,
-    "birthyear": 2002
-  },
-  {
-    "image": 4,
-    "mother": 9,
-    "spouse": null,
-    "birthyear": 2010
-  },
-  {
-    "image": 5,
-    "mother": 9,
-    "spouse": null,
-    "birthyear": 2008
-  },
-  {
-    "image": 6,
-    "mother": 9,
-    "spouse": null,
-    "birthyear": 2013
-  },
-  {
-    "image": 7,
-    "mother": 9,
-    "spouse": null,
-    "birthyear": 2001
-  },
-  {
-    "image": 11,
-    "mother": null,
-    "spouse": 12,
-    "birthyear": 1955
-  },
-  {
-    "image": 12,
-    "mother": null,
-    "spouse": 11,
-    "birthyear": 1955
-  },
-  {
-    "image": 13,
-    "mother": 11,
-    "spouse": 14,
-    "birthyear": 1980
-  },
-  {
-    "image": 14,
-    "mother": null,
-    "spouse": 13,
-    "birthyear": 1979
-  },
-  {
-    "image": 17,
-    "mother": null,
-    "spouse": 15,
-    "birthyear": 1981
-  },
-  {
-    "image": 15,
-    "mother": 11,
-    "spouse": 17,
-    "birthyear": 1984
-  },
-  {
-    "image": 16,
-    "mother": 15,
-    "spouse": null,
-    "birthyear": 2005
-  },
-
-]
-
 
 let nodeBoxData = [];
 //randomizeDataOrder(data);
@@ -355,13 +252,6 @@ function createChart(chart) {
     }
   }
 
-
-  /*
-  //Presentation
-  for (let i = 0; i < momArray.length; ++i) {
-    presentationChildren(momArray[i][0].data)
-  }
-  */
 /*
   for (let i = 0; i < momArray.length; ++i) {
     if (momArray[i][0].data.image == 11) {
@@ -370,7 +260,13 @@ function createChart(chart) {
   
     adjustChildNodesXPos(momArray[i][0].data);
   }
- */
+*/ 
+
+   //Presentation
+   for (let i = 0; i < momArray.length; ++i) {
+    presentationChildren(momArray[i][0].data)
+  }
+ 
 
   createChildLines();
   createSpouseLines();
@@ -415,13 +311,6 @@ function createDataPoints(chart) {
 
     let xPos = getX(data[i], generationMap, chartWidth);
 
-    //TESTING
-    /*
-    if (gen != 1) {
-      xPos = 0;
-    }
-    */
-    //
 
     li.setAttribute('id', data[i].image);
     li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`);
@@ -499,7 +388,7 @@ function createChildLines() {
   
         li.innerHTML += `<div class="child-line" style="--hypotenuse: ${childHypotenuse}; --angle: ${angle}"></div>`;
         //FIXME kind of works, position is right but buttons do not work when click line
-        //li.innerHTML += `<div onclick="hi()"><div class="child-line" style="--hypotenuse: ${childHypotenuse}; --angle: ${angle};"></div></div>`;
+        //li.innerHTML += `<div class="child-line" onclick='hi()' style="--hypotenuse: ${childHypotenuse}; --angle: ${angle};"></div>`;
         //li.innerHTML += `<button onclick="hi()"><div class="child-line" style="--hypotenuse: ${childHypotenuse}; --angle: ${angle};"></div></button>`;
         //li.innerHTML += `<button onclick="hi()" class="child-line" style="--hypotenuse: ${childHypotenuse}; --angle: ${angle};"></button>`;
         
@@ -580,13 +469,13 @@ function getX(node, map, width) {
   currGeneration++;
 
   map.set(keyGen, currGeneration);
-/*
+
   //TEST ADDED THIS RULE TO STOP TOP NODE FROM SHIFTING
   //SIDEFFECTS, ANY GENERATION WITH 1 node will be placed directly in center, might not be beneficial at all
   if (getNumInGeneration(keyGen) == 1) {
     xPos = width / 2
   } 
-*/
+
   return xPos;
 
 }
@@ -705,17 +594,17 @@ function addMotherRelationship(id1, id2) {
   let childIndex;
   let momIndex
 
-  //debugger
 
   if (getNodeBoxDataIndex(child.image) != null) {
     childIndex = getNodeBoxDataIndex(child.image);
-    //data.push(nodeBoxData[childIndex]);
+    data.push(nodeBoxData[childIndex]);
 
+    /*
     //TESTING FOR PRESENTATION
     momIndex = getDataIndex(mother.image);
     data.splice(momIndex - 1, 0, child)
     //
-
+    */
 
     nodeBoxData.splice(childIndex, 1)
   } 
@@ -773,8 +662,6 @@ function removeRelationship(id1, id2) {
   
     let box = document.getElementById('confirmBox');
     box.innerHTML = ''
-
-    //closeMenu()
 
     return;
   }
@@ -977,8 +864,6 @@ function removeAllChildNodes(parent) {
 
 function hoverMenu(nodeId) {
 
-  //debugger
-
   let hMenu = document.getElementById('hover-menu');
 
   let nodeIndex = getDataIndex(nodeId);
@@ -997,25 +882,6 @@ function hoverMenu(nodeId) {
         </div>
   </div>
   `
-
-  /*
-  hMenu.innerHTML = `<id='hover-menu' class='hover-menu'>
-  //hMenu.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`);
-
-  hMenu.innerHTML = 
-  `<div class='hover-menu'>
-      <img class='menu-pic' src='../../static/tree/images/pictures/${nodeId}.PNG'/>
-        <div id ='node-${nodeId}-info'>
-          <b>
-          Name: ${data[nodeIndex]?.name} 
-          Name: ${data[nodeId - 1]?.name} 
-          <br></br>
-          Birthyear: ${data[nodeIndex]?.birthyear}
-          </b>
-        </div>
-  </div>
-  `
-*/
 }
 
 function closeHoverMenu() {
@@ -1354,8 +1220,6 @@ function getSpacing(rootNode, spacing, targetNode) {
 //You have at to adjust them after all children have been placed already
 //Will probably merge with the getX function
 //Add rules where rightmost child cannot pass leftmost child of adjacent tree and adjust spacing from there
-
-
 function adjustChildNodesXPos(momNode) {
 
   let children = getChildren(momNode);
@@ -1490,7 +1354,7 @@ function adjustChildNodesXPos(momNode) {
 
 //FIXME prioritize moving spouses with no moms and also spouses who are already on the tree
 function adjustSpouseXPos(node) {
-  //debugger
+
   let spouse = document.getElementById(`${node.spouse}`);
   let currNode = document.getElementById(`${node.image}`);
 
@@ -1655,7 +1519,7 @@ function getRightmostChild(momNode) {
       break;
     }
   }
-  return data[getDataIndex(parseInt(rightmostChildPos))]
+  return data[getDataIndex(parseInt(rightmostChild))]
 }
 
 function swapChildPos(child1, child2) {
@@ -1690,20 +1554,19 @@ function presentationChildren(momNode) {
 
   let nodeX = parseAttribute('x', docNode.style.cssText)
 
-  debugger
-
   for (let i = 0; i < momsInGen.length; ++i) {
     let tmpNode = document.getElementById(momsInGen[i].image);
 
     let tmpX = parseAttribute('x', tmpNode.style.cssText);
 
-    //if tmp node is to the left of OGnode
+    //if tmp node is to the left of node
     if (tmpX < nodeX) {
       if (rightmostChildPos(momsInGen[i]) > leftmostChildPos(momNode)) {
         swapChildPos(getLeftmostChild(momNode), getRightmostChild(momsInGen[i]))
       }
     }
 
+    //if tmp node is to the right of node
     if (tmpX > nodeX) {
       if (leftmostChildPos(momsInGen[i]) < rightmostChildPos(momNode)) {
         swapChildPos(getRightmostChild(momNode), getLeftmostChild(momsInGen[i]))
