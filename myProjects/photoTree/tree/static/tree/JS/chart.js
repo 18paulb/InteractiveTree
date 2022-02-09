@@ -1,3 +1,4 @@
+/*
 let data = [
   {
     "image": 1,
@@ -62,6 +63,7 @@ let data = [
     "birthyear": 1950
   },
 */
+/*
   {
     "image": 11,
     "mother": null,
@@ -105,15 +107,115 @@ let data = [
     "birthyear": 1981
   },
 ]
+*/
 
+let data = [
+  {
+    "image": 8,
+    "mother": 11,
+    "spouse": 9,
+    "birthyear": 1978
+  },
+  {
+    "image": 9,
+    "mother": null,
+    "spouse": 8,
+    "birthyear": 1979,
+  },
+  {
+    "image": 1,
+    "mother": 9,
+    "spouse": null,
+    "birthyear": 2006
+  },
+  {
+    "image": 2,
+    "mother": 9,
+    "spouse": null,
+    "birthyear": 2004
+  },
+  {
+    "image": 3,
+    "mother": 9,
+    "spouse": null,
+    "birthyear": 2002
+  },
+  {
+    "image": 4,
+    "mother": 9,
+    "spouse": null,
+    "birthyear": 2010
+  },
+  {
+    "image": 5,
+    "mother": 9,
+    "spouse": null,
+    "birthyear": 2008
+  },
+  {
+    "image": 6,
+    "mother": 9,
+    "spouse": null,
+    "birthyear": 2013
+  },
+  {
+    "image": 7,
+    "mother": 9,
+    "spouse": null,
+    "birthyear": 2001
+  },
+  {
+    "image": 11,
+    "mother": null,
+    "spouse": 12,
+    "birthyear": 1955
+  },
+  {
+    "image": 12,
+    "mother": null,
+    "spouse": 11,
+    "birthyear": 1955
+  },
+  {
+    "image": 13,
+    "mother": 11,
+    "spouse": 14,
+    "birthyear": 1980
+  },
+  {
+    "image": 14,
+    "mother": null,
+    "spouse": 13,
+    "birthyear": 1979
+  },
+  {
+    "image": 17,
+    "mother": null,
+    "spouse": 15,
+    "birthyear": 1981
+  },
+  {
+    "image": 15,
+    "mother": 11,
+    "spouse": 17,
+    "birthyear": 1984
+  },
+  {
+    "image": 16,
+    "mother": 15,
+    "spouse": null,
+    "birthyear": 2005
+  },
+
+]
 
 
 let nodeBoxData = [];
 //randomizeDataOrder(data);
 
 //Change this and HTML in order to change graph size
-let chartWidth = screen.width;
-//let chartWidth = 1200;
+//let chartWidth = screen.width;
+let chartWidth = 1200;
 
 //Used to connect children to moms
 let momArray = [];
@@ -212,6 +314,9 @@ function makeMomArray() {
 momArray = makeMomArray();
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//PRESENTATION ORGANIZING DATA
+
+
 
 
 let chartList = document.getElementById('chart');
@@ -250,8 +355,13 @@ function createChart(chart) {
     }
   }
 
-  
-  
+
+  /*
+  //Presentation
+  for (let i = 0; i < momArray.length; ++i) {
+    presentationChildren(momArray[i][0].data)
+  }
+  */
 /*
   for (let i = 0; i < momArray.length; ++i) {
     if (momArray[i][0].data.image == 11) {
@@ -1463,6 +1573,38 @@ function leftmostChildPos(momNode) {
   return childElementXPos;
 }
 
+function getLeftmostChild(momNode) {
+  let childElementXPos;
+  let leftmostChild;
+
+  for (let i = 0; i < momArray.length; ++i) {
+
+
+
+    if (momArray[i][0].data.image == momNode.image) {
+
+      //Initial comparing value
+      let tmpChild = document.getElementById(`${momArray[i][0].children[0].image}`);
+      childElementXPos = parseAttribute('x', tmpChild.style.cssText)
+      leftmostChild = tmpChild.id
+
+      for (let j = 0; j < momArray[i][0].children.length; ++j) {
+        let child = document.getElementById(`${momArray[i][0].children[j].image}`);
+
+        let childXPos = parseAttribute('x', child.style.cssText);
+
+        if (childXPos < childElementXPos) {
+          childElementXPos = childXPos;
+          leftmostChild = child.id
+        }
+      }
+      break;
+    }
+  }
+  return data[getDataIndex(parseInt(leftmostChild))];
+}
+
+
 function rightmostChildPos(momNode) {
   let childElementXPos;
 
@@ -1487,3 +1629,87 @@ function rightmostChildPos(momNode) {
   }
   return childElementXPos;
 }
+
+function getRightmostChild(momNode) {
+  let childElementXPos;
+  let rightmostChild;
+
+  for (let i = 0; i < momArray.length; ++i) {
+    if (momArray[i][0].data.image == momNode.image) {
+
+      //Initial comparing value
+      let tmpChild = document.getElementById(`${momArray[i][0].children[0].image}`);
+      childElementXPos = parseAttribute('x', tmpChild.style.cssText)
+      rightmostChild = tmpChild.id
+
+      for (let j = 0; j < momArray[i][0].children.length; ++j) {
+        let child = document.getElementById(`${momArray[i][0].children[j].image}`);
+
+        let childXPos = parseAttribute('x', child.style.cssText);
+
+        if (childXPos > childElementXPos) {
+          childElementXPos = childXPos;
+          rightmostChild = child.id;
+        }
+      }
+      break;
+    }
+  }
+  return data[getDataIndex(parseInt(rightmostChildPos))]
+}
+
+function swapChildPos(child1, child2) {
+  let ch1 = document.getElementById(child1.image);
+  let ch2 = document.getElementById(child2.image);
+
+  let ch1OriginalY = parseAttribute('y', ch1.style.cssText);
+  let ch2OriginalY = parseAttribute('y', ch2.style.cssText);
+
+  let ch1OriginalX = parseAttribute('x', ch1.style.cssText);
+  let ch2OriginalX = parseAttribute('x', ch2.style.cssText);  
+
+  ch1.setAttribute('style', `--y: ${Math.round(ch1OriginalY)}px; --x: ${Math.round(ch2OriginalX)}px`);
+  ch2.setAttribute('style', `--y: ${Math.round(ch2OriginalY)}px; --x: ${Math.round(ch1OriginalX)}px`);
+}
+
+
+function presentationChildren(momNode) {
+  //if mom node left child is more left than rightmost child
+  
+  let gen = getGeneration(momNode)
+
+  let momsInGen = []
+
+  for (let i = 0; i < momArray.length; ++i) {
+    if (getGeneration(momArray[i][0].data) == gen) {
+      momsInGen.push(momArray[i][0].data)
+    }
+  }
+
+  let docNode = document.getElementById(momNode.image)
+
+  let nodeX = parseAttribute('x', docNode.style.cssText)
+
+  debugger
+
+  for (let i = 0; i < momsInGen.length; ++i) {
+    let tmpNode = document.getElementById(momsInGen[i].image);
+
+    let tmpX = parseAttribute('x', tmpNode.style.cssText);
+
+    //if tmp node is to the left of OGnode
+    if (tmpX < nodeX) {
+      if (rightmostChildPos(momsInGen[i]) > leftmostChildPos(momNode)) {
+        swapChildPos(getLeftmostChild(momNode), getRightmostChild(momsInGen[i]))
+      }
+    }
+
+    if (tmpX > nodeX) {
+      if (leftmostChildPos(momsInGen[i]) < rightmostChildPos(momNode)) {
+        swapChildPos(getRightmostChild(momNode), getLeftmostChild(momsInGen[i]))
+      }    
+    }
+  }
+
+}
+
