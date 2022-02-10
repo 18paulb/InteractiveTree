@@ -1,10 +1,5 @@
 /* The parent element */
 .css-chart {
-  /* The chart borders */
-  /*
-    border-bottom: 1px solid;
-    border-left: 1px solid;
-  */
   /* The height, which is initially defined in the HTML */
   height: var(--widget-size);
   /* A little breathing room should there be others items around the chart */
@@ -23,7 +18,7 @@
   padding: 0;
 }
 
-/* Each point on the chart, each a 12px circle with a light border */
+/* Each point on the chart, each a circle with a light border */
 .data-point {
   background-color: white;
   border: 5px solid #7ab7e6; /*was light blue*/
@@ -34,8 +29,8 @@
 
   /* The data points have a radius of 8px and the line segment has a width of 3px, 
     so we split the difference to center the data points on the line segment origins */
-  bottom: calc(var(--y) - 21.5px);
-  left: calc(var(--x) - 24.5px);
+  bottom: calc(var(--y) - 27.5px);
+  left: calc(var(--x) - 30.5px);
 
   /*originals 6.5 px and 9.5 px*/
 }
@@ -122,7 +117,7 @@
   justify-content: space-between;
   width: 100%;
 
-  background-color: #6486bd; /*#ffda9e;*/
+  background-color: #6486bd;
 }
 
 .node-container {
@@ -132,8 +127,8 @@
 }
 
 .node-image {
-  width: 100px;
-  height: 100px;
+  width: 80px;
+  height: 80px;
 
   background-color: white;
 
@@ -211,12 +206,12 @@
   word-break: break-word;
   border: 0;
 }
-/*
+
 .button-34:hover {
-  transition-duration: 0.25s;
-  transform: scale(1.05);
+  transition-duration: 0.20s;
+  background-color: rgb(214, 213, 213);
 }
-*/
+
 body {
   background-color: #eef7fe; /*was #fffaf0;*/
   /*background-color: #413fb4;*/
@@ -235,7 +230,7 @@ body {
   left: 50%;
   margin: -100px 0 0 -150px;
   /*background: #4056A1;*/
-  background: #6486bd; /*#50bb89;*/
+  background: #9dbef1; /*#50bb89;*/
 }
 
 .menu-pics-container {
@@ -265,6 +260,10 @@ body {
   display: inline-block;
   position: absolute;
   background: white;
+
+  border-radius: 10px;
+
+  border: 1px solid rgb(65, 65, 65);
 
   box-shadow: #5e5df0 0 10px 20px -10px;
 }

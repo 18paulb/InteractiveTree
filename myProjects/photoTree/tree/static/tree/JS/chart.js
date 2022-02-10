@@ -876,10 +876,10 @@ function hoverMenu(nodeId) {
   hMenu.innerHTML = `
   <div id='hover-menu' class='hover-menu hover-point' style='--y: ${nodeY + 100}px; --x: ${nodeX - 25}px'>
       <img class='menu-pic' src='../../static/tree/images/pictures/${nodeId}.PNG'/>
-        <div id ='node-${nodeId}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column;'>
-          <div><b>John Doe</br></div>
-          <div><b>${data[nodeIndex]?.birthyear}</b></div>
-        </div>
+      <div id ='node-${nodeId}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column;'>
+        <div><b>John Doe</br></div>
+        <div><b>${data[nodeIndex]?.birthyear}</b></div>
+      </div>
   </div>
   `
 }
@@ -893,8 +893,27 @@ function openMenu(id1, id2) {
 
   let box = document.getElementById('confirmBox');
 
+  let id1Birthyear;
+  let id2Birthyear;
+
   let id1Index = getDataIndex(parseInt(id1));
   let id2Index = getDataIndex(parseInt(id2));
+
+  //These statements account for if the node is in the data or nodeBoxData
+  if (id1Index != null) {
+    id1Birthyear = data[id1Index].birthyear
+  }
+  if (id2Index != null) {
+    id2Birthyear = data[id2Index].birthyear
+  }
+  if (id1Index == null) {
+    id1Index = getNodeBoxDataIndex(parseInt(id1));
+    id1Birthyear = nodeBoxData[id1Index].birthyear;
+  }
+  if (id2Index == null) {
+    id2Index = getNodeBoxDataIndex(parseInt(id2));
+    id2Birthyear = nodeBoxData[id2Index].birthyear;
+  }
 
 
   if (box.children.length == 2) {
@@ -909,7 +928,7 @@ function openMenu(id1, id2) {
         <img class='menu-pic' src='../../static/tree/images/pictures/${id1}.PNG'/>
         <div id ='node-${id1}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px;'>
           <div><b>John Doe</b></div>
-          <div><b>${data[id1Index]?.birthyear}</b></div>
+          <div><b>${id1Birthyear}</b></div>
         </div>
       </div>
 
@@ -917,7 +936,7 @@ function openMenu(id1, id2) {
         <img class='menu-pic' src='../../static/tree/images/pictures/${id2}.PNG'/>
         <div id ='node-${id2}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px;'>
           <div><b>John Doe</b></div>
-          <div><b>${data[id2Index]?.birthyear}</b></div>
+          <div><b>${id2Birthyear}</b></div>
         </div>
       </div>
     </div>
@@ -1053,10 +1072,6 @@ function hasRelationship(node) {
   return hasRelationship;
 
 }
-
-
-
-
 
 
 
