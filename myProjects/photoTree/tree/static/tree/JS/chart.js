@@ -214,8 +214,8 @@ let nodeBoxData = [];
 //randomizeDataOrder(data);
 
 //Change this and HTML in order to change graph size
-//let chartWidth = screen.width;
-let chartWidth = 1200;
+let chartWidth = screen.width;
+//let chartWidth = 1200;
 
 //Used to connect children to moms
 let momArray = [];
@@ -895,7 +895,7 @@ function changeRemoveButtonParameters() {
 }
 
 function addToConfirmBox(id) {
-  let box = document.getElementById('confirmBox');
+  let box = document.getElementById("confirmBox");
 
   for (let i = 0; i < box.children.length; ++i) {
     if (box.children[i].id == `node${id}`) {
