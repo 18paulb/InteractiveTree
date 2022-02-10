@@ -1,5 +1,5 @@
 //Drag and drop section
-/*
+
 function allowDrop(ev) {
     ev.preventDefault();
 }
@@ -13,12 +13,12 @@ function drop(ev) {
     var data = ev.dataTransfer.getData("text");
     ev.target.appendChild(document.getElementById(data));
 }
-*/
+
 
 //To allow dropping between elements, consider messing around with DOM
 
 
-
+/*
 //Test code, will probably delete
 function drag_start(event) {
     var style = window.getComputedStyle(event.target, null);
@@ -45,7 +45,7 @@ var dm = document.getElementById('dragme');
 dm.addEventListener('dragstart', drag_start, false);
 document.body.addEventListener('dragover', drag_over, false);
 document.body.addEventListener('drop', drop, false);
-
+*/
 
 
 // Option to look at for examples //https://github.com/frontend-collective/react-sortable-tree    
