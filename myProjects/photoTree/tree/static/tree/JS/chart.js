@@ -111,8 +111,8 @@ let nodeBoxData = [];
 //randomizeDataOrder(data);
 
 //Change this and HTML in order to change graph size
-let chartWidth = screen.width;
-//let chartWidth = 1200;
+//let chartWidth = screen.width;
+let chartWidth = 1200;
 
 //Used to connect children to moms
 let momArray = [];
@@ -662,6 +662,7 @@ function removeRelationship(id1, id2) {
   
     let box = document.getElementById('confirmBox');
     box.innerHTML = ''
+    box.style.border = ''
 
     return;
   }
@@ -739,6 +740,7 @@ function removeRelationship(id1, id2) {
 
   let box = document.getElementById('confirmBox');
   box.innerHTML = ''
+  box.style.border = ''
 
   closeMenu();
 }
@@ -804,6 +806,11 @@ function addToConfirmBox(id) {
   img.setAttribute('src', `../../static/tree/images/pictures/${id}.PNG`);
 
   box.appendChild(img);
+
+  //sets border for confirmBox
+  if (box.children.length > 0) {
+    box.style.border = "5px solid black";
+  }
 
   //Changes Parameters for Change Relationship button
   let children = [];

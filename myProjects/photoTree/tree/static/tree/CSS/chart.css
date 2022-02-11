@@ -116,6 +116,7 @@
   display: flex;
   justify-content: space-between;
   width: 100%;
+  height: flex;
 
   background-color: #6486bd;
 }
@@ -127,12 +128,9 @@
 }
 
 .node-image {
-  width: 80px;
-  height: 80px;
-
-  background-color: white;
-
-  margin: 5px;
+  width: 90px;
+  height: 90px;
+  margin: 10px;
 
   border-radius: 50px;
 }
@@ -140,8 +138,8 @@
 .nodeBox-button {
   background-color: white;
   border: 5px solid #7ab7e6; /*was light blue*/
-  border-radius: 70px;
-  margin: 10px;
+  border-radius: 65px;
+  margin: 7px;
 }
 
 .nodeBox-button:hover {
@@ -162,8 +160,8 @@
 
 .confirm-box {
   display: flex;
-  border: 2px solid black;
-  height: 110px;
+  /*border: 2px solid black;*/
+  height: 130px;
   width: 220px;
 }
 
@@ -208,7 +206,7 @@
 }
 
 .button-34:hover {
-  transition-duration: 0.20s;
+  transition-duration: 0.2s;
   background-color: rgb(214, 213, 213);
 }
 
@@ -241,7 +239,7 @@ body {
 
 .menu-pic {
   display: flex;
-  border-radius: 25%;
+  border-radius: 20px;
 
   width: 100px;
   height: 100px;
