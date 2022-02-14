@@ -8,8 +8,8 @@ def index(request):
     return render(request, 'tree/index.html')
 
 
-def draggable(request):
-    return render(request, 'tree/draggable.html')
+def refactor(request):
+    return render(request, 'tree/refactor.html')
 
 def tree(request):
     return render(request, 'tree/tree.html')
