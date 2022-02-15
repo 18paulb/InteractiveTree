@@ -704,44 +704,45 @@ function removeRelationship(id1, id2) {
   closeMenu();
 }
 
+//JQUERY
 function changeAddButtonParameters() {
-  let box = document.getElementById('confirmBox')
-  //let box = $('#confirmBox');
 
+  $('#confirmBox').children()
 
   let children = []
 
-  for (let i = 0; i < box.children.length; ++i) {
-    children.push(box.children[i].id.substr(4));
+  children = $('#confirmBox').children();
+
+  for (let i = 0; i < children.length; ++i) {
+    children[i] = children[i].id.substr(4);
   }
-
-  let button = document.getElementById('addMotherButton');
-  let button2 = document.getElementById('addSpouseButton');
-
-
 
   if (children.length != 0) {
     let param1 = children[0];
     let param2 = children[1];
-    button.setAttribute('onclick',`changeAddButtonParameters(), addMotherRelationship(${param1}, ${param2})`);
-    button2.setAttribute('onclick',`changeAddButtonParameters(), addSpouseRelationship(${param1}, ${param2})`);
+
+    $('#addMotherButton').attr('onclick', `changeAddButtonParameters(), addMotherRelationship(${param1}, ${param2})`);
+    $('#addSpouseButton').attr('onclick',`changeAddButtonParameters(), addSpouseRelationship(${param1}, ${param2})`);
   }
 }
 
+//JQuery
 function changeRemoveButtonParameters() {
-  let box = document.getElementById('confirmBox');
-  let children = [];
+  $('#confirmBox').children()
 
-  for (let i = 0; i < box.children.length; ++i) {
-    children.push(box.children[i].id.substr(4));
+  let children = []
+
+  children = $('#confirmBox').children();
+
+  for (let i = 0; i < children.length; ++i) {
+    children[i] = children[i].id.substr(4);
   }
-
-  let button = document.getElementById('removeButton');
 
   if (children.length != 0) {
     let param1 = children[0];
     let param2 = children[1];
-    button.setAttribute('onclick',`changeRemoveButtonParameters(), removeRelationship(${param1}, ${param2})`);
+
+    $('#removeButton').attr('onclick', `changeRemoveButtonParameters(), removeRelationship(${param1}, ${param2})`);
 
   }
 }
