@@ -226,7 +226,153 @@ const Trie = function() {
   this.root = new TrieNode(null);
  
   //Other methods will go here...
+  // inserts a word into the trie.
+  this.insert = function(word) {
+    let node = this.root; // we start at the root
+
+    // for every character in the word
+    for(let i = 0; i < word.length; i++) {
+      // check to see if character node exists in children.
+      if (!node.children[word[i]]) {
+        // if it doesn't exist, we then create it.
+        node.children[word[i]] = new TrieNode(word[i]);
+
+        // we also assign the parent to the child node.
+        node.children[word[i]].parent = node;
+      }
+
+      // proceed to the next depth in the trie.
+      node = node.children[word[i]];
+
+      // finally, we check to see if it's the last word.
+      if (i == word.length-1) {
+        // if it is, we set the end flag to true.
+        node.end = true;
+      }
+    }
+  };
+
+
+   // check if it contains a whole word.
+   this.contains = function(word) {
+    let node = this.root;
+
+    // for every character in the word
+    for(let i = 0; i < word.length; i++) {
+      // check to see if character node exists in children.
+      if (node.children[word[i]]) {
+        // if it exists, proceed to the next depth of the trie.
+        node = node.children[word[i]];
+      } else {
+        // doesn't exist, return false since it's not a valid word.
+        return false;
+      }
+    }
+
+    // we finished going through all the words, but is it a whole word?
+    return node.end;
+  };
+
+
+
+  // removes the given word
+  this.remove = function (word) {
+    let root = this.root;
+
+    if(!word) return;
+
+    // recursively finds and removes a word
+    const removeWord = (node, word) => {
+
+        // check if current node contains the word
+        if (node.end && node.getWord() === word) {
+
+            // check and see if node has children
+            let hasChildren = Object.keys(node.children).length > 0;
+
+            // if has children we only want to un-flag the end node that marks end of a word.
+            // this way we do not remove words that contain/include supplied word
+            if (hasChildren) {
+                node.end = false;
+            } else {
+                // remove word by getting parent and setting children to empty dictionary
+                node.parent.children = {};
+            }
+
+            return true;
+        }
+
+        // recursively remove word from all children
+        for (let key in node.children) {
+            removeWord(node.children[key], word)
+        }
+
+        return false
+    };
+
+  // call remove word on root node
+  removeWord(root, word);
+};
 }
+
+
+
+class Tree {
+  rootNode;
+
+  constructor(data) {
+    this.rootNode = new TreeNode(data.image, data.mother, data.spouse, data.birthyear);
+  }
+
+  getRoot() {
+    return this.rootNode;
+  }
+
+  addChild(currNode, parent, child) {
+
+    if (currNode.image == parent.image) {
+      parent.addChild(child);
+    }
+
+    if (currNode.image != parent.image) {
+      for (let i = 0; i < currNode.children.length; ++i) {
+        return this.addChild(currNode.children[i], parent, child);
+      }
+    }
+
+    return "Error, could not find parent";
+  }
+
+  addChild(parent, child) {
+    return this.addChild(this.rootNode, parent, child)
+  }
+}
+
+class TreeNode {
+  image;
+  mother;
+  spouse;
+  birthyear;
+  children = []
+
+  constructor(image, mother, spouse, birthyear) {
+    this.image = image;
+    this.mother = mother;
+    this.spouse = spouse;
+    this.birthyear = birthyear;
+  }
+
+  addChild(child) {
+    this.children.push(child);
+  }
+
+}
+
+
+debugger
+let tree = new Tree(data[getDataIndex(9)]);
+
+tree.addChild(data[getDataIndex(9)], data[0]);
 
 
 
@@ -237,18 +383,14 @@ const Trie = function() {
 
 
 let chartList = document.getElementById('chart');
-
-createChart(chartList);
-
-
-
+createChart();
 //All functions for chart creation and functionality
 
 
+//JQuery
+function createChart() {
 
-function createChart(chart) {
-
-  createDataPoints(chart);
+  createDataPoints();
 
   //Testing
   for (let i = 0; i < data.length; ++i) {
@@ -261,10 +403,10 @@ function createChart(chart) {
   createSpouseLines();
 }
 
-//Creates Data Points
-function createDataPoints(chart) {
-  //In case you have to redraw chart
-  removeAllChildNodes(chart);
+//JQuery
+function createDataPoints() {
+  //In case you have to redraw chart, removes previously placed nodes
+  $('#chart').empty();
 
   let generationMap = new Map();
   let genCount = 0;
@@ -279,9 +421,7 @@ function createDataPoints(chart) {
     generationMap.set(j+1, 1);
   }
 
-
   for (let i = 0; i < data.length; ++i) {
-    let li = document.createElement('li');
 
     let genCount = 0;
     for (let j = 0; j < data.length; ++j) {
@@ -291,7 +431,6 @@ function createDataPoints(chart) {
       }
     }
 
-
     //Getting X and Y Positions
     let gen = getGeneration(data[i]);
 
@@ -300,23 +439,13 @@ function createDataPoints(chart) {
 
     let xPos = getX(data[i], generationMap, chartWidth);
 
-
-    li.setAttribute('id', data[i].image);
-    li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`);
-
-    
-    li.innerHTML += `<div id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'>
-    <img class="data-point data-button" src="../../static/tree/images/pictures/${data[i].image}.PNG">
-    </div>`
-    
-   /*
-    $("li").html(`<div id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'>
-    <img class="data-point data-button" src="../../static/tree/images/pictures/${data[i].image}.PNG" onmouseenter='hoverMenu(${data[i].image})' onmouseleave='closeHoverMenu()'>
-    </div>`)
-  */
-    chart.appendChild(li);
+    $('#chart').append(
+      `<li id=${data[i].image} style='--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px'>
+        <div id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'>
+          <img class="data-point data-button" src="../../static/tree/images/pictures/${data[i].image}.PNG">
+        </div>
+      </li>`)
   }
-
 }
 
 //JQUERY
@@ -758,7 +887,8 @@ function addToConfirmBox(id) {
 
   if (box.children.length >= 2) {
     alert("Can't have more than 2 nodes in confirmation box.");
-    box.innerHTML = '';
+    //box.innerHTML = '';
+    $('#confirmBox').html('');
     return;
   }
 
@@ -816,25 +946,13 @@ function addToNodeContainer(id) {
   container.appendChild(button);
 }
 
+//JQuery
 function removeFromNodeContainer(id) {
-
-  let container = document.getElementById('nodeContainer');
-
-  let child = document.getElementById("button" + id);
-
-  container.removeChild(child);
+  $(`#button${id}`).remove();
 }
 
-function removeAllChildNodes(parent) {
-  while (parent.firstChild) {
-      parent.removeChild(parent.firstChild);
-  }
-}
-
-
+//JQuery
 function openMenu(id1, id2) {
-
-  let box = document.getElementById('confirmBox');
 
   let id1Birthyear;
   let id2Birthyear;
@@ -858,59 +976,48 @@ function openMenu(id1, id2) {
     id2Birthyear = nodeBoxData[id2Index].birthyear;
   }
 
+  if ($('#confirmBox').children().length == 2) {
+    $('#center-menu').html(
+    `<div id='center-menu' class='center-menu'>
+      <div><button onclick='closeMenu()'>X</button></div>
 
-  if (box.children.length == 2) {
-    let menu = document.getElementById('center-menu');
+      <div class='menu-pics-container'>
+        <div>
+          <img class='menu-pic' src='../../static/tree/images/pictures/${id1}.PNG'/>
+          <div id ='node-${id1}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px;'>
+            <div><b>John Doe</b></div>
+            <div><b>${id1Birthyear}</b></div>
+          </div>
+        </div>
 
-    menu.innerHTML = `<div id='center-menu' class='center-menu'>
-  
-    <div><button onclick='closeMenu()'>X</button></div>
-
-    <div class='menu-pics-container'>
-      <div>
-        <img class='menu-pic' src='../../static/tree/images/pictures/${id1}.PNG'/>
-        <div id ='node-${id1}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px;'>
-          <div><b>John Doe</b></div>
-          <div><b>${id1Birthyear}</b></div>
+        <div>
+          <img class='menu-pic' src='../../static/tree/images/pictures/${id2}.PNG'/>
+          <div id ='node-${id2}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px;'>
+            <div><b>John Doe</b></div>
+            <div><b>${id2Birthyear}</b></div>
+          </div>
         </div>
       </div>
 
-      <div>
-        <img class='menu-pic' src='../../static/tree/images/pictures/${id2}.PNG'/>
-        <div id ='node-${id2}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px;'>
-          <div><b>John Doe</b></div>
-          <div><b>${id2Birthyear}</b></div>
-        </div>
+      <div class='menu-button'>
+        <button id='removeButton' class='button-34' onclick='removeRelationship(${id1}, ${id2})'>Remove Relationship</button>
+        <button id='addMotherButton' class='button-34' onclick=addMotherRelationship(${id1}, ${id2})>Add Mother/Child Relationship</button>
+        <button id='addSpouseButton' class='button-34' onclick=addSpouseRelationship(${id1}, ${id2})>Add Spouse Relationship</button>
       </div>
-    </div>
-
-    <div class='menu-button'>
-      <button id='removeButton' class='button-34' onclick='removeRelationship(${id1}, ${id2})'>Remove Relationship</button>
-      <button id='addMotherButton' class='button-34' onclick=addMotherRelationship(${id1}, ${id2})>Add Mother/Child Relationship</button>
-      <button id='addSpouseButton' class='button-34' onclick=addSpouseRelationship(${id1}, ${id2})>Add Spouse Relationship</button>
-    </div>
-    </div>`
+    </div>`)
 
   } else {
-    let menu = document.getElementById('center-menu');
-    menu.innerHTML = '';
+    $('#center-menu').html('');
   }
-
-
   changeRemoveButtonParameters()
   changeAddButtonParameters()
 }
 
+//JQuery
 function closeMenu() {
-  let menu = document.getElementById('center-menu') 
-
   //TODO Add if that put nodedataBox nodes back to nodeBox
-
-
-  menu.innerHTML = '';
-
-  let confirmBox = document.getElementById('confirmBox');
-  confirmBox.innerHTML = '';
+  $('#center-menu').html('');
+  $('#confirmBox').html('');
 }
 
 
@@ -1005,8 +1112,6 @@ function hasRelationship(node) {
   return hasRelationship;
 
 }
-
-
 
 //Gets highest generation count
 function getGenerationCount(node, count) {
@@ -1165,13 +1270,14 @@ function getSpacing(rootNode, spacing, targetNode) {
 }
 
 //FIXME prioritize moving spouses with no moms and also spouses who are already on the tree
+//JQuery
 function adjustSpouseXPos(node) {
 
-  let spouse = document.getElementById(`${node.spouse}`);
-  let currNode = document.getElementById(`${node.image}`);
+  let spouse = $(`#${node.spouse}`);
+  let currNode = $(`#${node.image}`);
 
-  let spouseXPos = parseAttribute('x', spouse.style.cssText);
-  let nodeXPos = parseAttribute('x', currNode.style.cssText);
+  let spouseXPos = parseAttribute('x', spouse[0].style.cssText);
+  let nodeXPos = parseAttribute('x', currNode[0].style.cssText);
 
   let generation = getGeneration(node)
 
@@ -1182,44 +1288,39 @@ function adjustSpouseXPos(node) {
   if (emptyXLocation(nodeXPos + spacing, generation)) {
     spouseXPos = nodeXPos + spacing;
 
-    let originalY = parseAttribute('y', spouse.style.cssText);
-    spouse.setAttribute('style', `--y: ${originalY}px; --x: ${spouseXPos}px`);
+    let originalY = parseAttribute('y', spouse[0].style.cssText);
+    spouse.attr('style', `--y: ${originalY}px; --x: ${spouseXPos}px`);
   }
   else if (emptyXLocation(nodeXPos - spacing, generation)) {
-    spouseXPos = nodeXPos + spacing;
+    spouseXPos = nodeXPos - spacing;
 
-    let originalY = parseAttribute('y', spouse.style.cssText);
-    spouse.setAttribute('style', `--y: ${originalY}px; --x: ${spouseXPos}px`);
+    let originalY = parseAttribute('y', spouse[0].style.cssText);
+    spouse.attr('style', `--y: ${originalY}px; --x: ${spouseXPos}px`);
   }
 }
 
 //FIXME could potentially be overlap of nodes because this checks for EXACT x, not range of x to account for node width
+//JQuery
 function emptyXLocation(xPos, generation) {
-  let chart = document.getElementById('chart');
 
   let isEmpty = true;
 
   let nodesInGeneration = getNodesInGeneration(generation);
 
   for (let i = 0; i < nodesInGeneration.length; ++i) {
-    let node = document.getElementById(`${nodesInGeneration[i].image}`);
-    let tmpX = parseAttribute('x', node.style.cssText);
-
+    let node = $(`#${nodesInGeneration[i].image}`);
+    let tmpX = parseAttribute('x', node[0].style.cssText)
     
     if ((xPos == tmpX)) {
       isEmpty = false;
       return isEmpty;
     }
-      
     
     if ((xPos >= tmpX - 30) && (xPos <= tmpX + 30)) {
       isEmpty = false;
       return isEmpty
     }
-    
-    
   }
-
   return isEmpty;
 }
 
