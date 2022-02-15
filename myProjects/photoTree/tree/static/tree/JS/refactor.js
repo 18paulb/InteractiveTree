@@ -174,22 +174,6 @@ function makeMomArray() {
   }
   tmpArray = tmpMomArray;
 
-  //Sorts children oldest to youngest
-  //n^3 bigO, gross
-  /*
-  for (let i = 0; i < tmpArray.length; i++) {
-    for (let k = 0; k < tmpArray[i][0].children.length; ++k) {
-      for (let j = 0; j < tmpArray[i][0].children.length - i - 1; j++) {
-        if (tmpArray[i][0].children[j].birthyear > tmpArray[i][0].children[j+1].birthyear) {
-          let tmp = tmpArray[i][0].children[j];
-          tmpArray[i][0].children[j] = tmpArray[i][0].children[j+1];
-          tmpArray[i][0].children[j+1] = tmp;
-        }
-      }
-    }
-  }
-  */
-
 
   //Sorts momArray from oldest to youngest
   for (let i = 0; i < tmpArray.length; ++i) {
@@ -335,15 +319,16 @@ function createDataPoints(chart) {
 
 }
 
+//JQUERY
 function createChildLines() {
   for (let i = 0; i < data.length; ++i) {
 
     if (isMom(data[i])) {
-      let li = document.getElementById(data[i].image);
-  
-      yPos = parseAttribute('y', li.getAttribute('style'));
-      xPos = parseAttribute('x', li.getAttribute('style'));
-      
+ 
+      let li = $(`#${data[i].image}`);
+      let yPos = parseAttribute('y', li[0].style.cssText);
+      let xPos = parseAttribute('x', li[0].style.cssText);
+
       let index = getMomArrayIndex(momArray, data[i].image);
 
       //Getting longest generation chain
@@ -361,8 +346,8 @@ function createChildLines() {
         let gen = getGeneration(momArray[index][0].children[j]);
         let childYPos = getY(dividedHeight, gen);
 
-        let childElement = document.getElementById(momArray[index][0].children[j].image);
-        let childXPos = parseAttribute('x', childElement.getAttribute('style'));
+        let childElement = $(`#${momArray[index][0].children[j].image}`);
+        let childXPos = parseAttribute('x', childElement[0].style.cssText)
 
 
         let childHypotenuse = getHypotenuse(yPos, childYPos, xPos, childXPos);
@@ -373,19 +358,21 @@ function createChildLines() {
           angle = (-1 * angle) + 180.5;
         }
   
-        li.innerHTML += `<div class="child-line" style="--hypotenuse: ${childHypotenuse}; --angle: ${angle}"></div>`;
+        li.html(li.html() + `<div class="child-line" style="--hypotenuse: ${childHypotenuse}; --angle: ${angle}"></div>`);
       }
     }
   }
 }
 
+//JQUERY
 function createSpouseLines() {
   for (let i = 0; i < data.length; ++i) {
 
-    let li = document.getElementById(data[i].image);
+    let li = $(`#${data[i].image}`);
 
-    yPos = parseAttribute('y', li.getAttribute('style'));
-    xPos = parseAttribute('x', li.getAttribute('style'));
+    let yPos = parseAttribute('y', li[0].style.cssText);
+    let xPos = parseAttribute('x', li[0].style.cssText);
+
 
     //Getting longest generation chain
     let genCount = 0;
@@ -402,8 +389,8 @@ function createSpouseLines() {
       let gen = getGeneration(data[i]);
       let spouseYPos = getY(dividedHeight, gen);
 
-      let spouseElement = document.getElementById(data[i].spouse);
-      let spouseXPos = parseAttribute('x', spouseElement.getAttribute('style'));
+      let spouseElement = $(`#${data[i].spouse}`);
+      let spouseXPos = parseAttribute('x', spouseElement[0].style.cssText);
 
       let spouseHypotenuse = getHypotenuse(yPos, spouseYPos, xPos, spouseXPos);
       let spouseAngle = getAngle(yPos - spouseYPos, spouseHypotenuse);
@@ -414,7 +401,7 @@ function createSpouseLines() {
 
       //if statement so that two spouse lines aren't drawn between spouses
       if (spouseXPos > xPos) {
-        li.innerHTML += `<div class="spouse-line" style="--hypotenuse: ${spouseHypotenuse}; --angle: ${spouseAngle}"></div>`;
+        li.html(li.html() + `<div class="spouse-line" style="--hypotenuse: ${spouseHypotenuse}; --angle: ${spouseAngle}"></div>`);
       }
     }
   }
@@ -443,7 +430,7 @@ function getX(node, map, width) {
 
   currGeneration = map.get(keyGen);
 
-  xPos = (width/ getNumInGeneration(keyGen)) * currGeneration;
+  xPos = (width / getNumInGeneration(keyGen)) * currGeneration;
   currGeneration++;
 
   map.set(keyGen, currGeneration);
@@ -473,6 +460,7 @@ function getAngle(opposite, hypotenuse) {
   return sine;
 }
 
+//JQUERY
 function addSpouseRelationship(id1, id2) {
   let node1;
   let node2;
@@ -524,7 +512,7 @@ function addSpouseRelationship(id1, id2) {
 
   createChart(chartList);
 
-  document.getElementById('confirmBox').innerHTML = '';
+  $('#confirmBox').html('')
 
   closeMenu();
 
@@ -532,6 +520,7 @@ function addSpouseRelationship(id1, id2) {
 
 //TODO fix issues
 //ADDED TEST SPACING FOR PRESENTATION
+//JQUERY
 function addMotherRelationship(id1, id2) {
   //SOLVE:
   //4. Impossible to do with current data but if male, you can't make it mother
@@ -577,13 +566,6 @@ function addMotherRelationship(id1, id2) {
     childIndex = getNodeBoxDataIndex(child.image);
     data.push(nodeBoxData[childIndex]);
 
-    /*
-    //TESTING FOR PRESENTATION
-    momIndex = getDataIndex(mother.image);
-    data.splice(momIndex - 1, 0, child)
-    //
-    */
-
     nodeBoxData.splice(childIndex, 1)
   } 
   //What if mom is in nodeBoxData
@@ -602,12 +584,13 @@ function addMotherRelationship(id1, id2) {
   
   createChart(chartList)
 
-  document.getElementById('confirmBox').innerHTML = ''
+  $('#confirmBox').html('');
 
   closeMenu();
 
 }
 
+//JQUERY
 function removeRelationship(id1, id2) {
 
   let id1Index = getDataIndex(id1)
@@ -637,10 +620,9 @@ function removeRelationship(id1, id2) {
     closeMenu()
 
     createChart(chartList)
-  
-    let box = document.getElementById('confirmBox');
-    box.innerHTML = ''
-    box.style.border = ''
+
+    $('#confirmBox').html('');
+    $('#confirmBox').css('border', '');
 
     return;
   }
@@ -716,15 +698,17 @@ function removeRelationship(id1, id2) {
 
   createChart(chartList)
 
-  let box = document.getElementById('confirmBox');
-  box.innerHTML = ''
-  box.style.border = ''
+  $('#confirmBox').html('');
+  $('#confirmBox').css('border', '');
 
   closeMenu();
 }
 
 function changeAddButtonParameters() {
   let box = document.getElementById('confirmBox')
+  //let box = $('#confirmBox');
+
+
   let children = []
 
   for (let i = 0; i < box.children.length; ++i) {
@@ -733,7 +717,8 @@ function changeAddButtonParameters() {
 
   let button = document.getElementById('addMotherButton');
   let button2 = document.getElementById('addSpouseButton');
-  let button3 = document.getElementById('swapButton');
+
+
 
   if (children.length != 0) {
     let param1 = children[0];
@@ -796,8 +781,6 @@ function addToConfirmBox(id) {
   for (let i = 0; i < box.children.length; ++i) {
     children.push(box.children[i].id.substr(4))
   }
-
-  let button = document.getElementById('changeButton');
 
   //Open Menu immediately when there are two nodes in confirmBox
   if (children.length == 2) {
