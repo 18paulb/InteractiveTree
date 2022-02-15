@@ -887,7 +887,6 @@ function addToConfirmBox(id) {
 
   if (box.children.length >= 2) {
     alert("Can't have more than 2 nodes in confirmation box.");
-    //box.innerHTML = '';
     $('#confirmBox').html('');
     return;
   }
