@@ -274,13 +274,7 @@ function createDataPoints(chart) {
   removeAllChildNodes(chart);
 
   let generationMap = new Map();
-  let genCount = 0;
-  for (let j = 0; j < data.length; ++j) {
-    let tmp = getGenerationCount(data[j], 1);
-    if (tmp > genCount) {
-      genCount = tmp;
-    }
-  }
+  let genCount = getLongestGenChain();
 
   for (let j = 0; j < genCount; ++j) {
     generationMap.set(j+1, 1);
@@ -405,15 +399,8 @@ function createSpouseLines() {
     yPos = parseAttribute('y', li.getAttribute('style'));
     xPos = parseAttribute('x', li.getAttribute('style'));
 
-    //Getting longest generation chain
-    let genCount = 0;
-    for (let j = 0; j < data.length; ++j) {
-      let tmp = getGenerationCount(data[j], 1);
-      if (tmp > genCount) {
-        genCount = tmp;
-      }
-    }
-
+    let genCount = getLongestGenChain();
+    
     if (data[i].spouse != null) {
 
       let dividedHeight = chartWidth / genCount;
@@ -438,23 +425,51 @@ function createSpouseLines() {
   }
 }
 
-function getY(dividedHeight, generation) {
-  //Added chartWidth / 6 for better centered spacing
-  //FIXME Avoid magic numbers
-  return (chartWidth  + (chartWidth / 6)) - dividedHeight * generation;
+function getY(height, generation) {
+  let genCount = getLongestGenChain();
+  return (chartWidth + 225) - (chartWidth/genCount + 1) * generation;
+  //added a little to chartWidth to center it, can change later
 }
 
-function getX(node, map, width) {
+function getLongestGenChain() {
+  //Getting longest generation chain
   let genCount = 0;
-  let xPos;
-
-  //Gets highest Generation
   for (let j = 0; j < data.length; ++j) {
     let tmp = getGenerationCount(data[j], 1);
     if (tmp > genCount) {
       genCount = tmp;
     }
   }
+  return genCount;
+}
+
+/*
+function getX(node, map, width) {
+  let xPos;
+
+  //Gets highest Generation
+  let genCount = getLongestGenChain();
+
+  let currGeneration;
+  let keyGen = getGeneration(node);
+
+  currGeneration = map.get(keyGen);
+
+  xPos = (width / genCount + 1);
+  currGeneration++;
+
+  map.set(keyGen, currGeneration);
+
+  return xPos;
+}
+*/
+
+
+function getX(node, map, width) {
+  let xPos;
+
+  //Gets highest Generation
+  let genCount = getLongestGenChain();
 
   let currGeneration;
   let keyGen = getGeneration(node);
