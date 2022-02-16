@@ -369,12 +369,10 @@ class TreeNode {
 }
 
 
-debugger
-let tree = new Tree(data[getDataIndex(9)]);
+//debugger
+//let tree = new Tree(data[getDataIndex(9)]);
 
-tree.addChild(data[getDataIndex(9)], data[0]);
-
-
+//tree.addChild(data[getDataIndex(9)], data[0]);
 
 
 
@@ -470,7 +468,34 @@ function createChildLines() {
       }
 
       for (let j = 0; j < momArray[index][0].children.length; ++j) {
-        
+      //TESTING TRYING WITH SVG's
+      //debugger
+
+        //let childElement = document.getElementById(momArray[index][0].children[j].image);
+        let childElement = $(`#${momArray[index][0].children[j].image}`)
+
+        let x1 = xPos;
+        let x2 = parseAttribute('x', childElement[0].style.cssText);
+        let y1 = yPos;
+
+        let dividedHeight = chartWidth / genCount;
+        let gen = getGeneration(momArray[index][0].children[j]);
+        let y2 = getY(dividedHeight, gen);
+
+        let childHypotenuse = getHypotenuse(y1, y2, x1, x2);
+
+        let height = Math.abs(y2 - y1);
+        let width = Math.abs(x2 - x1);
+
+        console.log(height, width)
+        console.log(x1, x2, y1, y2)
+
+        li.html(li.html() + 
+        `<svg height="${height}" width="${width}">
+          <line x1="${x1}" y1="${chartWidth - y1}" x2="${x2}" y2="${chartWidth - y2}" stroke="black"/>
+        </svg>`)
+
+/*
         let dividedHeight = chartWidth / genCount;
         let gen = getGeneration(momArray[index][0].children[j]);
         let childYPos = getY(dividedHeight, gen);
@@ -481,13 +506,14 @@ function createChildLines() {
 
         let childHypotenuse = getHypotenuse(yPos, childYPos, xPos, childXPos);
         let angle = getAngle(yPos - childYPos, childHypotenuse);
-  
+
         //Adjusts angle if child is before mom in x-axis
         if (childXPos < xPos) {
           angle = (-1 * angle) + 180.5;
         }
-  
+
         li.html(li.html() + `<div class="child-line" style="--hypotenuse: ${childHypotenuse}; --angle: ${angle}"></div>`);
+  */
       }
     }
   }
@@ -1022,7 +1048,6 @@ function closeMenu() {
 
 
 //All helper functions to access data, etc.
-
 
 
 
