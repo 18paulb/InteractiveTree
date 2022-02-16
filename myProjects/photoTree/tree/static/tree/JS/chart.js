@@ -299,7 +299,9 @@ function createDataPoints(chart) {
     let dividedHeight = chartWidth / genCount;
     let yPos = getY(dividedHeight, gen);
 
-    let xPos = getX(data[i], generationMap, chartWidth);
+    let placeInGen = getPlaceInGeneration(data[i], gen);
+
+    let xPos = getX(data[i], generationMap, chartWidth, placeInGen);
 
 
     li.setAttribute('id', data[i].image);
@@ -330,13 +332,7 @@ function createChildLines() {
       let index = getMomArrayIndex(momArray, data[i].image);
 
       //Getting longest generation chain
-      let genCount = 0;
-      for (let j = 0; j < data.length; ++j) {
-        let tmp = getGenerationCount(data[j], 1);
-        if (tmp > genCount) {
-          genCount = tmp;
-        }
-      }
+      let genCount = getLongestGenChain();
 
       for (let j = 0; j < momArray[index][0].children.length; ++j) {
         //TESTING TRYING WITH SVG's
@@ -385,10 +381,6 @@ function createChildLines() {
       }
     }
   }
-}
-
-function hi() {
-  console.log("Hello World!");
 }
 
 function createSpouseLines() {
@@ -443,28 +435,38 @@ function getLongestGenChain() {
   return genCount;
 }
 
-/*
-function getX(node, map, width) {
+function getPlaceInGeneration(node, generation) {
+  let nodeArray = [];
+  nodeArray = getNodesInGeneration(generation);
+
+  //FIXME: getting messed up because it is also accounting for spouses in the node array
+
+  let placeInGen;
+  for (let i = 0; i < nodeArray.length; i++) {
+    if(nodeArray[i] == node) {
+      placeInGen = i;
+    }
+  }
+  console.log("placeInGen = " + placeInGen);
+  return placeInGen;
+}
+
+function getX(node, map, width, placeInGen) {
   let xPos;
-
-  //Gets highest Generation
-  let genCount = getLongestGenChain();
-
   let currGeneration;
   let keyGen = getGeneration(node);
 
   currGeneration = map.get(keyGen);
 
-  xPos = (width / genCount + 1);
-  currGeneration++;
+  let xBuffer = (width/(getNumInGeneration(currGeneration) + 1)) / 2;
 
-  map.set(keyGen, currGeneration);
-
+  let nodeArray = [];
+  nodeArray = getNodesInGeneration(currGeneration)
+  xPos = (width/(getNumInGeneration(currGeneration) + 1)) * (placeInGen + 1);
   return xPos;
 }
-*/
 
-
+/*
 function getX(node, map, width) {
   let xPos;
 
@@ -488,8 +490,8 @@ function getX(node, map, width) {
   } 
 
   return xPos;
-
 }
+*/
 
 function getHypotenuse(datapoint1, datapoint2, left1, left2) {
   triSide = datapoint1 - datapoint2;
@@ -1146,6 +1148,19 @@ function getNodesInGeneration(generation) {
 
   return nodeGeneration;
 }
+
+//FIXME: Only pull the nodes that are mothers or children (don't count spouses)
+/*
+function getKeyNodesInGeneration(generation) {
+  let nodeGeneration = [];
+  for (let i = 0; i < data.length; i++) {
+    if (getGeneration(data[i]) == generation) {
+      
+    }
+  }
+  return nodeGeneration;
+}
+*/
 
 function getChildren(motherNode) {
   let children = [];
