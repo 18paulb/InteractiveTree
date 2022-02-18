@@ -439,33 +439,23 @@ function getPlaceInGeneration(node, generation) {
   let nodeArray = [];
   nodeArray = getNodesInGeneration(generation);
 
-  //FIXME: getting messed up because it is also accounting for spouses in the node array
-
   let placeInGen;
   for (let i = 0; i < nodeArray.length; i++) {
     if(nodeArray[i] == node) {
       placeInGen = i;
     }
   }
-  console.log("placeInGen = " + placeInGen);
   return placeInGen;
 }
 
+//NEW getX Function
 function getX(node, map, width, placeInGen) {
-  let xPos;
-  let currGeneration;
   let keyGen = getGeneration(node);
-
-  currGeneration = map.get(keyGen);
-
-  let xBuffer = (width/(getNumInGeneration(currGeneration) + 1)) / 2;
-
-  let nodeArray = [];
-  nodeArray = getNodesInGeneration(currGeneration)
-  xPos = (width/(getNumInGeneration(currGeneration) + 1)) * (placeInGen + 1);
+  let xPos = (width/(getNumInGeneration(keyGen) + 1)) * (placeInGen + 1);
   return xPos;
 }
 
+//OLD getX function
 /*
 function getX(node, map, width) {
   let xPos;
