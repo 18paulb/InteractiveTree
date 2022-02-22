@@ -239,6 +239,7 @@ function startEmpty() {
 
 function createChart(chart) {
 
+  debugger
   createDataPoints(chart);
 
   //Testing
@@ -248,7 +249,7 @@ function createChart(chart) {
     }
   }
 
-/*
+
   for (let i = 0; i < momArray.length; ++i) {
     if (momArray[i][0].data.image == 11) {
       //debugger
@@ -256,7 +257,7 @@ function createChart(chart) {
   
     adjustChildNodesXPos(momArray[i][0].data);
   }
-*/ 
+
 
    //Presentation
    for (let i = 0; i < momArray.length; ++i) {
@@ -1412,7 +1413,7 @@ function adjustSpouseXPos(node) {
     spouse.setAttribute('style', `--y: ${originalY}px; --x: ${spouseXPos}px`);
   }
   else if (emptyXLocation(nodeXPos - spacing, generation)) {
-    spouseXPos = nodeXPos + spacing;
+    spouseXPos = nodeXPos - spacing;
 
     let originalY = parseAttribute('y', spouse.style.cssText);
     spouse.setAttribute('style', `--y: ${originalY}px; --x: ${spouseXPos}px`);
