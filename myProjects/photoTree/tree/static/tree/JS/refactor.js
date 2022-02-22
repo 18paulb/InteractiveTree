@@ -467,11 +467,13 @@ function createChildLines() {
         }
       }
 
+      
+      let zindex = -1;
+
       for (let j = 0; j < momArray[index][0].children.length; ++j) {
       //TESTING TRYING WITH SVG's
       //debugger
 
-        //let childElement = document.getElementById(momArray[index][0].children[j].image);
         let childElement = $(`#${momArray[index][0].children[j].image}`)
 
         let x1 = xPos;
@@ -487,15 +489,15 @@ function createChildLines() {
         let height = Math.abs(y2 - y1);
         let width = Math.abs(x2 - x1);
 
-        console.log(height, width)
-        console.log(x1, x2, y1, y2)
 
         li.html(li.html() + 
-        `<svg height="${height}" width="${width}">
+        `<svg class='svg-line' height="${height}" width="${width}" xmlns="http://www.w3.org/2000/svg" style='${zindex}'>
           <line x1="${x1}" y1="${chartWidth - y1}" x2="${x2}" y2="${chartWidth - y2}" stroke="black"/>
         </svg>`)
 
-/*
+        zindex--;
+
+/*     
         let dividedHeight = chartWidth / genCount;
         let gen = getGeneration(momArray[index][0].children[j]);
         let childYPos = getY(dividedHeight, gen);
