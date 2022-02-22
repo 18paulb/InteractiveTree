@@ -239,9 +239,8 @@ function startEmpty() {
 
 function createChart(chart) {
 
-  debugger
   createDataPoints(chart);
-
+  //debugger
   //Testing
   for (let i = 0; i < data.length; ++i) {
     if (data[i].spouse != null) {
@@ -269,7 +268,6 @@ function createChart(chart) {
   createChildLines();
   createSpouseLines();
 }
-
 //Creates Data Points
 function createDataPoints(chart) {
   //In case you have to redraw chart
@@ -303,7 +301,7 @@ function createDataPoints(chart) {
 
     let placeInGen = getPlaceInGeneration(data[i], gen);
 
-    let xPos = getX(data[i], generationMap, chartWidth, placeInGen);
+    let xPos = setX(data[i], generationMap, chartWidth, placeInGen);
 
 
     li.setAttribute('id', data[i].image);
@@ -406,10 +404,11 @@ function createSpouseLines() {
 
       let spouseHypotenuse = getHypotenuse(yPos, spouseYPos, xPos, spouseXPos);
       let spouseAngle = getAngle(yPos - spouseYPos, spouseHypotenuse);
-
+      /*
       if (spouseXPos < xPos) {
         spouseAngle = (-1 * spouseAngle) + 180.5;
       }
+      */
 
       //if statement so that two spouse lines aren't drawn between spouses
       if (spouseXPos > xPos) {
@@ -452,10 +451,28 @@ function getPlaceInGeneration(node, generation) {
 
 
 //NEW getX Function
-function getX(node, map, width, placeInGen) {
+function setX(node, map, width, placeInGen) {
   let keyGen = getGeneration(node);
-  let xPos = (width/(getNumInGeneration(keyGen) + 1)) * (placeInGen + 1);
-  return xPos;
+  
+  if (keyGen < 3) { //every gen besides the last generation
+    let xPos = (width/(getNumInGeneration(keyGen) + 1)) * (placeInGen + 1);
+    return xPos;
+  } else {
+    let xBuffer = 150;
+    //get Mom's X location
+    //debugger
+    nodeMotherXPos = getX(node.mother);
+    console.log("Node's mother is at " + nodeMotherXPos);
+    let xPos = nodeMotherXPos + xBuffer;
+    return xPos;
+  }
+}
+
+function getX(node) {
+  let mom = document.getElementById(node);
+  let momXPos = parseAttribute('x', mom.style.cssText);
+  console.log("mother's x pos is " + momXPos)
+  return momXPos;
 }
 
 
