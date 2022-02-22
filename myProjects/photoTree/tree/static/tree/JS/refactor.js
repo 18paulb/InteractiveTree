@@ -469,7 +469,10 @@ function createChildLines() {
 
       
       let zindex = -1;
+      let svgString = `<svg height="1200" width="1200" xmlns="http://www.w3.org/2000/svg" style='z-index:${zindex}; display:flex;'>`;
 
+
+      //FIXME, consider making a giant SVG that covers entire page and holds all the information for all the lines, that might solve the positioning issue
       for (let j = 0; j < momArray[index][0].children.length; ++j) {
       //TESTING TRYING WITH SVG's
       //debugger
@@ -489,12 +492,14 @@ function createChildLines() {
         let height = Math.abs(y2 - y1);
         let width = Math.abs(x2 - x1);
 
+        svgString += `<line class='svg-line' x1="${x1}" y1="${chartWidth - y1}" x2="${x2}" y2="${chartWidth - y2}" stroke="black" stroke-width='6' onclick='hi()'/>`
 
+/*
         li.html(li.html() + 
-        `<svg class='svg-line' height="${height}" width="${width}" xmlns="http://www.w3.org/2000/svg" style='${zindex}'>
+        `<svg height="${height}" width="${width}" xmlns="http://www.w3.org/2000/svg" style='z-index:${zindex}'>
           <line x1="${x1}" y1="${chartWidth - y1}" x2="${x2}" y2="${chartWidth - y2}" stroke="black"/>
         </svg>`)
-
+*/
         zindex--;
 
 /*     
@@ -517,8 +522,16 @@ function createChildLines() {
         li.html(li.html() + `<div class="child-line" style="--hypotenuse: ${childHypotenuse}; --angle: ${angle}"></div>`);
   */
       }
+
+      svgString += "</svg>"
+      li.html(li.html() + svgString);
+
     }
   }
+}
+
+function hi() {
+  console.log('hi')
 }
 
 //JQUERY
