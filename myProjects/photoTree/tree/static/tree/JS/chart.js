@@ -249,7 +249,11 @@ function createChart(chart) {
     }
   }
 
+<<<<<<< HEAD
 
+=======
+  /*
+>>>>>>> a77a10749601c5865262a409bd7502b54533289e
   for (let i = 0; i < momArray.length; ++i) {
     if (momArray[i][0].data.image == 11) {
       //debugger
@@ -257,6 +261,7 @@ function createChart(chart) {
   
     adjustChildNodesXPos(momArray[i][0].data);
   }
+  */
 
 
    //Presentation
@@ -449,6 +454,7 @@ function getPlaceInGeneration(node, generation) {
   return placeInGen;
 }
 
+
 //NEW getX Function
 function getX(node, map, width, placeInGen) {
   let keyGen = getGeneration(node);
@@ -456,7 +462,7 @@ function getX(node, map, width, placeInGen) {
   return xPos;
 }
 
-//OLD getX function
+
 /*
 function getX(node, map, width) {
   let xPos;
