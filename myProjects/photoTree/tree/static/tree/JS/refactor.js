@@ -385,7 +385,6 @@ createChart();
 //All functions for chart creation and functionality
 
 
-//JQuery
 function createChart() {
 
   createDataPoints();
@@ -397,11 +396,9 @@ function createChart() {
     }
   }
 
-  createChildLines();
-  createSpouseLines();
+  createLines();
 }
 
-//JQuery
 function createDataPoints() {
   //In case you have to redraw chart, removes previously placed nodes
   $('#chart').empty();
@@ -446,135 +443,62 @@ function createDataPoints() {
   }
 }
 
-//JQUERY
-function createChildLines() {
+
+function testAdd() {}
+
+
+//FIXME
+function createLines() {
+
+  //FIXME SVG has to be wider than chartwidth, however find better way of doing this, don't use magic number
+  let svgString = `<svg id='lines' height="${chartWidth}" width="${chartWidth+100}" xmlns="http://www.w3.org/2000/svg" style='z-index:-1; display:flex;'>`;
+
   for (let i = 0; i < data.length; ++i) {
 
-    if (isMom(data[i])) {
- 
-      let li = $(`#${data[i].image}`);
-      let yPos = parseAttribute('y', li[0].style.cssText);
-      let xPos = parseAttribute('x', li[0].style.cssText);
+    let li = $(`#${data[i].image}`);
+    let yPos = parseAttribute('y', li[0].style.cssText);
+    let xPos = parseAttribute('x', li[0].style.cssText);
+
+    //Creates Child Lines
+    if (isMom(data[i])) {   
 
       let index = getMomArrayIndex(momArray, data[i].image);
 
-      //Getting longest generation chain
-      let genCount = 0;
-      for (let j = 0; j < data.length; ++j) {
-        let tmp = getGenerationCount(data[j], 1);
-        if (tmp > genCount) {
-          genCount = tmp;
-        }
-      }
-
-      
-      let zindex = -1;
-      let svgString = `<svg height="1200" width="1200" xmlns="http://www.w3.org/2000/svg" style='z-index:${zindex}; display:flex;'>`;
-
-
-      //FIXME, consider making a giant SVG that covers entire page and holds all the information for all the lines, that might solve the positioning issue
       for (let j = 0; j < momArray[index][0].children.length; ++j) {
-      //TESTING TRYING WITH SVG's
-      //debugger
 
         let childElement = $(`#${momArray[index][0].children[j].image}`)
 
         let x1 = xPos;
         let x2 = parseAttribute('x', childElement[0].style.cssText);
         let y1 = yPos;
-
-        let dividedHeight = chartWidth / genCount;
-        let gen = getGeneration(momArray[index][0].children[j]);
-        let y2 = getY(dividedHeight, gen);
-
-        let childHypotenuse = getHypotenuse(y1, y2, x1, x2);
-
-        let height = Math.abs(y2 - y1);
-        let width = Math.abs(x2 - x1);
+        let y2 = parseAttribute('y', childElement[0].style.cssText);
 
         svgString += `<line class='svg-line' x1="${x1}" y1="${chartWidth - y1}" x2="${x2}" y2="${chartWidth - y2}" stroke="black" stroke-width='6' onclick='hi()'/>`
-
-/*
-        li.html(li.html() + 
-        `<svg height="${height}" width="${width}" xmlns="http://www.w3.org/2000/svg" style='z-index:${zindex}'>
-          <line x1="${x1}" y1="${chartWidth - y1}" x2="${x2}" y2="${chartWidth - y2}" stroke="black"/>
-        </svg>`)
-*/
-        zindex--;
-
-/*     
-        let dividedHeight = chartWidth / genCount;
-        let gen = getGeneration(momArray[index][0].children[j]);
-        let childYPos = getY(dividedHeight, gen);
-
-        let childElement = $(`#${momArray[index][0].children[j].image}`);
-        let childXPos = parseAttribute('x', childElement[0].style.cssText)
-
-
-        let childHypotenuse = getHypotenuse(yPos, childYPos, xPos, childXPos);
-        let angle = getAngle(yPos - childYPos, childHypotenuse);
-
-        //Adjusts angle if child is before mom in x-axis
-        if (childXPos < xPos) {
-          angle = (-1 * angle) + 180.5;
-        }
-
-        li.html(li.html() + `<div class="child-line" style="--hypotenuse: ${childHypotenuse}; --angle: ${angle}"></div>`);
-  */
       }
+    }
 
-      svgString += "</svg>"
-      li.html(li.html() + svgString);
+    //Creates Spouse Lines
+    if (data[i].spouse != null) {
 
+      let spouseElement = $(`#${data[i].spouse}`);
+      let spouseXPos = parseAttribute('x', spouseElement[0].style.cssText);
+      let spouseYPos = parseAttribute('y', spouseElement[0].style.cssText);
+
+      let line = `<line class='svg-line' x1="${xPos}" y1="${chartWidth - yPos}" x2="${spouseXPos}" y2="${chartWidth - spouseYPos}" stroke="blue" stroke-width='6' onclick='hi()'/>`
+
+      //if statement so that two spouse lines aren't drawn between spouses
+      if (spouseXPos > xPos) {
+        svgString += line
+      }
     }
   }
+
+  svgString += "</svg>"
+  $('#chart').html($('#chart').html() + svgString);
 }
 
 function hi() {
   console.log('hi')
-}
-
-//JQUERY
-function createSpouseLines() {
-  for (let i = 0; i < data.length; ++i) {
-
-    let li = $(`#${data[i].image}`);
-
-    let yPos = parseAttribute('y', li[0].style.cssText);
-    let xPos = parseAttribute('x', li[0].style.cssText);
-
-
-    //Getting longest generation chain
-    let genCount = 0;
-    for (let j = 0; j < data.length; ++j) {
-      let tmp = getGenerationCount(data[j], 1);
-      if (tmp > genCount) {
-        genCount = tmp;
-      }
-    }
-
-    if (data[i].spouse != null) {
-
-      let dividedHeight = chartWidth / genCount;
-      let gen = getGeneration(data[i]);
-      let spouseYPos = getY(dividedHeight, gen);
-
-      let spouseElement = $(`#${data[i].spouse}`);
-      let spouseXPos = parseAttribute('x', spouseElement[0].style.cssText);
-
-      let spouseHypotenuse = getHypotenuse(yPos, spouseYPos, xPos, spouseXPos);
-      let spouseAngle = getAngle(yPos - spouseYPos, spouseHypotenuse);
-
-      if (spouseXPos < xPos) {
-        spouseAngle = (-1 * spouseAngle) + 180.5;
-      }
-
-      //if statement so that two spouse lines aren't drawn between spouses
-      if (spouseXPos > xPos) {
-        li.html(li.html() + `<div class="spouse-line" style="--hypotenuse: ${spouseHypotenuse}; --angle: ${spouseAngle}"></div>`);
-      }
-    }
-  }
 }
 
 function getY(dividedHeight, generation) {
@@ -630,7 +554,6 @@ function getAngle(opposite, hypotenuse) {
   return sine;
 }
 
-//JQUERY
 function addSpouseRelationship(id1, id2) {
   let node1;
   let node2;
@@ -689,8 +612,6 @@ function addSpouseRelationship(id1, id2) {
 }
 
 //TODO fix issues
-//ADDED TEST SPACING FOR PRESENTATION
-//JQUERY
 function addMotherRelationship(id1, id2) {
   //SOLVE:
   //4. Impossible to do with current data but if male, you can't make it mother
@@ -760,7 +681,6 @@ function addMotherRelationship(id1, id2) {
 
 }
 
-//JQUERY
 function removeRelationship(id1, id2) {
 
   let id1Index = getDataIndex(id1)
@@ -874,7 +794,6 @@ function removeRelationship(id1, id2) {
   closeMenu();
 }
 
-//JQUERY
 function changeAddButtonParameters() {
 
   $('#confirmBox').children()
@@ -896,7 +815,6 @@ function changeAddButtonParameters() {
   }
 }
 
-//JQuery
 function changeRemoveButtonParameters() {
   $('#confirmBox').children()
 
@@ -986,12 +904,10 @@ function addToNodeContainer(id) {
   container.appendChild(button);
 }
 
-//JQuery
 function removeFromNodeContainer(id) {
   $(`#button${id}`).remove();
 }
 
-//JQuery
 function openMenu(id1, id2) {
 
   let id1Birthyear;
@@ -1053,7 +969,6 @@ function openMenu(id1, id2) {
   changeAddButtonParameters()
 }
 
-//JQuery
 function closeMenu() {
   //TODO Add if that put nodedataBox nodes back to nodeBox
   $('#center-menu').html('');
@@ -1309,7 +1224,6 @@ function getSpacing(rootNode, spacing, targetNode) {
 }
 
 //FIXME prioritize moving spouses with no moms and also spouses who are already on the tree
-//JQuery
 function adjustSpouseXPos(node) {
 
   let spouse = $(`#${node.spouse}`);
@@ -1339,7 +1253,6 @@ function adjustSpouseXPos(node) {
 }
 
 //FIXME could potentially be overlap of nodes because this checks for EXACT x, not range of x to account for node width
-//JQuery
 function emptyXLocation(xPos, generation) {
 
   let isEmpty = true;
