@@ -444,7 +444,62 @@ function createDataPoints() {
 }
 
 
-function testAdd() {}
+function testAdd(node1, node2) {
+
+  let box = document.getElementById("confirmBox");
+
+  for (let i = 0; i < box.children.length; ++i) {
+    if (box.children[i].id == node1.image || box.children[i].id == node2.image) {
+      return;
+    }
+  }
+
+  if (box.children.length >= 2) {
+    alert("Can't have more than 2 nodes in confirmation box.");
+    $('#confirmBox').html('');
+    return;
+  }
+
+  //Does node1
+  let nodeId1 = `node${node1.image}`;
+  let img1 = document.createElement('img');
+
+  img1.setAttribute('id', nodeId1);
+  img1.setAttribute('class', 'node-image');
+  img1.setAttribute('src', `../../static/tree/images/pictures/${node1.image}.PNG`);
+
+  box.appendChild(img1);
+
+  //Does node2
+  let nodeId2 = `node${node2.image}`;
+  let img2 = document.createElement('img');
+
+  img2.setAttribute('id', nodeId2);
+  img2.setAttribute('class', 'node-image');
+  img2.setAttribute('src', `../../static/tree/images/pictures/${node2.image}.PNG`);
+
+  box.appendChild(img2);
+
+  //sets border for confirmBox
+  if (box.children.length > 0) {
+    box.style.border = "5px solid black";
+  }
+
+  //Changes Parameters for Change Relationship button
+  let children = [];
+
+  for (let i = 0; i < box.children.length; ++i) {
+    children.push(box.children[i].id.substr(4))
+  }
+
+  //Open Menu immediately when there are two nodes in confirmBox
+  if (children.length == 2) {
+    let param1 = children[0];
+    let param2 = children[1];
+
+    openMenu(param1, param2);
+  }
+}
 
 
 //FIXME
@@ -473,7 +528,7 @@ function createLines() {
         let y1 = yPos;
         let y2 = parseAttribute('y', childElement[0].style.cssText);
 
-        svgString += `<line class='svg-line' x1="${x1}" y1="${chartWidth - y1}" x2="${x2}" y2="${chartWidth - y2}" stroke="black" stroke-width='6' onclick='hi()'/>`
+        svgString += `<line class='svg-line' x1="${x1}" y1="${chartWidth - y1}" x2="${x2}" y2="${chartWidth - y2}" stroke="black" stroke-width='6' onclick='testAdd(data[${i}], momArray[${index}][0].children[${j}])'/>`
       }
     }
 
@@ -484,7 +539,7 @@ function createLines() {
       let spouseXPos = parseAttribute('x', spouseElement[0].style.cssText);
       let spouseYPos = parseAttribute('y', spouseElement[0].style.cssText);
 
-      let line = `<line class='svg-line' x1="${xPos}" y1="${chartWidth - yPos}" x2="${spouseXPos}" y2="${chartWidth - spouseYPos}" stroke="blue" stroke-width='6' onclick='hi()'/>`
+      let line = `<line class='svg-line' x1="${xPos}" y1="${chartWidth - yPos}" x2="${spouseXPos}" y2="${chartWidth - spouseYPos}" stroke="blue" stroke-width='6' onclick='testAdd(data[${i}], data[getDataIndex(data[${i}].spouse)])'/>`
 
       //if statement so that two spouse lines aren't drawn between spouses
       if (spouseXPos > xPos) {
