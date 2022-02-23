@@ -240,11 +240,24 @@ function startEmpty() {
 function createChart(chart) {
 
   createDataPoints(chart);
-  //debugger
   //Testing
+
   for (let i = 0; i < data.length; ++i) {
+    let gen = getGeneration(data[i]);
+    /*
     if (data[i].spouse != null) {
       adjustSpouseXPos(data[i]);
+    }
+    */
+    if (gen > 2) {
+      //debugger
+      let xBuffer = 150;
+      //get Mom's X location
+      //console.log("This node's mother is " + node.mother);
+      let momXPos = getX(data[i].mother);
+      //console.log("Node's mother is at " + momXPos);
+      let xPos = momXPos;
+      console.log("Node " + (i + 1) + "'s xPos is " + xPos)
     }
   }
 
@@ -267,6 +280,7 @@ function createChart(chart) {
 
   createChildLines();
   createSpouseLines();
+
 }
 //Creates Data Points
 function createDataPoints(chart) {
@@ -284,13 +298,7 @@ function createDataPoints(chart) {
   for (let i = 0; i < data.length; ++i) {
     let li = document.createElement('li');
 
-    let genCount = 0;
-    for (let j = 0; j < data.length; ++j) {
-      let tmp = getGenerationCount(data[j], 1);
-      if (tmp > genCount) {
-        genCount = tmp;
-      }
-    }
+    let genCount = getLongestGenChain();
 
 
     //Getting X and Y Positions
@@ -300,7 +308,7 @@ function createDataPoints(chart) {
     let yPos = getY(dividedHeight, gen);
 
     let placeInGen = getPlaceInGeneration(data[i], gen);
-
+    
     let xPos = setX(data[i], generationMap, chartWidth, placeInGen);
 
 
@@ -453,25 +461,14 @@ function getPlaceInGeneration(node, generation) {
 //NEW getX Function
 function setX(node, map, width, placeInGen) {
   let keyGen = getGeneration(node);
-  
-  if (keyGen < 3) { //every gen besides the last generation
-    let xPos = (width/(getNumInGeneration(keyGen) + 1)) * (placeInGen + 1);
-    return xPos;
-  } else {
-    let xBuffer = 150;
-    //get Mom's X location
-    //debugger
-    nodeMotherXPos = getX(node.mother);
-    console.log("Node's mother is at " + nodeMotherXPos);
-    let xPos = nodeMotherXPos + xBuffer;
-    return xPos;
-  }
+  let xPos = (width/(getNumInGeneration(keyGen) + 1)) * (placeInGen + 1);
+  return xPos;
 }
 
 function getX(node) {
   let mom = document.getElementById(node);
   let momXPos = parseAttribute('x', mom.style.cssText);
-  console.log("mother's x pos is " + momXPos)
+  //console.log("mother's x pos is " + momXPos)
   return momXPos;
 }
 
@@ -895,7 +892,7 @@ function removeAllChildNodes(parent) {
 function hoverMenu(nodeId) {
 
   let hMenu = document.getElementById('hover-menu');
-
+  //debugger
   let nodeIndex = getDataIndex(nodeId);
   let node = document.getElementById(nodeId);
 
