@@ -446,6 +446,8 @@ function createDataPoints() {
 
 function testAdd(node1, node2) {
 
+  debugger
+
   let box = document.getElementById("confirmBox");
 
   for (let i = 0; i < box.children.length; ++i) {
@@ -459,7 +461,7 @@ function testAdd(node1, node2) {
     $('#confirmBox').html('');
     return;
   }
-
+/*
   //Does node1
   let nodeId1 = `node${node1.image}`;
   let img1 = document.createElement('img');
@@ -484,7 +486,8 @@ function testAdd(node1, node2) {
   if (box.children.length > 0) {
     box.style.border = "5px solid black";
   }
-
+*/
+/*
   //Changes Parameters for Change Relationship button
   let children = [];
 
@@ -499,6 +502,9 @@ function testAdd(node1, node2) {
 
     openMenu(param1, param2);
   }
+*/
+
+  openMenu(node1.image, node2.image)
 }
 
 
