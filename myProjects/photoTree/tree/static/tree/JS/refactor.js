@@ -107,6 +107,10 @@ let data = [
   },
 ]
 
+
+
+
+
 let nodeBoxData = [];
 
 let chartWidth = 1200;
@@ -193,127 +197,27 @@ momArray = makeMomArray();
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-// we start with the TrieNode
-const TrieNode = function (key) {
-  // the "key" value will be the character in sequence
-  this.key = key;
-  
-  // we keep a reference to parent
-  this.parent = null;
+/*
+for (let i = data.length; i < 30; ++i) {
+  //debugger
 
-  this.spouse = null;
-  
-  // we have hash of children
-  this.children = {};
-  
-  // check to see if the node is at the end
-  this.end = false;
-  
-  this.getWord = function() {
-    let output = [];
-    let node = this;
 
-    while (node !== null) {
-      output.unshift(node.key);
-      node = node.parent;
-    }
+  let image = i
 
-    return output.join('');
-  };
+  let mother = Math.ceil(Math.random() * momArray.length - 1);
+
+  mother = momArray[mother][0].data.image
+
+  let birthyear = Math.floor(Math.random() * (2005 - 1950) + 1950);
+
+  let object = { "image": i, "mother": mother, "spouse": null, "birthyear": birthyear}
+
+  console.log(object)
+
+  data.push(object)
 }
+*/
 
-const Trie = function() {
-  this.root = new TrieNode(null);
- 
-  //Other methods will go here...
-  // inserts a word into the trie.
-  this.insert = function(word) {
-    let node = this.root; // we start at the root
-
-    // for every character in the word
-    for(let i = 0; i < word.length; i++) {
-      // check to see if character node exists in children.
-      if (!node.children[word[i]]) {
-        // if it doesn't exist, we then create it.
-        node.children[word[i]] = new TrieNode(word[i]);
-
-        // we also assign the parent to the child node.
-        node.children[word[i]].parent = node;
-      }
-
-      // proceed to the next depth in the trie.
-      node = node.children[word[i]];
-
-      // finally, we check to see if it's the last word.
-      if (i == word.length-1) {
-        // if it is, we set the end flag to true.
-        node.end = true;
-      }
-    }
-  };
-
-
-   // check if it contains a whole word.
-   this.contains = function(word) {
-    let node = this.root;
-
-    // for every character in the word
-    for(let i = 0; i < word.length; i++) {
-      // check to see if character node exists in children.
-      if (node.children[word[i]]) {
-        // if it exists, proceed to the next depth of the trie.
-        node = node.children[word[i]];
-      } else {
-        // doesn't exist, return false since it's not a valid word.
-        return false;
-      }
-    }
-
-    // we finished going through all the words, but is it a whole word?
-    return node.end;
-  };
-
-
-
-  // removes the given word
-  this.remove = function (word) {
-    let root = this.root;
-
-    if(!word) return;
-
-    // recursively finds and removes a word
-    const removeWord = (node, word) => {
-
-        // check if current node contains the word
-        if (node.end && node.getWord() === word) {
-
-            // check and see if node has children
-            let hasChildren = Object.keys(node.children).length > 0;
-
-            // if has children we only want to un-flag the end node that marks end of a word.
-            // this way we do not remove words that contain/include supplied word
-            if (hasChildren) {
-                node.end = false;
-            } else {
-                // remove word by getting parent and setting children to empty dictionary
-                node.parent.children = {};
-            }
-
-            return true;
-        }
-
-        // recursively remove word from all children
-        for (let key in node.children) {
-            removeWord(node.children[key], word)
-        }
-
-        return false
-    };
-
-  // call remove word on root node
-  removeWord(root, word);
-};
-}
 
 
 
@@ -368,9 +272,23 @@ class TreeNode {
 
 }
 
+function allowDrop(ev) {
+  ev.preventDefault();
+}
 
+function drag(ev) {
+  ev.dataTransfer.setData("text", ev.target.id);
+}
 
+function drop(ev) {
+  ev.preventDefault();
+  var data = ev.dataTransfer.getData("text");
+  //ev.target.appendChild(document.getElementById(data));
+  //TODO add function call to call like testadd function
+}
 
+let parameter1;
+let parameter2;
 
 
 
@@ -431,11 +349,11 @@ function createDataPoints() {
 /*
     $('#chart').append(
       `<li id=${data[i].image} style='--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px'>
-        <div id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image}) ondrop='drop(event)' ondragover='allowDrop(event)'>
+        <div id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image}) ondrop='drop(event), setParameter2(${data[i]}), testRemoveFromConfirmBox(${parameter1}, ${parameter2})' ondragover='allowDrop(event)'>
           <img class="data-point data-button" src="../../static/tree/images/pictures/${data[i].image}.PNG">
         </div>
       </li>`)
-      */
+*/      
 
     $('#chart').append(
       `<li id=${data[i].image} style='--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px'>
@@ -511,6 +429,22 @@ function testAdd(node1, node2) {
 
 }
 
+//TESTING
+function setParameter1(node) {
+  parameter1 = node;
+}
+function setParameter2(node) {
+  parameter2 = node;
+}
+
+function testRemoveFromConfirmBox(node1, node2) {
+
+  debugger
+
+  if (getNodeBoxDataIndex(node1.image) != null) {
+    testAdd(node1, node2)
+  }
+}
 
 //FIXME
 function createLines() {
@@ -855,6 +789,7 @@ function removeRelationship(id1, id2) {
   closeMenu();
 }
 
+/*
 function changeAddButtonParameters() {
 
   $('#confirmBox').children()
@@ -895,6 +830,7 @@ function changeRemoveButtonParameters() {
 
   }
 }
+*/
 
 function addToConfirmBox(id) {
   let box = document.getElementById("confirmBox");
@@ -941,6 +877,8 @@ function addToConfirmBox(id) {
   }
 }
 
+
+
 function addToNodeContainer(id) {
 
   let index = getDataIndex(id);
@@ -961,6 +899,10 @@ function addToNodeContainer(id) {
   button.setAttribute('onclick', `addToConfirmBox(${id}), removeFromNodeContainer(${id})`);
   
   //button.setAttribute('ondragstart', 'drag(event)');
+  //button.setAttribute('onmousedown', `setParameter1(${data[index]})`);
+  //button.setAttribute('onclick', `addToConfirmBox(${id}), removeFromNodeContainer(${id}), setParameter1(${data[index]})`);
+
+
 
   button.appendChild(img);
 
