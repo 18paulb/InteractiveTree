@@ -369,11 +369,6 @@ class TreeNode {
 }
 
 
-//debugger
-//let tree = new Tree(data[getDataIndex(9)]);
-
-//tree.addChild(data[getDataIndex(9)], data[0]);
-
 
 
 
@@ -433,6 +428,14 @@ function createDataPoints() {
     let yPos = getY(dividedHeight, gen);
 
     let xPos = getX(data[i], generationMap, chartWidth);
+/*
+    $('#chart').append(
+      `<li id=${data[i].image} style='--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px'>
+        <div id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image}) ondrop='drop(event)' ondragover='allowDrop(event)'>
+          <img class="data-point data-button" src="../../static/tree/images/pictures/${data[i].image}.PNG">
+        </div>
+      </li>`)
+      */
 
     $('#chart').append(
       `<li id=${data[i].image} style='--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px'>
@@ -443,68 +446,69 @@ function createDataPoints() {
   }
 }
 
-
+//Works for clicking on the lines
 function testAdd(node1, node2) {
 
-  debugger
+  $('#addMotherButton').attr('onclick', `changeAddButtonParameters(), addMotherRelationship(${node1.image}}, ${node2.image})`);
+  $('#addSpouseButton').attr('onclick',`changeAddButtonParameters(), addSpouseRelationship(${node1.image}, ${node2.image})`);
 
-  let box = document.getElementById("confirmBox");
+  $('#removeButton').attr('onclick', `changeRemoveButtonParameters(), removeRelationship(${node1.image}, ${node2.image})`);
 
-  for (let i = 0; i < box.children.length; ++i) {
-    if (box.children[i].id == node1.image || box.children[i].id == node2.image) {
-      return;
-    }
+  let id1 = node1.image;
+  let id2 = node2.image;
+
+  //openMenu(node1.image, node2.image)
+  let id1Birthyear;
+  let id2Birthyear;
+
+  let id1Index = getDataIndex(parseInt(id1));
+  let id2Index = getDataIndex(parseInt(id2));
+
+  //These statements account for if the node is in the data or nodeBoxData
+  if (id1Index != null) {
+    id1Birthyear = data[id1Index].birthyear
+  }
+  if (id2Index != null) {
+    id2Birthyear = data[id2Index].birthyear
+  }
+  if (id1Index == null) {
+    id1Index = getNodeBoxDataIndex(parseInt(id1));
+    id1Birthyear = nodeBoxData[id1Index].birthyear;
+  }
+  if (id2Index == null) {
+    id2Index = getNodeBoxDataIndex(parseInt(id2));
+    id2Birthyear = nodeBoxData[id2Index].birthyear;
   }
 
-  if (box.children.length >= 2) {
-    alert("Can't have more than 2 nodes in confirmation box.");
-    $('#confirmBox').html('');
-    return;
-  }
-/*
-  //Does node1
-  let nodeId1 = `node${node1.image}`;
-  let img1 = document.createElement('img');
+  $('#center-menu').html(
+  `<div id='center-menu' class='center-menu'>
+    <div><button onclick='closeMenu()'>X</button></div>
 
-  img1.setAttribute('id', nodeId1);
-  img1.setAttribute('class', 'node-image');
-  img1.setAttribute('src', `../../static/tree/images/pictures/${node1.image}.PNG`);
+    <div class='menu-pics-container'>
+      <div>
+        <img class='menu-pic' src='../../static/tree/images/pictures/${id1}.PNG'/>
+        <div id ='node-${id1}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px;'>
+          <div><b>John Doe</b></div>
+          <div><b>${id1Birthyear}</b></div>
+        </div>
+      </div>
 
-  box.appendChild(img1);
+      <div>
+        <img class='menu-pic' src='../../static/tree/images/pictures/${id2}.PNG'/>
+        <div id ='node-${id2}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px;'>
+          <div><b>John Doe</b></div>
+          <div><b>${id2Birthyear}</b></div>
+        </div>
+      </div>
+    </div>
 
-  //Does node2
-  let nodeId2 = `node${node2.image}`;
-  let img2 = document.createElement('img');
+    <div class='menu-button'>
+      <button id='removeButton' class='button-34' onclick='removeRelationship(${id1}, ${id2})'>Remove Relationship</button>
+      <button id='addMotherButton' class='button-34' onclick=addMotherRelationship(${id1}, ${id2})>Add Mother/Child Relationship</button>
+      <button id='addSpouseButton' class='button-34' onclick=addSpouseRelationship(${id1}, ${id2})>Add Spouse Relationship</button>
+    </div>
+  </div>`)
 
-  img2.setAttribute('id', nodeId2);
-  img2.setAttribute('class', 'node-image');
-  img2.setAttribute('src', `../../static/tree/images/pictures/${node2.image}.PNG`);
-
-  box.appendChild(img2);
-
-  //sets border for confirmBox
-  if (box.children.length > 0) {
-    box.style.border = "5px solid black";
-  }
-*/
-/*
-  //Changes Parameters for Change Relationship button
-  let children = [];
-
-  for (let i = 0; i < box.children.length; ++i) {
-    children.push(box.children[i].id.substr(4))
-  }
-
-  //Open Menu immediately when there are two nodes in confirmBox
-  if (children.length == 2) {
-    let param1 = children[0];
-    let param2 = children[1];
-
-    openMenu(param1, param2);
-  }
-*/
-
-  openMenu(node1.image, node2.image)
 }
 
 
@@ -556,10 +560,6 @@ function createLines() {
 
   svgString += "</svg>"
   $('#chart').html($('#chart').html() + svgString);
-}
-
-function hi() {
-  console.log('hi')
 }
 
 function getY(dividedHeight, generation) {
@@ -959,6 +959,8 @@ function addToNodeContainer(id) {
   button.setAttribute('id', `button${id}`);
   button.setAttribute('class', 'nodeBox-button');
   button.setAttribute('onclick', `addToConfirmBox(${id}), removeFromNodeContainer(${id})`);
+  
+  //button.setAttribute('ondragstart', 'drag(event)');
 
   button.appendChild(img);
 
