@@ -274,6 +274,7 @@ function createDataPoints(chart) {
   //In case you have to redraw chart
   removeAllChildNodes(chart);
 
+  //debugger
   let generationMap = new Map();
   let genCount = getLongestGenChain();
 
@@ -281,16 +282,14 @@ function createDataPoints(chart) {
     generationMap.set(j+1, 1);
   }
 
+  for (let genIndex = 0; genIndex < (genCount + 1); genIndex++) { //creates data points now from oldest to youngest gen
+    for (let i = 0; i < data.length; ++i) { //iterates through the entire data set to check if gen matches up
 
-  for (let i = 0; i < data.length; ++i) {
-    let li = document.createElement('li');
-
-    let genCount = getLongestGenChain();
-
-
-    //Getting X and Y Positions
     let gen = getGeneration(data[i]);
 
+    if (gen == genIndex) {
+    //Getting X and Y Positions
+    let li = document.createElement('li');
     let dividedHeight = chartWidth / genCount;
     let yPos = getY(dividedHeight, gen);
 
@@ -321,6 +320,8 @@ function createDataPoints(chart) {
     </div>`
   
     chart.appendChild(li);
+  }
+  }
   }
 
 }
@@ -462,9 +463,10 @@ function getPlaceInFamily(node) {
   for (let i = 0; i < nodeArray.length; i++) {
     if(nodeArray[i] == node) {
       placeInFamily = i;
+      console.log("Node " + node.image + "'s place in family is " + (placeInFamily + 1))
     }
   }
-  return placeInFamily;
+  return placeInFamily + 1;
 }
 
 function getNumChildrenInFamily(node) {
@@ -475,7 +477,7 @@ function getNumChildrenInFamily(node) {
       nodesInFamily.push(data[i]);
     }
   }
-  console.log("Nodes in family is " + nodesInFamily.length)
+  //console.log("Nodes in family is " + nodesInFamily.length)
   return nodesInFamily.length;
 }
 
@@ -491,6 +493,13 @@ function getFamilyArray(node) {
 }
 
 function getWidthOfFamily(node) {
+  //FIXME: Need to figure out how to make it return the right gen for this func call
+  /*
+  let keyGen = getGenerationCount(node.mother, 2);
+  let numInGen = getNumInGeneration(keyGen); //TODO: make a getMomsInGen function (since there are 6 nodes in gen 2)
+  console.log("num in mom's gen is " + numInGen)
+  let width = chartWidth/numInGen;
+  */
   let width = 600;
   return width;
 }
@@ -506,8 +515,50 @@ function setX(node, map, width, placeInGen) {
 function setChildX(node, widthOfFamily) {
 let numChildren = getNumChildrenInFamily(node);
 let placeInFam = getPlaceInFamily(node);
-let xPos = (widthOfFamily/(numChildren + 1)) * (placeInFam + 1);
-console.log("xpos is " + xPos)
+let xPos;
+let momXPos = getX(node.mother);
+if (numChildren == 1) {
+  xPos = momXPos;
+}
+/*
+else if (numChildren == 2) {
+  if (placeInFam == 1) {
+    xPos = momXPos - (momXPos / 2);
+  }
+  else {
+    xPos = momXPos + (momXPos / 2);
+  }
+}
+else if (numChildren == 3) {
+  if (placeInFam == 1) {
+    xPos = momXPos - (momXPos / 2);
+  }
+  else if (placeInFam == 2) {
+    xPos = momXPos;
+  }
+  else {
+    xPos = momXPos + (momXPos / 2);
+  }
+}
+else if (numChildren == 4) {
+  if (placeInFam == 1) {
+    xPos = momXPos - (momXPos / 2);
+  }
+  else if (placeInFam == 2) {
+    xPos = momXPos;
+  }
+  else if (placeInFam == 3) {
+    xPos = momXPos;
+  }
+  else {
+    xPos = momXPos + (momXPos / 2);
+  }
+}
+*/
+else {
+  let famSpacing = widthOfFamily/(numChildren + 1);
+  xPos = (famSpacing * placeInFam);
+}
 return xPos;
 }
 
@@ -948,6 +999,7 @@ function hoverMenu(nodeId) {
   //Make this class a datapoint technically and make XY pos's from there, just get X,Y from node and then adjust slightly for it to be near node
   hMenu.innerHTML = `
   <div id='hover-menu' class='hover-menu hover-point' style='--y: ${nodeY + 100}px; --x: ${nodeX - 25}px'>
+    <div>Gen: ${getGeneration(data[nodeIndex])} <br> Node: ${data[nodeIndex].image}</b><br>x: ${nodeX}</div>
       <img class='menu-pic' src='../../static/tree/images/pictures/${nodeId}.PNG'/>
       <div id ='node-${nodeId}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column;'>
         <div><b>John Doe</br></div>
