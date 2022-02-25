@@ -243,21 +243,8 @@ function createChart(chart) {
   //Testing
 
   for (let i = 0; i < data.length; ++i) {
-    let gen = getGeneration(data[i]);
-    /*
     if (data[i].spouse != null) {
       adjustSpouseXPos(data[i]);
-    }
-    */
-    if (gen > 2) {
-      //debugger
-      let xBuffer = 150;
-      //get Mom's X location
-      //console.log("This node's mother is " + node.mother);
-      let momXPos = getX(data[i].mother);
-      //console.log("Node's mother is at " + momXPos);
-      let xPos = momXPos;
-      console.log("Node " + (i + 1) + "'s xPos is " + xPos)
     }
   }
 
@@ -309,10 +296,20 @@ function createDataPoints(chart) {
 
     let placeInGen = getPlaceInGeneration(data[i], gen);
     
-    let xPos = setX(data[i], generationMap, chartWidth, placeInGen);
-
 
     li.setAttribute('id', data[i].image);
+    let xPos;
+    
+    if (gen < 3) {
+      //If it is a first or second gen node
+      xPos = setX(data[i], generationMap, chartWidth, placeInGen);
+    }
+    else {
+      //If it is a third gen or greater node
+      let widthOfFamily = getWidthOfFamily(data[i]);
+      xPos = setChildX(data[i], widthOfFamily);
+    }
+
     li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`);
     //Maybe nest in div and make the style be invisible
     /*li.innerHTML += `<div><button id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'>
@@ -457,12 +454,61 @@ function getPlaceInGeneration(node, generation) {
   return placeInGen;
 }
 
+function getPlaceInFamily(node) {
+  let nodeArray = [];
+  nodeArray = getFamilyArray(node);
 
-//NEW getX Function
+  let placeInFamily;
+  for (let i = 0; i < nodeArray.length; i++) {
+    if(nodeArray[i] == node) {
+      placeInFamily = i;
+    }
+  }
+  return placeInFamily;
+}
+
+function getNumChildrenInFamily(node) {
+  
+  let nodesInFamily = [];
+  for (let i = 0; i < data.length; ++i) {
+    if (data[i].mother == node.mother) {
+      nodesInFamily.push(data[i]);
+    }
+  }
+  console.log("Nodes in family is " + nodesInFamily.length)
+  return nodesInFamily.length;
+}
+
+function getFamilyArray(node) {
+  
+  let nodesInFamily = [];
+  for (let i = 0; i < data.length; ++i) {
+    if (data[i].mother == node.mother) {
+      nodesInFamily.push(data[i]);
+    }
+  }
+  return nodesInFamily;
+}
+
+function getWidthOfFamily(node) {
+  let width = 600;
+  return width;
+}
+
+//NEW getX Function (for gen1 and gen2 nodes)
 function setX(node, map, width, placeInGen) {
   let keyGen = getGeneration(node);
   let xPos = (width/(getNumInGeneration(keyGen) + 1)) * (placeInGen + 1);
   return xPos;
+}
+
+//setX for gen3 and above nodes
+function setChildX(node, widthOfFamily) {
+let numChildren = getNumChildrenInFamily(node);
+let placeInFam = getPlaceInFamily(node);
+let xPos = (widthOfFamily/(numChildren + 1)) * (placeInFam + 1);
+console.log("xpos is " + xPos)
+return xPos;
 }
 
 function getX(node) {
