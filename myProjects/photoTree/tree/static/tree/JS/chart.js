@@ -258,7 +258,6 @@ function createChart(chart) {
   }
   */
 
-
    //Presentation
    for (let i = 0; i < momArray.length; ++i) {
     presentationChildren(momArray[i][0].data)
@@ -517,47 +516,20 @@ let numChildren = getNumChildrenInFamily(node);
 let placeInFam = getPlaceInFamily(node);
 let xPos;
 let momXPos = getX(node.mother);
+let famSpacing = widthOfFamily/(numChildren + 1);
+let momGen = getGeneration(node.mother);
+let momsInGen = getMomsInGen(momGen);
 if (numChildren == 1) {
   xPos = momXPos;
 }
-/*
-else if (numChildren == 2) {
-  if (placeInFam == 1) {
-    xPos = momXPos - (momXPos / 2);
-  }
-  else {
-    xPos = momXPos + (momXPos / 2);
-  }
-}
-else if (numChildren == 3) {
-  if (placeInFam == 1) {
-    xPos = momXPos - (momXPos / 2);
-  }
-  else if (placeInFam == 2) {
-    xPos = momXPos;
-  }
-  else {
-    xPos = momXPos + (momXPos / 2);
-  }
-}
-else if (numChildren == 4) {
-  if (placeInFam == 1) {
-    xPos = momXPos - (momXPos / 2);
-  }
-  else if (placeInFam == 2) {
-    xPos = momXPos;
-  }
-  else if (placeInFam == 3) {
-    xPos = momXPos;
-  }
-  else {
-    xPos = momXPos + (momXPos / 2);
-  }
-}
-*/
 else {
-  let famSpacing = widthOfFamily/(numChildren + 1);
-  xPos = (famSpacing * placeInFam);
+  let momPlaceInGen;
+  for (let i = 0; i < momsInGen.length; i++) {
+    if (node.mother == momsInGen[i]) {
+      momPlaceInGen = i;
+      xPos = (famSpacing * placeInFam) + ((momPlaceInGen) * (widthOfFamily/2));
+    }
+  }
 }
 return xPos;
 }
@@ -567,6 +539,27 @@ function getX(node) {
   let momXPos = parseAttribute('x', mom.style.cssText);
   //console.log("mother's x pos is " + momXPos)
   return momXPos;
+}
+
+
+function getMomsInGen(generation) {
+  theMomArray = [];
+  //gets all motherId's in data
+  for (let i = 0; i < data.length; i++) {
+    if(data[i].mother != null) {
+      if (theMomArray.every(element => element != data[i].mother)) {
+        theMomArray.push(data[i].mother); //push the motherIds
+      }
+    }
+  }
+  //gets array of motherId's in generation
+  newMomArray = []
+  for (let i = 0; i < theMomArray.length; i++) {
+    if (getGeneration(theMomArray[i]) == generation) {
+      newMomArray.push(theMomArray[i]);
+    }
+  }
+  return newMomArray;
 }
 
 
