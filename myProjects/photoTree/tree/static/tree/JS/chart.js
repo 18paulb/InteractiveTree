@@ -491,26 +491,25 @@ function setX(node, map, width, placeInGen) {
 
 //setX for gen3 and above nodes
 function setChildX(node, widthOfFamily) {
-let numChildren = getNumChildrenInFamily(node);
-let placeInFam = getPlaceInFamily(node);
-let xPos;
-let momXPos = getX(node.mother);
-let famSpacing = widthOfFamily/(numChildren + 1);
-let momGen = getGeneration(node.mother);
-let momsInGen = getMomsInGen(momGen);
-if (numChildren == 1) {
-  xPos = momXPos;
-}
-else {
-  let momPlaceInGen;
-  for (let i = 0; i < momsInGen.length; i++) {
-    if (node.mother == momsInGen[i]) {
-      momPlaceInGen = i;
-      xPos = (famSpacing * placeInFam) + ((momPlaceInGen) * (widthOfFamily/2));
+  let numChildren = getNumChildrenInFamily(node);
+  let placeInFam = getPlaceInFamily(node);
+
+  let momXPos = getX(node.mother);
+  let famSpacing = widthOfFamily/(numChildren + 1);
+
+  let momGen = getGeneration(node.mother);
+  let momsInGen = getMomsInGen(momGen);
+
+  let xPos;
+  if (numChildren == 1) {
+    xPos = momXPos;
+  }
+  else {
+    for (let i = 0; i < momsInGen.length; i++) {
+        xPos = (famSpacing * placeInFam) + (momXPos - (widthOfFamily/2));
     }
   }
-}
-return xPos;
+  return xPos;
 }
 
 function getX(node) {
