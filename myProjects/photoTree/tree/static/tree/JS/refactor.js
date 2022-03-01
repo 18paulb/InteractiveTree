@@ -201,7 +201,6 @@ momArray = makeMomArray();
 for (let i = data.length; i < 30; ++i) {
   //debugger
 
-
   let image = i
 
   let mother = Math.ceil(Math.random() * momArray.length - 1);
@@ -272,6 +271,11 @@ class TreeNode {
 
 }
 
+
+
+let parameter1;
+let parameter2;
+
 function allowDrop(ev) {
   ev.preventDefault();
 }
@@ -284,11 +288,9 @@ function drop(ev) {
   ev.preventDefault();
   var data = ev.dataTransfer.getData("text");
   //ev.target.appendChild(document.getElementById(data));
-  //TODO add function call to call like testadd function
+  //TODO: add function call to call like testadd function
+  testRemoveFromConfirmBox(parameter1, parameter2)
 }
-
-let parameter1;
-let parameter2;
 
 
 
@@ -346,22 +348,24 @@ function createDataPoints() {
     let yPos = getY(dividedHeight, gen);
 
     let xPos = getX(data[i], generationMap, chartWidth);
-/*
+
     $('#chart').append(
       `<li id=${data[i].image} style='--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px'>
-        <div id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image}) ondrop='drop(event), setParameter2(${data[i]}), testRemoveFromConfirmBox(${parameter1}, ${parameter2})' ondragover='allowDrop(event)'>
+        <div id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})' ondrop='drop(event), setParameter2(${data[i].image}), testRemoveFromConfirmBox(${parameter1}, ${parameter2})' ondragover='allowDrop(event)'>
           <img class="data-point data-button" src="../../static/tree/images/pictures/${data[i].image}.PNG">
         </div>
       </li>`)
-*/      
-
+ 
+/*
     $('#chart').append(
       `<li id=${data[i].image} style='--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px'>
         <div id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'>
           <img class="data-point data-button" src="../../static/tree/images/pictures/${data[i].image}.PNG">
         </div>
       </li>`)
+*/
   }
+
 }
 
 //Works for clicking on the lines
@@ -429,20 +433,11 @@ function testAdd(node1, node2) {
 
 }
 
-//TESTING
-function setParameter1(node) {
-  parameter1 = node;
-}
-function setParameter2(node) {
-  parameter2 = node;
-}
 
-function testRemoveFromConfirmBox(node1, node2) {
 
-  debugger
-
-  if (getNodeBoxDataIndex(node1.image) != null) {
-    testAdd(node1, node2)
+function testRemoveFromConfirmBox(id1, id2) {
+  if (nodeBoxData[getNodeBoxDataIndex(id1)] != null) {
+    testAdd(nodeBoxData[getNodeBoxDataIndex(id1)], data[getDataIndex(id2)])
   }
 }
 
@@ -789,7 +784,7 @@ function removeRelationship(id1, id2) {
   closeMenu();
 }
 
-/*
+
 function changeAddButtonParameters() {
 
   $('#confirmBox').children()
@@ -830,7 +825,7 @@ function changeRemoveButtonParameters() {
 
   }
 }
-*/
+
 
 function addToConfirmBox(id) {
   let box = document.getElementById("confirmBox");
@@ -898,9 +893,8 @@ function addToNodeContainer(id) {
   button.setAttribute('class', 'nodeBox-button');
   button.setAttribute('onclick', `addToConfirmBox(${id}), removeFromNodeContainer(${id})`);
   
-  //button.setAttribute('ondragstart', 'drag(event)');
-  //button.setAttribute('onmousedown', `setParameter1(${data[index]})`);
-  //button.setAttribute('onclick', `addToConfirmBox(${id}), removeFromNodeContainer(${id}), setParameter1(${data[index]})`);
+  button.setAttribute('ondragstart', `drag(event), setParameter1(${id})`);
+  button.setAttribute('onclick', `addToConfirmBox(${id}), removeFromNodeContainer(${id})`);
 
 
 
@@ -908,6 +902,11 @@ function addToNodeContainer(id) {
 
   container.appendChild(button);
 }
+
+function hi() {
+  console.log("Hello World");
+}
+
 
 function removeFromNodeContainer(id) {
   $(`#button${id}`).remove();
@@ -975,11 +974,18 @@ function openMenu(id1, id2) {
 }
 
 function closeMenu() {
-  //TODO Add if that put nodedataBox nodes back to nodeBox
+  //TODO: Add if that put nodedataBox nodes back to nodeBox
   $('#center-menu').html('');
   $('#confirmBox').html('');
 }
 
+//TESTING
+function setParameter1(id) {
+  parameter1 = id;
+}
+function setParameter2 (id) {
+  parameter2 = id;
+}
 
 
 //All helper functions to access data, etc.
@@ -1228,7 +1234,7 @@ function getSpacing(rootNode, spacing, targetNode) {
   return spacing
 }
 
-//FIXME prioritize moving spouses with no moms and also spouses who are already on the tree
+//FIXME: prioritize moving spouses with no moms and also spouses who are already on the tree
 function adjustSpouseXPos(node) {
 
   let spouse = $(`#${node.spouse}`);
@@ -1239,7 +1245,7 @@ function adjustSpouseXPos(node) {
 
   let generation = getGeneration(node)
 
-  //FIXME everything below this has to change
+  //FIXME: everything below this has to change
   let spacing = 100;
 
 
@@ -1257,7 +1263,7 @@ function adjustSpouseXPos(node) {
   }
 }
 
-//FIXME could potentially be overlap of nodes because this checks for EXACT x, not range of x to account for node width
+//FIXME: could potentially be overlap of nodes because this checks for EXACT x, not range of x to account for node width
 function emptyXLocation(xPos, generation) {
 
   let isEmpty = true;
