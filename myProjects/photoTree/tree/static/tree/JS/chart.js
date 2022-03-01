@@ -241,11 +241,12 @@ function createChart(chart) {
 
   createDataPoints(chart);
   //Testing
-
-  
+  fixedSpouses = []
   for (let i = 0; i < data.length; ++i) {
     if (data[i].spouse != null) {
-      adjustSpouseXPos(data[i]);
+      if (fixedSpouses.every(element => element != data[i].image)) {
+        adjustSpouseXPos(data[i], fixedSpouses);
+      }
     }
   }
 
@@ -441,7 +442,6 @@ function getPlaceInFamily(node) {
   for (let i = 0; i < nodeArray.length; i++) {
     if(nodeArray[i] == node) {
       placeInFamily = i;
-      console.log("Node " + node.image + "'s place in family is " + (placeInFamily + 1))
     }
   }
   return placeInFamily + 1;
@@ -501,14 +501,9 @@ function setChildX(node, widthOfFamily) {
   let momsInGen = getMomsInGen(momGen);
 
   let xPos;
-  if (numChildren == 1) {
-    xPos = momXPos;
-  }
-  else {
     for (let i = 0; i < momsInGen.length; i++) {
-        xPos = (famSpacing * placeInFam) + (momXPos - (widthOfFamily/2));
+      xPos = (famSpacing * placeInFam) + (momXPos - (widthOfFamily/2));
     }
-  }
   return xPos;
 }
 
@@ -1477,16 +1472,24 @@ function adjustChildNodesXPos(momNode) {
 }
 
 //FIXME prioritize moving spouses with no moms and also spouses who are already on the tree
-function adjustSpouseXPos(node) {
-
+function adjustSpouseXPos(node, fixedSpouses) {
   let spouse = document.getElementById(`${node.spouse}`);
+  let spouseId = node.spouse;
   let currNode = document.getElementById(`${node.image}`);
 
   let spouseXPos = parseAttribute('x', spouse.style.cssText);
   let nodeXPos = parseAttribute('x', currNode.style.cssText);
 
-  let generation = getGeneration(node)
-
+  //FIXME: Still not working correctly, should only update spouse position but updates original node's posiiton as well
+  let spacing = 100;
+  
+  spouseXPos = nodeXPos + spacing;
+  let originalY = parseAttribute('y', spouse.style.cssText);
+  spouse.setAttribute('style', `--y: ${originalY}px; --x: ${spouseXPos}px`);
+  
+  //add Spouse to an array of fixed nodes so it doesn't get modified again
+  fixedSpouses.push(spouseId);
+  /*
   //FIXME everything below this has to change
   let spacing = 100;
 
@@ -1503,6 +1506,7 @@ function adjustSpouseXPos(node) {
     let originalY = parseAttribute('y', spouse.style.cssText);
     spouse.setAttribute('style', `--y: ${originalY}px; --x: ${spouseXPos}px`);
   }
+  */
 }
 
 //FIXME could potentially be overlap of nodes because this checks for EXACT x, not range of x to account for node width
