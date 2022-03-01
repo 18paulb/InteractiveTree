@@ -242,6 +242,7 @@ function createChart(chart) {
   createDataPoints(chart);
   //Testing
 
+  
   for (let i = 0; i < data.length; ++i) {
     if (data[i].spouse != null) {
       adjustSpouseXPos(data[i]);
@@ -340,26 +341,7 @@ function createChildLines() {
       let genCount = getLongestGenChain();
 
       for (let j = 0; j < momArray[index][0].children.length; ++j) {
-        //TESTING TRYING WITH SVG's
-/*
-        let childElement = document.getElementById(momArray[index][0].children[j].image);
 
-        let x1 = xPos;
-        let x2 = parseAttribute('x', childElement.getAttribute('style'));
-        let y1 = yPos;
-
-        let dividedHeight = chartWidth / genCount;
-        let gen = getGeneration(momArray[index][0].children[j]);
-        let y2 = getY(dividedHeight, gen);
-
-
-
-        li.innerHTML += `
-        <svg height="200" width="100">
-          <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" style="stroke:rgb(255,0,0);stroke-width:50"/>
-        </svg>
-        `
-*/
         
         let dividedHeight = chartWidth / genCount;
         let gen = getGeneration(momArray[index][0].children[j]);
@@ -371,17 +353,14 @@ function createChildLines() {
 
         let childHypotenuse = getHypotenuse(yPos, childYPos, xPos, childXPos);
         let angle = getAngle(yPos - childYPos, childHypotenuse);
-  
+        
+
         //Adjusts angle if child is before mom in x-axis
         if (childXPos < xPos) {
           angle = (-1 * angle) + 180.5;
         }
   
         li.innerHTML += `<div class="child-line" style="--hypotenuse: ${childHypotenuse}; --angle: ${angle}"></div>`;
-        //FIXME kind of works, position is right but buttons do not work when click line
-        //li.innerHTML += `<div class="child-line" onclick='hi()' style="--hypotenuse: ${childHypotenuse}; --angle: ${angle};"></div>`;
-        //li.innerHTML += `<button onclick="hi()"><div class="child-line" style="--hypotenuse: ${childHypotenuse}; --angle: ${angle};"></div></button>`;
-        //li.innerHTML += `<button onclick="hi()" class="child-line" style="--hypotenuse: ${childHypotenuse}; --angle: ${angle};"></button>`;
         
       }
     }
