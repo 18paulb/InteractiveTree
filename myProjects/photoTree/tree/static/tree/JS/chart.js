@@ -504,6 +504,12 @@ function setChildX(node, widthOfFamily) {
     for (let i = 0; i < momsInGen.length; i++) {
       xPos = (famSpacing * placeInFam) + (momXPos - (widthOfFamily/2));
     }
+    
+    //adjust positions of higher gen nodes
+    let nodeMother = node.mother;
+    if (numChildren > 1) {
+      adjustHigherGenNodes(nodeMother);
+    }
   return xPos;
 }
 
@@ -513,7 +519,6 @@ function getX(node) {
   //console.log("mother's x pos is " + momXPos)
   return momXPos;
 }
-
 
 function getMomsInGen(generation) {
   theMomArray = [];
@@ -535,6 +540,38 @@ function getMomsInGen(generation) {
   return newMomArray;
 }
 
+function adjustHigherGenNodes(nodeMother) {
+  let momGen = getGeneration(nodeMother) + 1; //doesn't seem to be returning the right gen for the node's mother
+  let nodesInGen = getNodesInGeneration(momGen) //array of the nodes in the generation of the mom
+
+  let momXPositions = []
+  //1. Get the xPositions of all nodes in the gen above the child
+  for (let i = 0; i < nodesInGen.length; i++) {
+    momXPositions.push(getX(nodesInGen[i].image));
+    //console.log("nodeXpos at node " + nodesInGen[i].image + " is " +nodeXPos);
+  }
+  
+  
+  //2. Adjust the xPositions of elements the momXPositions array
+  let currentMomNodeXPos = getX(nodeMother);
+  let adjustX = 50;
+  
+  for (let i = 0; i < momXPositions.length; i++) {
+    if (momXPositions[i] > currentMomNodeXPos) {
+      momXPositions[i] += adjustX;
+    }
+    else if (momXPositions[i] < currentMomNodeXPos) {
+      momXPositions[i] -= adjustX;
+    }
+  }
+
+  //3. Adjust the corresponding HTML elements with their new xPositions
+  for (let i = 0; i < momXPositions.length; i++) {
+    let node = document.getElementById(nodesInGen[i].image);
+    let originalY = parseAttribute('y', node.style.cssText);
+    node.setAttribute('style', `--y: ${originalY}px; --x: ${momXPositions[i]}px`);
+  }
+}
 
 /*
 function getX(node, map, width) {
@@ -1169,7 +1206,7 @@ function hasRelationship(node) {
 //Gets highest generation count
 function getGenerationCount(node, count) {
   if (node.mother == null) {
-      if (node.spouse != null) {
+    if (node.spouse != null) {
       let spouseIndex = getDataIndex(node.spouse);
       if (data[spouseIndex].mother != null) {
         let motherIndex = getDataIndex(data[spouseIndex].mother);
