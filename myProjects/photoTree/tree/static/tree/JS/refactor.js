@@ -281,14 +281,17 @@ function allowDrop(ev) {
 }
 
 function drag(ev) {
-  ev.dataTransfer.setData("text", ev.target.id);
+  //ev.dataTransfer.setData("text", ev.target.id);
 }
 
 function drop(ev) {
   ev.preventDefault();
-  var data = ev.dataTransfer.getData("text");
+  //var data = ev.dataTransfer.getData("text");
   //ev.target.appendChild(document.getElementById(data));
   //TODO: add function call to call like testadd function
+
+  //debugger
+
   testRemoveFromConfirmBox(parameter1, parameter2)
 }
 
@@ -351,7 +354,7 @@ function createDataPoints() {
 
     $('#chart').append(
       `<li id=${data[i].image} style='--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px'>
-        <div id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})' ondrop='drop(event), setParameter2(${data[i].image}), testRemoveFromConfirmBox(${parameter1}, ${parameter2})' ondragover='allowDrop(event)'>
+        <div id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})' ondrop='setParameter2(${data[i].image}), drop(event),  testRemoveFromConfirmBox(${parameter1}, ${parameter2})' ondragover='allowDrop(event)'>
           <img class="data-point data-button" src="../../static/tree/images/pictures/${data[i].image}.PNG">
         </div>
       </li>`)
@@ -370,11 +373,6 @@ function createDataPoints() {
 
 //Works for clicking on the lines
 function testAdd(node1, node2) {
-
-  $('#addMotherButton').attr('onclick', `changeAddButtonParameters(), addMotherRelationship(${node1.image}}, ${node2.image})`);
-  $('#addSpouseButton').attr('onclick',`changeAddButtonParameters(), addSpouseRelationship(${node1.image}, ${node2.image})`);
-
-  $('#removeButton').attr('onclick', `changeRemoveButtonParameters(), removeRelationship(${node1.image}, ${node2.image})`);
 
   let id1 = node1.image;
   let id2 = node2.image;
@@ -426,10 +424,12 @@ function testAdd(node1, node2) {
 
     <div class='menu-button'>
       <button id='removeButton' class='button-34' onclick='removeRelationship(${id1}, ${id2})'>Remove Relationship</button>
-      <button id='addMotherButton' class='button-34' onclick=addMotherRelationship(${id1}, ${id2})>Add Mother/Child Relationship</button>
-      <button id='addSpouseButton' class='button-34' onclick=addSpouseRelationship(${id1}, ${id2})>Add Spouse Relationship</button>
+      <button id='addMotherButton' class='button-34' onclick='addMotherRelationship(${id1}, ${id2})'>Add Mother/Child Relationship</button>
+      <button id='addSpouseButton' class='button-34' onclick='addSpouseRelationship(${id1}, ${id2})'>Add Spouse Relationship</button>
     </div>
   </div>`)
+
+  removeFromNodeContainer(id1)
 
 }
 
@@ -784,7 +784,7 @@ function removeRelationship(id1, id2) {
   closeMenu();
 }
 
-
+/*
 function changeAddButtonParameters() {
 
   $('#confirmBox').children()
@@ -825,7 +825,7 @@ function changeRemoveButtonParameters() {
 
   }
 }
-
+*/
 
 function addToConfirmBox(id) {
   let box = document.getElementById("confirmBox");
@@ -864,11 +864,16 @@ function addToConfirmBox(id) {
   }
 
   //Open Menu immediately when there are two nodes in confirmBox
+  //FIXME: Problem is here
   if (children.length == 2) {
     let param1 = children[0];
     let param2 = children[1];
 
     openMenu(param1, param2);
+
+    $('#addMotherButton').attr('onclick', `addMotherRelationship(${param1}, ${param2})`);
+    $('#addSpouseButton').attr('onclick',`addSpouseRelationship(${param1}, ${param2})`);
+    
   }
 }
 
@@ -961,16 +966,16 @@ function openMenu(id1, id2) {
 
       <div class='menu-button'>
         <button id='removeButton' class='button-34' onclick='removeRelationship(${id1}, ${id2})'>Remove Relationship</button>
-        <button id='addMotherButton' class='button-34' onclick=addMotherRelationship(${id1}, ${id2})>Add Mother/Child Relationship</button>
-        <button id='addSpouseButton' class='button-34' onclick=addSpouseRelationship(${id1}, ${id2})>Add Spouse Relationship</button>
+        <button id='addMotherButton' class='button-34' onclick='addMotherRelationship(${id1}, ${id2})'>Add Mother/Child Relationship</button>
+        <button id='addSpouseButton' class='button-34' onclick='addSpouseRelationship(${id1}, ${id2})'>Add Spouse Relationship</button>
       </div>
     </div>`)
 
   } else {
     $('#center-menu').html('');
   }
-  changeRemoveButtonParameters()
-  changeAddButtonParameters()
+  //changeRemoveButtonParameters()
+  //changeAddButtonParameters()
 }
 
 function closeMenu() {
