@@ -217,62 +217,6 @@ for (let i = data.length; i < 30; ++i) {
 }
 */
 
-
-
-
-class Tree {
-  rootNode;
-
-  constructor(data) {
-    this.rootNode = new TreeNode(data.image, data.mother, data.spouse, data.birthyear);
-  }
-
-  getRoot() {
-    return this.rootNode;
-  }
-
-  addChild(currNode, parent, child) {
-
-    if (currNode.image == parent.image) {
-      parent.addChild(child);
-    }
-
-    if (currNode.image != parent.image) {
-      for (let i = 0; i < currNode.children.length; ++i) {
-        return this.addChild(currNode.children[i], parent, child);
-      }
-    }
-
-    return "Error, could not find parent";
-  }
-
-  addChild(parent, child) {
-    return this.addChild(this.rootNode, parent, child)
-  }
-}
-
-class TreeNode {
-  image;
-  mother;
-  spouse;
-  birthyear;
-  children = []
-
-  constructor(image, mother, spouse, birthyear) {
-    this.image = image;
-    this.mother = mother;
-    this.spouse = spouse;
-    this.birthyear = birthyear;
-  }
-
-  addChild(child) {
-    this.children.push(child);
-  }
-
-}
-
-
-
 let parameter1;
 let parameter2;
 
@@ -286,20 +230,14 @@ function drag(ev) {
 
 function drop(ev) {
   ev.preventDefault();
-  //var data = ev.dataTransfer.getData("text");
-  //ev.target.appendChild(document.getElementById(data));
-  //TODO: add function call to call like testadd function
-
-  //debugger
 
   testRemoveFromConfirmBox(parameter1, parameter2)
 }
 
 
-
-
 let chartList = document.getElementById('chart');
 createChart();
+
 //All functions for chart creation and functionality
 
 
@@ -358,15 +296,7 @@ function createDataPoints() {
           <img class="data-point data-button" src="../../static/tree/images/pictures/${data[i].image}.PNG">
         </div>
       </li>`)
- 
-/*
-    $('#chart').append(
-      `<li id=${data[i].image} style='--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px'>
-        <div id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'>
-          <img class="data-point data-button" src="../../static/tree/images/pictures/${data[i].image}.PNG">
-        </div>
-      </li>`)
-*/
+
   }
 
 }
@@ -377,7 +307,6 @@ function testAdd(node1, node2) {
   let id1 = node1.image;
   let id2 = node2.image;
 
-  //openMenu(node1.image, node2.image)
   let id1Birthyear;
   let id2Birthyear;
 
@@ -433,8 +362,6 @@ function testAdd(node1, node2) {
 
 }
 
-
-
 function testRemoveFromConfirmBox(id1, id2) {
   if (nodeBoxData[getNodeBoxDataIndex(id1)] != null) {
     testAdd(nodeBoxData[getNodeBoxDataIndex(id1)], data[getDataIndex(id2)])
@@ -444,7 +371,7 @@ function testRemoveFromConfirmBox(id1, id2) {
 //FIXME
 function createLines() {
 
-  //FIXME SVG has to be wider than chartwidth, however find better way of doing this, don't use magic number
+  //FIXME: SVG has to be wider than chartwidth, however find better way of doing this, don't use magic number
   let svgString = `<svg id='lines' height="${chartWidth}" width="${chartWidth+100}" xmlns="http://www.w3.org/2000/svg" style='z-index:-1; display:flex;'>`;
 
   for (let i = 0; i < data.length; ++i) {
@@ -784,58 +711,17 @@ function removeRelationship(id1, id2) {
   closeMenu();
 }
 
-/*
-function changeAddButtonParameters() {
-
-  $('#confirmBox').children()
-
-  let children = []
-
-  children = $('#confirmBox').children();
-
-  for (let i = 0; i < children.length; ++i) {
-    children[i] = children[i].id.substr(4);
-  }
-
-  if (children.length != 0) {
-    let param1 = children[0];
-    let param2 = children[1];
-
-    $('#addMotherButton').attr('onclick', `changeAddButtonParameters(), addMotherRelationship(${param1}, ${param2})`);
-    $('#addSpouseButton').attr('onclick',`changeAddButtonParameters(), addSpouseRelationship(${param1}, ${param2})`);
-  }
-}
-
-function changeRemoveButtonParameters() {
-  $('#confirmBox').children()
-
-  let children = []
-
-  children = $('#confirmBox').children();
-
-  for (let i = 0; i < children.length; ++i) {
-    children[i] = children[i].id.substr(4);
-  }
-
-  if (children.length != 0) {
-    let param1 = children[0];
-    let param2 = children[1];
-
-    $('#removeButton').attr('onclick', `changeRemoveButtonParameters(), removeRelationship(${param1}, ${param2})`);
-
-  }
-}
-*/
-
 function addToConfirmBox(id) {
   let box = document.getElementById("confirmBox");
 
+  //Doesn't let you add a node twice
   for (let i = 0; i < box.children.length; ++i) {
     if (box.children[i].id == `node${id}`) {
       return;
     }
   }
 
+  //Doesn't let you add more than 2 nodes
   if (box.children.length >= 2) {
     alert("Can't have more than 2 nodes in confirmation box.");
     $('#confirmBox').html('');
@@ -856,24 +742,41 @@ function addToConfirmBox(id) {
     box.style.border = "5px solid black";
   }
 
-  //Changes Parameters for Change Relationship button
+  //Parses id to just original ID
   let children = [];
 
   for (let i = 0; i < box.children.length; ++i) {
     children.push(box.children[i].id.substr(4))
   }
 
-  //Open Menu immediately when there are two nodes in confirmBox
-  //FIXME: Problem is here
+  //Opens menu with all the info
   if (children.length == 2) {
     let param1 = children[0];
     let param2 = children[1];
 
-    openMenu(param1, param2);
+    let node1;
+    let node2;
 
-    $('#addMotherButton').attr('onclick', `addMotherRelationship(${param1}, ${param2})`);
-    $('#addSpouseButton').attr('onclick',`addSpouseRelationship(${param1}, ${param2})`);
-    
+    let id1Index = getDataIndex(parseInt(param1));
+    let id2Index = getDataIndex(parseInt(param2));
+  
+    //These statements account for if the node is in the data or nodeBoxData
+    if (id1Index != null) {
+      node1 = data[id1Index]
+    }
+    if (id2Index != null) {
+      node2 = data[id2Index]
+    }
+    if (id1Index == null) {
+      id1Index = getNodeBoxDataIndex(parseInt(param1));
+      node1 = nodeBoxData[id1Index];
+    }
+    if (id2Index == null) {
+      id2Index = getNodeBoxDataIndex(parseInt(param2));
+      node2 = nodeBoxData[id2Index]
+    }
+
+    testAdd(node1, node2)
   }
 }
 
@@ -908,74 +811,8 @@ function addToNodeContainer(id) {
   container.appendChild(button);
 }
 
-function hi() {
-  console.log("Hello World");
-}
-
-
 function removeFromNodeContainer(id) {
   $(`#button${id}`).remove();
-}
-
-function openMenu(id1, id2) {
-
-  let id1Birthyear;
-  let id2Birthyear;
-
-  let id1Index = getDataIndex(parseInt(id1));
-  let id2Index = getDataIndex(parseInt(id2));
-
-  //These statements account for if the node is in the data or nodeBoxData
-  if (id1Index != null) {
-    id1Birthyear = data[id1Index].birthyear
-  }
-  if (id2Index != null) {
-    id2Birthyear = data[id2Index].birthyear
-  }
-  if (id1Index == null) {
-    id1Index = getNodeBoxDataIndex(parseInt(id1));
-    id1Birthyear = nodeBoxData[id1Index].birthyear;
-  }
-  if (id2Index == null) {
-    id2Index = getNodeBoxDataIndex(parseInt(id2));
-    id2Birthyear = nodeBoxData[id2Index].birthyear;
-  }
-
-  if ($('#confirmBox').children().length == 2) {
-    $('#center-menu').html(
-    `<div id='center-menu' class='center-menu'>
-      <div><button onclick='closeMenu()'>X</button></div>
-
-      <div class='menu-pics-container'>
-        <div>
-          <img class='menu-pic' src='../../static/tree/images/pictures/${id1}.PNG'/>
-          <div id ='node-${id1}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px;'>
-            <div><b>John Doe</b></div>
-            <div><b>${id1Birthyear}</b></div>
-          </div>
-        </div>
-
-        <div>
-          <img class='menu-pic' src='../../static/tree/images/pictures/${id2}.PNG'/>
-          <div id ='node-${id2}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px;'>
-            <div><b>John Doe</b></div>
-            <div><b>${id2Birthyear}</b></div>
-          </div>
-        </div>
-      </div>
-
-      <div class='menu-button'>
-        <button id='removeButton' class='button-34' onclick='removeRelationship(${id1}, ${id2})'>Remove Relationship</button>
-        <button id='addMotherButton' class='button-34' onclick='addMotherRelationship(${id1}, ${id2})'>Add Mother/Child Relationship</button>
-        <button id='addSpouseButton' class='button-34' onclick='addSpouseRelationship(${id1}, ${id2})'>Add Spouse Relationship</button>
-      </div>
-    </div>`)
-
-  } else {
-    $('#center-menu').html('');
-  }
-  //changeRemoveButtonParameters()
-  //changeAddButtonParameters()
 }
 
 function closeMenu() {
