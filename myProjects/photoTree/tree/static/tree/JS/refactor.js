@@ -224,16 +224,24 @@ function allowDrop(ev) {
   ev.preventDefault();
 }
 
-function drag(ev) {
-  //ev.dataTransfer.setData("text", ev.target.id);
-}
-
 function drop(ev) {
   ev.preventDefault();
 
-  testRemoveFromConfirmBox(parameter1, parameter2)
-}
+  let box = document.getElementById("confirmBox");
+  let children = [];
 
+  for (let i = 0; i < box.children.length; ++i) {
+    children.push(box.children[i].id.substr(4))
+  }
+
+  //Opens menu with all the info
+  if (children.length == 2) {
+    let param1 = children[0];
+    let param2 = children[1];
+
+    testRemoveFromConfirmBox(param1, param2)
+  }
+}
 
 let chartList = document.getElementById('chart');
 createChart();
@@ -290,9 +298,10 @@ function createDataPoints() {
 
     let xPos = getX(data[i], generationMap, chartWidth);
 
+    //Took out divId that was buttonID
     $('#chart').append(
       `<li id=${data[i].image} style='--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px'>
-        <div id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})' ondrop='setParameter2(${data[i].image}), drop(event),  testRemoveFromConfirmBox(${parameter1}, ${parameter2})' ondragover='allowDrop(event)'>
+        <div onclick='addToConfirmBox(${data[i].image})' ondrop='addToConfirmBox(${data[i].image}), drop(event)' ondragover='allowDrop(event)'>
           <img class="data-point data-button" src="../../static/tree/images/pictures/${data[i].image}.PNG">
         </div>
       </li>`)
@@ -363,6 +372,7 @@ function testAdd(node1, node2) {
 }
 
 function testRemoveFromConfirmBox(id1, id2) {
+  
   if (nodeBoxData[getNodeBoxDataIndex(id1)] != null) {
     testAdd(nodeBoxData[getNodeBoxDataIndex(id1)], data[getDataIndex(id2)])
   }
@@ -780,8 +790,6 @@ function addToConfirmBox(id) {
   }
 }
 
-
-
 function addToNodeContainer(id) {
 
   let index = getDataIndex(id);
@@ -801,10 +809,8 @@ function addToNodeContainer(id) {
   button.setAttribute('class', 'nodeBox-button');
   button.setAttribute('onclick', `addToConfirmBox(${id}), removeFromNodeContainer(${id})`);
   
-  button.setAttribute('ondragstart', `drag(event), setParameter1(${id})`);
+  button.setAttribute('ondragstart', `addToConfirmBox(${id})`)
   button.setAttribute('onclick', `addToConfirmBox(${id}), removeFromNodeContainer(${id})`);
-
-
 
   button.appendChild(img);
 
@@ -819,14 +825,6 @@ function closeMenu() {
   //TODO: Add if that put nodedataBox nodes back to nodeBox
   $('#center-menu').html('');
   $('#confirmBox').html('');
-}
-
-//TESTING
-function setParameter1(id) {
-  parameter1 = id;
-}
-function setParameter2 (id) {
-  parameter2 = id;
 }
 
 
