@@ -372,7 +372,7 @@ function testRemoveFromConfirmBox(id1, id2) {
 function createLines() {
 
   //FIXME: SVG has to be wider than chartwidth, however find better way of doing this, don't use magic number
-  let svgString = `<svg id='lines' height="${chartWidth}" width="${chartWidth+100}" xmlns="http://www.w3.org/2000/svg" style='z-index:-1; display:flex;'>`;
+  let svgString = `<svg id='lines' height="${chartWidth}" width="${chartWidth+100}" xmlns="http://www.w3.org/2000/svg" style='z-index:-1;'>`;
 
   for (let i = 0; i < data.length; ++i) {
 
@@ -394,7 +394,7 @@ function createLines() {
         let y1 = yPos;
         let y2 = parseAttribute('y', childElement[0].style.cssText);
 
-        svgString += `<line class='svg-line' x1="${x1}" y1="${chartWidth - y1}" x2="${x2}" y2="${chartWidth - y2}" stroke="black" stroke-width='6' onclick='testAdd(data[${i}], momArray[${index}][0].children[${j}])'/>`
+        svgString += `<line class='svg-line' x1="${x1}" y1="${chartWidth - y1}" x2="${x2}" y2="${chartWidth - y2}" stroke="black" stroke-width='8' onclick='testAdd(data[${i}], momArray[${index}][0].children[${j}])'/>`
       }
     }
 
@@ -405,7 +405,7 @@ function createLines() {
       let spouseXPos = parseAttribute('x', spouseElement[0].style.cssText);
       let spouseYPos = parseAttribute('y', spouseElement[0].style.cssText);
 
-      let line = `<line class='svg-line' x1="${xPos}" y1="${chartWidth - yPos}" x2="${spouseXPos}" y2="${chartWidth - spouseYPos}" stroke="blue" stroke-width='6' onclick='testAdd(data[${i}], data[getDataIndex(data[${i}].spouse)])'/>`
+      let line = `<line class='svg-line' x1="${xPos}" y1="${chartWidth - yPos}" x2="${spouseXPos}" y2="${chartWidth - spouseYPos}" stroke="blue" stroke-width='8' onclick='testAdd(data[${i}], data[getDataIndex(data[${i}].spouse)])'/>`
 
       //if statement so that two spouse lines aren't drawn between spouses
       if (spouseXPos > xPos) {
