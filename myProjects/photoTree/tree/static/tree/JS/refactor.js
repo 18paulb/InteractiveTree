@@ -107,10 +107,6 @@ let data = [
   },
 ]
 
-
-
-
-
 let nodeBoxData = [];
 
 let chartWidth = 1200;
@@ -196,29 +192,6 @@ function makeMomArray() {
 momArray = makeMomArray();
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-/*
-for (let i = data.length; i < 30; ++i) {
-  //debugger
-
-  let image = i
-
-  let mother = Math.ceil(Math.random() * momArray.length - 1);
-
-  mother = momArray[mother][0].data.image
-
-  let birthyear = Math.floor(Math.random() * (2005 - 1950) + 1950);
-
-  let object = { "image": i, "mother": mother, "spouse": null, "birthyear": birthyear}
-
-  console.log(object)
-
-  data.push(object)
-}
-*/
-
-let parameter1;
-let parameter2;
 
 function allowDrop(ev) {
   ev.preventDefault();
