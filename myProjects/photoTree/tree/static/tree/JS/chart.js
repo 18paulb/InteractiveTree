@@ -507,8 +507,9 @@ function setChildX(node, widthOfFamily) {
     
     //adjust positions of higher gen nodes
     let nodeMother = node.mother;
+    let currentMomNodeXPos = getX(nodeMother);
     if (numChildren > 1) {
-      adjustHigherGenNodes(nodeMother);
+      adjustHigherGenNodes(nodeMother, currentMomNodeXPos);
     }
   return xPos;
 }
@@ -540,36 +541,64 @@ function getMomsInGen(generation) {
   return newMomArray;
 }
 
-function adjustHigherGenNodes(nodeMother) {
-  let momGen = getGeneration(nodeMother) + 1; //doesn't seem to be returning the right gen for the node's mother
-  let nodesInGen = getNodesInGeneration(momGen) //array of the nodes in the generation of the mom
+function adjustHigherGenNodes(nodeMother, currentMomNodeXPos) {
+  if (nodeMother != null) {
+    let motherId = getDataIndex(nodeMother);
+    let mother = data[motherId];
+    let momGen = getGeneration(mother); //doesn't seem to be returning the right gen for the node's mother
+    let nodesInGen = getNodesInGeneration(momGen) //array of the nodes in the generation of the mom
 
-  let momXPositions = []
-  //1. Get the xPositions of all nodes in the gen above the child
-  for (let i = 0; i < nodesInGen.length; i++) {
-    momXPositions.push(getX(nodesInGen[i].image));
-    //console.log("nodeXpos at node " + nodesInGen[i].image + " is " +nodeXPos);
-  }
-  
-  
-  //2. Adjust the xPositions of elements the momXPositions array
-  let currentMomNodeXPos = getX(nodeMother);
-  let adjustX = 50;
-  
-  for (let i = 0; i < momXPositions.length; i++) {
-    if (momXPositions[i] > currentMomNodeXPos) {
-      momXPositions[i] += adjustX;
+    let momXPositions = []
+    //1. Get the xPositions of all nodes in the gen above the child
+    for (let i = 0; i < nodesInGen.length; i++) {
+      momXPositions.push(getX(nodesInGen[i].image));
+      //console.log("nodeXpos at node " + nodesInGen[i].image + " is " +nodeXPos);
     }
-    else if (momXPositions[i] < currentMomNodeXPos) {
-      momXPositions[i] -= adjustX;
-    }
-  }
+    
+    
+    //2. Adjust the xPositions of elements the momXPositions array
+    let adjustX = 50;
+    
+    for (let i = 0; i < momXPositions.length; i++) {
+      if (momXPositions[i] > currentMomNodeXPos) {
+        momXPositions[i] += adjustX;
+      }
+      else if (momXPositions[i] < currentMomNodeXPos) {
+        momXPositions[i] -= adjustX;
+      }
+      
+      //TODO: Find a way to reset the other children's xPos
+      /*
+      if (hasChildren(nodesInGen[i])) {
 
-  //3. Adjust the corresponding HTML elements with their new xPositions
-  for (let i = 0; i < momXPositions.length; i++) {
-    let node = document.getElementById(nodesInGen[i].image);
-    let originalY = parseAttribute('y', node.style.cssText);
-    node.setAttribute('style', `--y: ${originalY}px; --x: ${momXPositions[i]}px`);
+      }
+      */
+    }
+
+    //3. Adjust the corresponding HTML elements with their new xPositions
+    for (let i = 0; i < momXPositions.length; i++) {
+      let node = document.getElementById(nodesInGen[i].image);
+      let originalY = parseAttribute('y', node.style.cssText);
+      node.setAttribute('style', `--y: ${originalY}px; --x: ${momXPositions[i]}px`);
+    }
+    //set nodeMother equal to the next higher gen
+    let nodeSpouse = data[motherId]?.spouse;
+    let spouseId = getDataIndex(nodeSpouse);
+    let nextMother = data[motherId]?.mother;
+    if (nextMother == null) {
+      nextMother = data[spouseId]?.mother;
+    }
+    adjustHigherGenNodes(nextMother, currentMomNodeXPos);
+  }
+}
+
+function hasChildren(node) {
+  for (let i = 0; i < data.length; i++) {
+    if (data[i].mother == node.image) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }
 
