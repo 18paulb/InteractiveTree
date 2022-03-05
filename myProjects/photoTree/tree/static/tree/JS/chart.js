@@ -284,45 +284,73 @@ function createDataPoints(chart) {
 
   for (let genIndex = 0; genIndex < (genCount + 1); genIndex++) { //creates data points now from oldest to youngest gen
     for (let i = 0; i < data.length; ++i) { //iterates through the entire data set to check if gen matches up
-    let gen = getGeneration(data[i]);
+      let gen = getGeneration(data[i]);
 
-    if (gen == genIndex) {
-    //Getting X and Y Positions
-    let li = document.createElement('li');
-    let dividedHeight = chartWidth / genCount;
-    let yPos = getY(dividedHeight, gen);
+      if (gen == genIndex) {
+      //Getting X and Y Positions
+      let li = document.createElement('li');
+      let dividedHeight = chartWidth / genCount;
+      let yPos = getY(dividedHeight, gen);
 
-    let placeInGen = getPlaceInGeneration(data[i], gen);
+      let placeInGen = getPlaceInGeneration(data[i], gen);
+      
+
+      li.setAttribute('id', data[i].image);
+      let xPos;
+      
+      if (gen < 3) {
+        //If it is a first or second gen node
+        xPos = setX(data[i], generationMap, chartWidth, placeInGen);
+      }
+      else {
+        //If it is a third gen or greater node
+        let widthOfFamily = getWidthOfFamily(data[i]);
+        xPos = setChildX(data[i], widthOfFamily);
+      }
+
+      li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`);
+      //Maybe nest in div and make the style be invisible
+      /*li.innerHTML += `<div><button id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'>
+      <img class="data-point data-button" src="../../static/tree/images/pictures/${data[i].image}.PNG" onmouseenter='hoverMenu(${data[i].image})' onmouseleave='closeHoverMenu()'>
+      </button></div>`*/
+
+      li.innerHTML += `<div id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'>
+      <img class="data-point data-button" src="../../static/tree/images/pictures/${data[i].image}.PNG" onmouseenter='hoverMenu(${data[i].image})' onmouseleave='closeHoverMenu()'>
+      </div>`
     
-
-    li.setAttribute('id', data[i].image);
-    let xPos;
-    
-    if (gen < 3) {
-      //If it is a first or second gen node
-      xPos = setX(data[i], generationMap, chartWidth, placeInGen);
+      chart.appendChild(li);
+      }
     }
-    else {
-      //If it is a third gen or greater node
-      let widthOfFamily = getWidthOfFamily(data[i]);
-      xPos = setChildX(data[i], widthOfFamily);
-    }
+  }
+  //center the chart
+  shiftChart();
+}
 
-    li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`);
-    //Maybe nest in div and make the style be invisible
-    /*li.innerHTML += `<div><button id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'>
-    <img class="data-point data-button" src="../../static/tree/images/pictures/${data[i].image}.PNG" onmouseenter='hoverMenu(${data[i].image})' onmouseleave='closeHoverMenu()'>
-    </button></div>`*/
 
-    li.innerHTML += `<div id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'>
-    <img class="data-point data-button" src="../../static/tree/images/pictures/${data[i].image}.PNG" onmouseenter='hoverMenu(${data[i].image})' onmouseleave='closeHoverMenu()'>
-    </div>`
+function shiftChart() {
+  //the lowest possible xPos
+  let xBuffer = 300;
   
-    chart.appendChild(li);
-  }
-  }
+  //Get the leftmost XPos on tree
+  let xPos = getX(data[0].image);
+  let checkXPos;
+  
+  for (let i = 1; i < data.length; i++) {
+    checkXPos = getX(data[i].image);
+    if (checkXPos < xPos) {
+      xPos = checkXPos;
+    }
   }
 
+  //shift the xPos of every node by the margin
+  let margin = Math.abs(xPos - xBuffer);
+
+  for (let i = 0; i < data.length; i++) {
+    let node = document.getElementById(data[i].image);
+    let originalY = parseAttribute('y', node.style.cssText);
+    let originalX = parseAttribute('x', node.style.cssText);
+    node.setAttribute('style', `--y: ${originalY}px; --x: ${originalX + margin}px`);
+  }
 }
 
 function createChildLines() {
