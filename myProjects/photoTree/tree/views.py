@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.http import JsonResponse
 from django.template import loader
 from json import dumps
 from .models import Node
@@ -15,9 +16,17 @@ def refactor(request):
 
 def tree(request):
     node_list = Node.objects.all()
-    context = {'node_list': node_list}
+    #context = {'node_list': node_list}
 
-    return render(request, 'tree/tree.html', context)
+    return render(request, 'tree/tree.html', {'node_list': node_list})
+
+#TEST, DOES NOT WORK
+def getNodes(request):
+    if request.is_ajax and request.method  == "GET":
+
+        data = request.GET.Node.objects.all()
+
+    return JsonResponse({}, status = 400)
 
 def chart(request):
     return render(request, 'tree/chart.html')
