@@ -241,10 +241,12 @@ function createChart(chart) {
 
   createDataPoints(chart);
   //Testing
-
+  fixedSpouses = []
   for (let i = 0; i < data.length; ++i) {
     if (data[i].spouse != null) {
-      adjustSpouseXPos(data[i]);
+      if (fixedSpouses.every(element => element != data[i].image)) {
+        adjustSpouseXPos(data[i], fixedSpouses);
+      }
     }
   }
 
@@ -257,7 +259,6 @@ function createChart(chart) {
     adjustChildNodesXPos(momArray[i][0].data);
   }
   */
-
 
    //Presentation
    for (let i = 0; i < momArray.length; ++i) {
@@ -274,7 +275,6 @@ function createDataPoints(chart) {
   //In case you have to redraw chart
   removeAllChildNodes(chart);
 
-  //debugger
   let generationMap = new Map();
   let genCount = getLongestGenChain();
 
@@ -284,46 +284,73 @@ function createDataPoints(chart) {
 
   for (let genIndex = 0; genIndex < (genCount + 1); genIndex++) { //creates data points now from oldest to youngest gen
     for (let i = 0; i < data.length; ++i) { //iterates through the entire data set to check if gen matches up
+      let gen = getGeneration(data[i]);
 
-    let gen = getGeneration(data[i]);
+      if (gen == genIndex) {
+      //Getting X and Y Positions
+      let li = document.createElement('li');
+      let dividedHeight = chartWidth / genCount;
+      let yPos = getY(dividedHeight, gen);
 
-    if (gen == genIndex) {
-    //Getting X and Y Positions
-    let li = document.createElement('li');
-    let dividedHeight = chartWidth / genCount;
-    let yPos = getY(dividedHeight, gen);
+      let placeInGen = getPlaceInGeneration(data[i], gen);
+      
 
-    let placeInGen = getPlaceInGeneration(data[i], gen);
+      li.setAttribute('id', data[i].image);
+      let xPos;
+      
+      if (gen < 3) {
+        //If it is a first or second gen node
+        xPos = setX(data[i], generationMap, chartWidth, placeInGen);
+      }
+      else {
+        //If it is a third gen or greater node
+        let widthOfFamily = getWidthOfFamily(data[i]);
+        xPos = setChildX(data[i], widthOfFamily);
+      }
+
+      li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`);
+      //Maybe nest in div and make the style be invisible
+      /*li.innerHTML += `<div><button id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'>
+      <img class="data-point data-button" src="../../static/tree/images/pictures/${data[i].image}.PNG" onmouseenter='hoverMenu(${data[i].image})' onmouseleave='closeHoverMenu()'>
+      </button></div>`*/
+
+      li.innerHTML += `<div id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'>
+      <img class="data-point data-button" src="../../static/tree/images/pictures/${data[i].image}.PNG" onmouseenter='hoverMenu(${data[i].image})' onmouseleave='closeHoverMenu()'>
+      </div>`
     
-
-    li.setAttribute('id', data[i].image);
-    let xPos;
-    
-    if (gen < 3) {
-      //If it is a first or second gen node
-      xPos = setX(data[i], generationMap, chartWidth, placeInGen);
+      chart.appendChild(li);
+      }
     }
-    else {
-      //If it is a third gen or greater node
-      let widthOfFamily = getWidthOfFamily(data[i]);
-      xPos = setChildX(data[i], widthOfFamily);
-    }
+  }
+  //center the chart
+  shiftChart();
+}
 
-    li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`);
-    //Maybe nest in div and make the style be invisible
-    /*li.innerHTML += `<div><button id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'>
-    <img class="data-point data-button" src="../../static/tree/images/pictures/${data[i].image}.PNG" onmouseenter='hoverMenu(${data[i].image})' onmouseleave='closeHoverMenu()'>
-    </button></div>`*/
 
-    li.innerHTML += `<div id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'>
-    <img class="data-point data-button" src="../../static/tree/images/pictures/${data[i].image}.PNG" onmouseenter='hoverMenu(${data[i].image})' onmouseleave='closeHoverMenu()'>
-    </div>`
+function shiftChart() {
+  //the lowest possible xPos
+  let xBuffer = 300;
   
-    chart.appendChild(li);
-  }
-  }
+  //Get the leftmost XPos on tree
+  let xPos = getX(data[0].image);
+  let checkXPos;
+  
+  for (let i = 1; i < data.length; i++) {
+    checkXPos = getX(data[i].image);
+    if (checkXPos < xPos) {
+      xPos = checkXPos;
+    }
   }
 
+  //shift the xPos of every node by the margin
+  let margin = Math.abs(xPos - xBuffer);
+
+  for (let i = 0; i < data.length; i++) {
+    let node = document.getElementById(data[i].image);
+    let originalY = parseAttribute('y', node.style.cssText);
+    let originalX = parseAttribute('x', node.style.cssText);
+    node.setAttribute('style', `--y: ${originalY}px; --x: ${originalX + margin}px`);
+  }
 }
 
 function createChildLines() {
@@ -341,26 +368,7 @@ function createChildLines() {
       let genCount = getLongestGenChain();
 
       for (let j = 0; j < momArray[index][0].children.length; ++j) {
-        //TESTING TRYING WITH SVG's
-/*
-        let childElement = document.getElementById(momArray[index][0].children[j].image);
 
-        let x1 = xPos;
-        let x2 = parseAttribute('x', childElement.getAttribute('style'));
-        let y1 = yPos;
-
-        let dividedHeight = chartWidth / genCount;
-        let gen = getGeneration(momArray[index][0].children[j]);
-        let y2 = getY(dividedHeight, gen);
-
-
-
-        li.innerHTML += `
-        <svg height="200" width="100">
-          <line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" style="stroke:rgb(255,0,0);stroke-width:50"/>
-        </svg>
-        `
-*/
         
         let dividedHeight = chartWidth / genCount;
         let gen = getGeneration(momArray[index][0].children[j]);
@@ -372,17 +380,14 @@ function createChildLines() {
 
         let childHypotenuse = getHypotenuse(yPos, childYPos, xPos, childXPos);
         let angle = getAngle(yPos - childYPos, childHypotenuse);
-  
+        
+
         //Adjusts angle if child is before mom in x-axis
         if (childXPos < xPos) {
           angle = (-1 * angle) + 180.5;
         }
   
         li.innerHTML += `<div class="child-line" style="--hypotenuse: ${childHypotenuse}; --angle: ${angle}"></div>`;
-        //FIXME kind of works, position is right but buttons do not work when click line
-        //li.innerHTML += `<div class="child-line" onclick='hi()' style="--hypotenuse: ${childHypotenuse}; --angle: ${angle};"></div>`;
-        //li.innerHTML += `<button onclick="hi()"><div class="child-line" style="--hypotenuse: ${childHypotenuse}; --angle: ${angle};"></div></button>`;
-        //li.innerHTML += `<button onclick="hi()" class="child-line" style="--hypotenuse: ${childHypotenuse}; --angle: ${angle};"></button>`;
         
       }
     }
@@ -463,7 +468,6 @@ function getPlaceInFamily(node) {
   for (let i = 0; i < nodeArray.length; i++) {
     if(nodeArray[i] == node) {
       placeInFamily = i;
-      console.log("Node " + node.image + "'s place in family is " + (placeInFamily + 1))
     }
   }
   return placeInFamily + 1;
@@ -513,53 +517,26 @@ function setX(node, map, width, placeInGen) {
 
 //setX for gen3 and above nodes
 function setChildX(node, widthOfFamily) {
-let numChildren = getNumChildrenInFamily(node);
-let placeInFam = getPlaceInFamily(node);
-let xPos;
-let momXPos = getX(node.mother);
-if (numChildren == 1) {
-  xPos = momXPos;
-}
-/*
-else if (numChildren == 2) {
-  if (placeInFam == 1) {
-    xPos = momXPos - (momXPos / 2);
-  }
-  else {
-    xPos = momXPos + (momXPos / 2);
-  }
-}
-else if (numChildren == 3) {
-  if (placeInFam == 1) {
-    xPos = momXPos - (momXPos / 2);
-  }
-  else if (placeInFam == 2) {
-    xPos = momXPos;
-  }
-  else {
-    xPos = momXPos + (momXPos / 2);
-  }
-}
-else if (numChildren == 4) {
-  if (placeInFam == 1) {
-    xPos = momXPos - (momXPos / 2);
-  }
-  else if (placeInFam == 2) {
-    xPos = momXPos;
-  }
-  else if (placeInFam == 3) {
-    xPos = momXPos;
-  }
-  else {
-    xPos = momXPos + (momXPos / 2);
-  }
-}
-*/
-else {
+  let numChildren = getNumChildrenInFamily(node);
+  let placeInFam = getPlaceInFamily(node);
+  
+  let nodeMother = node.mother;
+  let momXPos = getX(nodeMother);
   let famSpacing = widthOfFamily/(numChildren + 1);
-  xPos = (famSpacing * placeInFam);
-}
-return xPos;
+
+  let momGen = getGeneration(node.mother);
+  let momsInGen = getMomsInGen(momGen);
+
+  let xPos;
+    for (let i = 0; i < momsInGen.length; i++) {
+      xPos = (famSpacing * placeInFam) + (momXPos - (widthOfFamily/2));
+    }
+    
+    //adjust positions of higher gen nodes
+    if (numChildren > 1) {
+      adjustHigherGenNodes(nodeMother, momXPos);
+    }
+  return xPos;
 }
 
 function getX(node) {
@@ -569,33 +546,82 @@ function getX(node) {
   return momXPos;
 }
 
-
-/*
-function getX(node, map, width) {
-  let xPos;
-
-  //Gets highest Generation
-  let genCount = getLongestGenChain();
-
-  let currGeneration;
-  let keyGen = getGeneration(node);
-
-  currGeneration = map.get(keyGen);
-
-  xPos = (width/ getNumInGeneration(keyGen)) * currGeneration;
-  currGeneration++;
-
-  map.set(keyGen, currGeneration);
-
-  //TEST ADDED THIS RULE TO STOP TOP NODE FROM SHIFTING
-  //SIDEFFECTS, ANY GENERATION WITH 1 node will be placed directly in center, might not be beneficial at all
-  if (getNumInGeneration(keyGen) == 1) {
-    xPos = width / 2
-  } 
-
-  return xPos;
+function getMomsInGen(generation) {
+  theMomArray = [];
+  //gets all motherId's in data
+  for (let i = 0; i < data.length; i++) {
+    if(data[i].mother != null) {
+      if (theMomArray.every(element => element != data[i].mother)) {
+        theMomArray.push(data[i].mother); //push the motherIds
+      }
+    }
+  }
+  //gets array of motherId's in generation
+  newMomArray = []
+  for (let i = 0; i < theMomArray.length; i++) {
+    if (getGeneration(theMomArray[i]) == generation) {
+      newMomArray.push(theMomArray[i]);
+    }
+  }
+  return newMomArray;
 }
-*/
+
+function adjustHigherGenNodes(nodeMother, currentMomNodeXPos) {
+  let motherId = getDataIndex(nodeMother);
+  let mother = data[motherId];
+
+  //Get an array of the children nodes
+  let childNodeArray = getChildren(mother);
+  let nodesToAdjust = []
+
+  //1. Get the xPositions of all nodes besides the mom and her children
+  for (let i = 0; i < data.length; i++) {
+    if (!childNodeArray.some(element => element == data[i]) && isOnTree(data[i])) {
+      nodesToAdjust.push(data[i]);
+    }
+  }
+  let nodesXPositions = []
+  for (let i = 0; i < nodesToAdjust.length; i++) {
+    nodesXPositions.push(getX(nodesToAdjust[i].image));
+  }
+
+  //2. Adjust the xPositions of elements the momXPositions array
+  let adjustX = 25;
+  for (let i = 0; i < nodesXPositions.length; i++) {
+    if (nodesXPositions[i] > currentMomNodeXPos) {
+      nodesXPositions[i] += adjustX;
+    }
+    else if (nodesXPositions[i] < currentMomNodeXPos) {
+      nodesXPositions[i] -= adjustX;
+    }
+  }
+
+  //3. Adjust the corresponding HTML elements with their new xPositions
+  for (let i = 0; i < nodesToAdjust.length; i++) {
+    let node = document.getElementById(nodesToAdjust[i].image);
+    let originalY = parseAttribute('y', node.style.cssText);
+    node.setAttribute('style', `--y: ${originalY}px; --x: ${nodesXPositions[i]}px`);
+  }
+}
+
+function hasChildren(node) {
+  for (let i = 0; i < data.length; i++) {
+    if (data[i].mother == node.image) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+}
+
+function isOnTree(node) {
+  let thisNode = document.getElementById(node.image);
+  let checkNode = false;
+  if (thisNode != null) {
+    checkNode = true;
+  }
+  return checkNode;
+}
 
 function getHypotenuse(datapoint1, datapoint2, left1, left2) {
   triSide = datapoint1 - datapoint2;
@@ -1203,7 +1229,7 @@ function hasRelationship(node) {
 //Gets highest generation count
 function getGenerationCount(node, count) {
   if (node.mother == null) {
-      if (node.spouse != null) {
+    if (node.spouse != null) {
       let spouseIndex = getDataIndex(node.spouse);
       if (data[spouseIndex].mother != null) {
         let motherIndex = getDataIndex(data[spouseIndex].mother);
@@ -1506,16 +1532,24 @@ function adjustChildNodesXPos(momNode) {
 }
 
 //FIXME prioritize moving spouses with no moms and also spouses who are already on the tree
-function adjustSpouseXPos(node) {
-
+function adjustSpouseXPos(node, fixedSpouses) {
   let spouse = document.getElementById(`${node.spouse}`);
+  let spouseId = node.spouse;
   let currNode = document.getElementById(`${node.image}`);
 
   let spouseXPos = parseAttribute('x', spouse.style.cssText);
   let nodeXPos = parseAttribute('x', currNode.style.cssText);
 
-  let generation = getGeneration(node)
-
+  //FIXME: Still not working correctly, should only update spouse position but updates original node's posiiton as well
+  let spacing = 100;
+  
+  spouseXPos = nodeXPos + spacing;
+  let originalY = parseAttribute('y', spouse.style.cssText);
+  spouse.setAttribute('style', `--y: ${originalY}px; --x: ${spouseXPos}px`);
+  
+  //add Spouse to an array of fixed nodes so it doesn't get modified again
+  fixedSpouses.push(spouseId);
+  /*
   //FIXME everything below this has to change
   let spacing = 100;
 
@@ -1532,6 +1566,7 @@ function adjustSpouseXPos(node) {
     let originalY = parseAttribute('y', spouse.style.cssText);
     spouse.setAttribute('style', `--y: ${originalY}px; --x: ${spouseXPos}px`);
   }
+  */
 }
 
 //FIXME could potentially be overlap of nodes because this checks for EXACT x, not range of x to account for node width

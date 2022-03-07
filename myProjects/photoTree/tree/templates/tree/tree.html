@@ -2,38 +2,23 @@
 
 <html lang='en'>
 
-<head>
-    <title>Tree Structure</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel='stylesheet' href='../../static/tree/CSS/photos.css'/>
-    <link rel='stylesheet' href='../../static/tree/CSS/tree.css'/>
-
-</head>
+    <head>
+        <meta charset="utf-8">
+    </head>
 
 
 
-<body>
+    <body>
 
-    <div style='display: flex; border: 5px solid purple;'>
-        <div style='display: flex; border: 5px solid green;'>
-            <div id='nodes' class='nodeBox'>
-            </div>
-        </div>
+        <h1>Testing</h1>
 
-
-        <div class='tree' >
-            <ul id='testNodes'>
-            </ul>
-        </div>
-    </div>
+        {% if node_list %}
+            {% for node in node_list %}
+                <div><h3>Image: {{node.image}} Mother: {{node.mother}} Spouse: {{node.spouse}} Birthyear {{node.birthyear}}</h3></div>
+            {% endfor %}
+        {% endif %}
 
 
-
-
-
-    <script src='../../static/tree/JS/parse.js'></script>
-
-    <!--For using Bootstrap-->
-</body>
+    </body>
 
 </html>
