@@ -292,7 +292,6 @@ let parameter2;
 
 
 
-
 let chartList = document.getElementById('chart');
 createChart();
 //All functions for chart creation and functionality
@@ -433,6 +432,7 @@ function testAdd(node1, node2) {
 function setParameter1(node) {
   parameter1 = node;
 }
+
 function setParameter2(node) {
   parameter2 = node;
 }
