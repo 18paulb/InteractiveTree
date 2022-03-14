@@ -20,11 +20,19 @@
         {% endif %}
 -->
         <script>
+            let data;
             $.ajax(
                 {
                     type: "GET",
-                    url: "/getNodes",
-
+                    //url: "/getNodes",
+                    url: "{% url 'getNodes' %}",
+                    success: function (response) {
+                        data = response;
+                        console.log(data);
+                    },
+                    error: function (response) {
+                        console.log(response);
+                    }
                 }
             )
         </script>
