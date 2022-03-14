@@ -21,6 +21,32 @@
 -->
         <script>
             let data;
+            //debugger
+
+            function get_data () {
+                let data = null;
+                $.ajax(
+                    {
+                        type: "GET",
+                        //url: "/getNodes",
+                        url: "{% url 'getNodes' %}",
+                        success: function (response) {
+                            data = response;
+                            console.log(data)
+                        },
+                        error: function (response) {
+                            console.log(response);
+                        }
+                    }
+                )
+                return data;
+            }
+            //debugger
+
+            data = get_data()
+
+
+            /*
             $.ajax(
                 {
                     type: "GET",
@@ -28,13 +54,15 @@
                     url: "{% url 'getNodes' %}",
                     success: function (response) {
                         data = response;
-                        console.log(data);
+                        console.log(data)
                     },
                     error: function (response) {
                         console.log(response);
                     }
                 }
             )
+            */
+
         </script>
 
 

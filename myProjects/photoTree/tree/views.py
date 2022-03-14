@@ -3,7 +3,9 @@ from django.http import HttpResponse
 from django.http import JsonResponse
 from django.template import loader
 from json import dumps
+from django.core import serializers
 from .models import Node
+
 
 # Create your views here.
 
@@ -20,7 +22,8 @@ def tree(request):
 
 #TEST, DOES NOT WORK
 def getNodes(request):
-    return HttpResponse(Node.objects.all())
+    node_list = serializers.serialize("json", Node.objects.all())
+    return HttpResponse(node_list)
 
 
 def chart(request):

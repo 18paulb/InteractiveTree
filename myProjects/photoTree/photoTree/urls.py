@@ -26,6 +26,6 @@ urlpatterns = [
     path('delete/', include('tree.urls')),
 
     #test
-    path('getNodes/', include('tree.urls'))
+    #path('getNodes/', include('tree.urls'))
 
 ]
