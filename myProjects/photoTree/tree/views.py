@@ -16,17 +16,16 @@ def refactor(request):
 
 def tree(request):
     node_list = Node.objects.all()
-    #context = {'node_list': node_list}
-
+    #node_dump = dumps(node_list)
     return render(request, 'tree/tree.html', {'node_list': node_list})
+    #return render(request, 'tree/tree.html', {'node_list': node_dump})
 
 #TEST, DOES NOT WORK
 def getNodes(request):
+    data
     if request.is_ajax and request.method  == "GET":
-
         data = request.GET.Node.objects.all()
-
-    return JsonResponse({}, status = 400)
+    return data;
 
 def chart(request):
     return render(request, 'tree/chart.html')

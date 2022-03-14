@@ -25,4 +25,7 @@ urlpatterns = [
     path('chart/', include('tree.urls')),
     path('delete/', include('tree.urls')),
 
+    #test
+    path('getNodex/', include('tree.urls'))
+
 ]

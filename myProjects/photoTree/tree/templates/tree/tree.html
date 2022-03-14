@@ -4,6 +4,7 @@
 
     <head>
         <meta charset="utf-8">
+        <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js'></script>
     </head>
 
 
@@ -11,12 +12,22 @@
     <body>
 
         <h1>Testing</h1>
-
+<!--
         {% if node_list %}
             {% for node in node_list %}
                 <div><h3>Image: {{node.image}} Mother: {{node.mother}} Spouse: {{node.spouse}} Birthyear {{node.birthyear}}</h3></div>
             {% endfor %}
         {% endif %}
+-->
+        <script>
+            $.ajax(
+                {
+                    type: "GET",
+                    url: "/getNodes",
+
+                }
+            )
+        </script>
 
 
     </body>
