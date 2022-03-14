@@ -240,15 +240,6 @@ function startEmpty() {
 function createChart(chart) {
 
   createDataPoints(chart);
-  //Testing
-  fixedSpouses = []
-  for (let i = 0; i < data.length; ++i) {
-    if (data[i].spouse != null) {
-      if (fixedSpouses.every(element => element != data[i].image)) {
-        adjustSpouseXPos(data[i], fixedSpouses);
-      }
-    }
-  }
 
   /*
   for (let i = 0; i < momArray.length; ++i) {
@@ -260,10 +251,12 @@ function createChart(chart) {
   }
   */
 
+  /*
    //Presentation
    for (let i = 0; i < momArray.length; ++i) {
     presentationChildren(momArray[i][0].data)
   }
+  */
  
 
   createChildLines();
@@ -281,7 +274,7 @@ function createDataPoints(chart) {
   for (let j = 0; j < genCount; ++j) {
     generationMap.set(j+1, 1);
   }
-
+  
   for (let genIndex = 0; genIndex < (genCount + 1); genIndex++) { //creates data points now from oldest to youngest gen
     for (let i = 0; i < data.length; ++i) { //iterates through the entire data set to check if gen matches up
       let gen = getGeneration(data[i]);
@@ -324,12 +317,23 @@ function createDataPoints(chart) {
   }
   //center the chart
   shiftChart();
+   //Testing
+  /*
+   fixedSpouses = []
+   for (let i = 0; i < data.length; ++i) {
+     if (data[i].spouse != null) {
+       if (fixedSpouses.every(element => element != data[i].image)) {
+        adjustSpouseXPos(data[i], fixedSpouses);
+       }
+     }
+   }
+   */
 }
 
 
 function shiftChart() {
   //the lowest possible xPos
-  let xBuffer = 300;
+  let xBuffer = 350;
   
   //Get the leftmost XPos on tree
   let xPos = getX(data[0].image);
@@ -344,13 +348,22 @@ function shiftChart() {
 
   //shift the xPos of every node by the margin
   let margin = Math.abs(xPos - xBuffer);
-
+  
   for (let i = 0; i < data.length; i++) {
     let node = document.getElementById(data[i].image);
     let originalY = parseAttribute('y', node.style.cssText);
     let originalX = parseAttribute('x', node.style.cssText);
     node.setAttribute('style', `--y: ${originalY}px; --x: ${originalX + margin}px`);
   }
+
+  let fixedSpouses = []
+   for (let i = 0; i < data.length; ++i) {
+     if (data[i].spouse != null) {
+       if (fixedSpouses.every(element => element != data[i].image)) {
+        adjustSpouseXPos(data[i], fixedSpouses);
+       }
+     }
+   }
 }
 
 function createChildLines() {
@@ -605,13 +618,14 @@ function adjustHigherGenNodes(nodeMother, currentMomNodeXPos) {
 }
 
 function hasChildren(node) {
+  
+  let hasChildren = false;
   for (let i = 0; i < data.length; i++) {
     if (data[i].mother == node.image) {
-      return true;
-    } else {
-      return false;
+       hasChildren = true;
     }
   }
+  return hasChildren;
 }
 
 function isOnTree(node) {
@@ -1531,21 +1545,37 @@ function adjustChildNodesXPos(momNode) {
   }
 }
 
+function getNode(nodeId) {
+  for (let i = 0; i < data.length; i++) {
+    if(data[i].image == nodeId) {
+      return data[i];
+    }
+  }
+}
+
 //FIXME prioritize moving spouses with no moms and also spouses who are already on the tree
 function adjustSpouseXPos(node, fixedSpouses) {
   let spouse = document.getElementById(`${node.spouse}`);
   let spouseId = node.spouse;
+  let spouseNode = getNode(spouseId);
   let currNode = document.getElementById(`${node.image}`);
-
-  let spouseXPos = parseAttribute('x', spouse.style.cssText);
-  let nodeXPos = parseAttribute('x', currNode.style.cssText);
+  let spouseXPos = getX(spouseId);
+  let nodeXPos = getX(node.image);
 
   //FIXME: Still not working correctly, should only update spouse position but updates original node's posiiton as well
   let spacing = 100;
   
-  spouseXPos = nodeXPos + spacing;
+  
   let originalY = parseAttribute('y', spouse.style.cssText);
-  spouse.setAttribute('style', `--y: ${originalY}px; --x: ${spouseXPos}px`);
+
+  //if the spouse has children, then adjust the other node and not the spouse
+  if (hasChildren(spouseNode)) {
+    spouseXPos = spouseXPos - spacing;
+    currNode.setAttribute('style', `--y: ${originalY}px; --x: ${spouseXPos}px`);
+  } else {
+    spouseXPos = nodeXPos + spacing;
+    spouse.setAttribute('style', `--y: ${originalY}px; --x: ${spouseXPos}px`);
+  }
   
   //add Spouse to an array of fixed nodes so it doesn't get modified again
   fixedSpouses.push(spouseId);
