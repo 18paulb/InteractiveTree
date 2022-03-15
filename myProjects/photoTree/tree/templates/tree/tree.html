@@ -20,7 +20,8 @@
         {% endif %}
 -->
         <script>
-        let data = null;
+        //let data = null;
+        /*
         $.ajax(
             {
                 type: "GET",
@@ -30,16 +31,64 @@
                     for (let i = 0; i < data.length; ++i) {
                         data[i] = data[i].fields
                     }
-                    console.log(data)
+
+                    //console.log(data)
+
                 },
                 error: function (response) {
                     console.log(response);
                 }
             }
         )
+        */
+
+        async function getData() {
+            let test = await $.ajax({
+                type: "GET",
+                url: "{% url 'getNodes' %}",
+                success: function (response) {
+                   return response
+                },
+                
+                error: function (response) {
+                    console.log(response);
+                },
+            })
+
+            test = JSON.parse(test);
+
+            for (let i = 0; i < test.length; ++i) {
+                test[i] = test[i].fields;
+            }
+
+            return test
+            
+        }
+
+
+        //FIXME: Unresolved promise, data is there but cannot be accessed
+
+        let tmp = getData();
+        
+        console.log(tmp)
+
+
+/*
+        let test = fetch('/get/ajax/getNodex')
+        .then(response => response.json())
+        .then(result => {
+            return result;
+        });
+        
+        async function getData() {
+            let data = await test;
+            return data;
+        }
+
+        let data = getData();
 
         console.log(data)
-
+*/
         </script>
 
 
