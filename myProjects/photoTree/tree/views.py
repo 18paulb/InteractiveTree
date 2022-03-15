@@ -22,8 +22,9 @@ def tree(request):
 
 #TEST, DOES NOT WORK
 def getNodes(request):
-    node_list = serializers.serialize("json", Node.objects.all())
-    return HttpResponse(node_list)
+    if request.is_ajax:
+        node_list = serializers.serialize("json", Node.objects.all())
+        return HttpResponse(node_list)
 
 
 def chart(request):
