@@ -20,21 +20,26 @@
         {% endif %}
 -->
         <script>
-            let data;
-            $.ajax(
-                {
-                    type: "GET",
-                    //url: "/getNodes",
-                    url: "{% url 'getNodes' %}",
-                    success: function (response) {
-                        data = response;
-                        console.log(data);
-                    },
-                    error: function (response) {
-                        console.log(response);
+        let data = null;
+        $.ajax(
+            {
+                type: "GET",
+                url: "{% url 'getNodes' %}",
+                success: function (response) {
+                    data = JSON.parse(response);
+                    for (let i = 0; i < data.length; ++i) {
+                        data[i] = data[i].fields
                     }
+                    console.log(data)
+                },
+                error: function (response) {
+                    console.log(response);
                 }
-            )
+            }
+        )
+
+        console.log(data)
+
         </script>
 
 
