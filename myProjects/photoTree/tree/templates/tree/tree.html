@@ -31,9 +31,6 @@
                     for (let i = 0; i < data.length; ++i) {
                         data[i] = data[i].fields
                     }
-
-                    //console.log(data)
-
                 },
                 error: function (response) {
                     console.log(response);
@@ -41,7 +38,6 @@
             }
         )
         */
-
         async function getData() {
             let test = await $.ajax({
                 type: "GET",
@@ -62,33 +58,25 @@
             }
 
             return test
-            
+            //return Promise.resolve(test)
         }
+
 
 
         //FIXME: Unresolved promise, data is there but cannot be accessed
 
-        let tmp = getData();
-        
+        //let tmp = Promise.resolve(getData()).then(data => {return data;})
+        let tmp
+        getData()
+        .then(data => {
+            console.log(data)
+            tmp = data;
+            console.log(tmp)
+        })
+
         console.log(tmp)
 
 
-/*
-        let test = fetch('/get/ajax/getNodex')
-        .then(response => response.json())
-        .then(result => {
-            return result;
-        });
-        
-        async function getData() {
-            let data = await test;
-            return data;
-        }
-
-        let data = getData();
-
-        console.log(data)
-*/
         </script>
 
 
