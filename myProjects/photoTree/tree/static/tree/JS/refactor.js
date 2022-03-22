@@ -1,3 +1,4 @@
+
 let data = [
   {
     "image": 1,
@@ -131,7 +132,7 @@ class mom {
   }
 }
 
-function makeMomArray() {
+function makeMomArray(data) {
   let tmpArray = [];
 
   for (let i = 0; i < data.length; ++i) {
@@ -190,7 +191,7 @@ function makeMomArray() {
   return tmpArray;
 }
 
-momArray = makeMomArray();
+//momArray = makeMomArray();
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -218,49 +219,42 @@ function drop(ev) {
 }
 
 let chartList = document.getElementById('chart');
-createChart();
 
-async function getData() {
-  let test = await $.ajax({
-      type: "GET",
-      dataType: "json",
-      url: "{% url 'getNodes' %}",
-      success: function (response) {
-          return response
-      },
-      
-      error: function (response) {
-          console.log(response);
-      },
-  })
+$.ajax({
+  type: "GET",
+  dataType: "json",
+  url: "/tree/get/ajax/getNodes",
+  success: function (response) {
+    let test = response
 
-  for (let i = 0; i < test.length; ++i) {
+    for (let i = 0; i < test.length; ++i) {
       test[i] = test[i].fields;
-  }
+    }
 
-  createChart(test)
-
+    //debugger
+    //FIXME, momArray isn't being passed into
+    let momArray = makeMomArray(test)
+    createChart(test)
+  },
   
-}
+  error: function (response) {
+      console.log(response);
+  },
+})
+
+
 
 //All functions for chart creation and functionality
 
 
-function createChart() {
+function createChart(data) {
 
-  createDataPoints();
+  createDataPoints(data);
 
-  //Testing
-  for (let i = 0; i < data.length; ++i) {
-    if (data[i].spouse != null) {
-      adjustSpouseXPos(data[i]);
-    }
-  }
-
-  createLines();
+  createLines(data);
 }
 
-function createDataPoints() {
+function createDataPoints(data) {
   //In case you have to redraw chart, removes previously placed nodes
   $('#chart').empty();
 
@@ -308,7 +302,7 @@ function createDataPoints() {
 }
 
 //Works for clicking on the lines
-function testAdd(node1, node2) {
+function testAdd(node1, node2, data) {
 
   let id1 = node1.image;
   let id2 = node2.image;
@@ -368,15 +362,15 @@ function testAdd(node1, node2) {
 
 }
 
-function testRemoveFromConfirmBox(id1, id2) {
+function testRemoveFromConfirmBox(id1, id2, data) {
   
   if (nodeBoxData[getNodeBoxDataIndex(id1)] != null) {
-    testAdd(nodeBoxData[getNodeBoxDataIndex(id1)], data[getDataIndex(id2)])
+    testAdd(nodeBoxData[getNodeBoxDataIndex(id1)], data[getDataIndex(id2)], data)
   }
 }
 
 //FIXME
-function createLines() {
+function createLines(data) {
 
   //FIXME: SVG has to be wider than chartwidth, however find better way of doing this, don't use magic number
   let svgString = `<svg id='lines' height="${chartWidth}" width="${chartWidth+100}" xmlns="http://www.w3.org/2000/svg" style='z-index:-1;'>`;
@@ -401,7 +395,7 @@ function createLines() {
         let y1 = yPos;
         let y2 = parseAttribute('y', childElement[0].style.cssText);
 
-        svgString += `<line class='svg-line' x1="${x1}" y1="${chartWidth - y1}" x2="${x2}" y2="${chartWidth - y2}" stroke="black" stroke-width='8' onclick='testAdd(data[${i}], momArray[${index}][0].children[${j}])'/>`
+        svgString += `<line class='svg-line' x1="${x1}" y1="${chartWidth - y1}" x2="${x2}" y2="${chartWidth - y2}" stroke="black" stroke-width='8' onclick='testAdd(data[${i}], momArray[${index}][0].children[${j}], ${data})'/>`
       }
     }
 
@@ -412,7 +406,7 @@ function createLines() {
       let spouseXPos = parseAttribute('x', spouseElement[0].style.cssText);
       let spouseYPos = parseAttribute('y', spouseElement[0].style.cssText);
 
-      let line = `<line class='svg-line' x1="${xPos}" y1="${chartWidth - yPos}" x2="${spouseXPos}" y2="${chartWidth - spouseYPos}" stroke="blue" stroke-width='8' onclick='testAdd(data[${i}], data[getDataIndex(data[${i}].spouse)])'/>`
+      let line = `<line class='svg-line' x1="${xPos}" y1="${chartWidth - yPos}" x2="${spouseXPos}" y2="${chartWidth - spouseYPos}" stroke="blue" stroke-width='8' onclick='testAdd(data[${i}], data[getDataIndex(data[${i}].spouse)], ${data})'/>`
 
       //if statement so that two spouse lines aren't drawn between spouses
       if (spouseXPos > xPos) {
@@ -604,6 +598,10 @@ function addMotherRelationship(id1, id2) {
   closeMenu();
 
 }
+
+
+
+
 
 function removeRelationship(id1, id2) {
 

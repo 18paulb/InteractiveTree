@@ -1,55 +1,29 @@
 <!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Chart</title>
+    <link rel="stylesheet" href="../../static/tree/CSS/chart.css" />
 
-<html lang='en'>
+    <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js'></script>
+  </head>
 
-    <head>
-        <meta charset="utf-8">
-        <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js'></script>
-    </head>
+  <body>
 
+    <figure class="css-chart" style="--widget-size: 1200px">
+      <ul id="chart" class="line-chart"></ul>
+      <div id="hover-menu"></div>
+    </figure>
 
+    <div id="center-menu"></div>
 
-    <body>
+    <div class="footer-box">
+      <div id="nodeContainer" class="node-container"></div>
 
-        <h1>Testing</h1>
-<!--
-        {% if node_list %}
-            {% for node in node_list %}
-                <div><h3>Image: {{node.image}} Mother: {{node.mother}} Spouse: {{node.spouse}} Birthyear {{node.birthyear}}</h3></div>
-            {% endfor %}
-        {% endif %}
--->
-        <script>
+      <div id="confirmBox" class="confirm-box"></div>
+    </div>
 
-        //FIXME: unresolved promise
-        async function getData() {
-            let test = await $.ajax({
-                type: "GET",
-                dataType: "json",
-                url: "{% url 'getNodes' %}",
-                success: function (response) {
-                    return response
-                },
-                
-                error: function (response) {
-                    console.log(response);
-                },
-            })
-
-            for (let i = 0; i < test.length; ++i) {
-                test[i] = test[i].fields;
-            }
-
-            console.log(test)
-            // makeArray(test)
-            return test
-        }
-
-
-
-        </script>
-
-
-    </body>
-
+    <script src="../../static/tree/JS/refactor.js"></script>
+  </body>
 </html>
+
+<!--https://css-tricks.com/how-to-make-a-line-chart-with-css/ -->
