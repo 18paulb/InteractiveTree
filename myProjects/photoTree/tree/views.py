@@ -36,7 +36,7 @@ def getNodes(request):
 #            return JsonResponse({'data': node_list});
 #        return JsonResponse({'status': 'Invalid Request'}, status=400)
 #    else:
-#        return HttpResponseBadRequest('Invalid request')
+#        return HttpResponseBadRequest('Invalid request', content-type:'application/json')
 
 
 def chart(request):
