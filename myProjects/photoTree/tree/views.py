@@ -1,6 +1,7 @@
 from django.shortcuts import render
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.http import JsonResponse
+import json
 from django.template import loader
 from json import dumps
 from django.core import serializers
@@ -20,11 +21,22 @@ def tree(request):
     node_list = Node.objects.all()
     return render(request, 'tree/tree.html', {'node_list': node_list})
 
-#TEST, DOES NOT WORK
+
 def getNodes(request):
     if request.is_ajax:
         node_list = serializers.serialize("json", Node.objects.all())
-        return HttpResponse(node_list)
+        node_list = json.loads(node_list)
+        return JsonResponse(node_list, safe=False)
+        #return HttpResponse(node_list)
+
+#def getNodes(request):
+#    if request.is_ajax:
+#        if request.method == 'GET':
+#            node_list = list(Node.objects.all().values())
+#            return JsonResponse({'data': node_list});
+#        return JsonResponse({'status': 'Invalid Request'}, status=400)
+#    else:
+#        return HttpResponseBadRequest('Invalid request')
 
 
 def chart(request):

@@ -20,30 +20,13 @@
         {% endif %}
 -->
         <script>
-        //let data = null;
-        /*
-        $.ajax(
-            {
-                type: "GET",
-                url: "{% url 'getNodes' %}",
-                success: function (response) {
-                    data = JSON.parse(response);
-                    for (let i = 0; i < data.length; ++i) {
-                        data[i] = data[i].fields
-                    }
-                },
-                error: function (response) {
-                    console.log(response);
-                }
-            }
-        )
-        */
         async function getData() {
             let test = await $.ajax({
                 type: "GET",
+                dataType: "json",
                 url: "{% url 'getNodes' %}",
                 success: function (response) {
-                   return response
+                    return response
                 },
                 
                 error: function (response) {
@@ -51,30 +34,48 @@
                 },
             })
 
-            test = JSON.parse(test);
+            //test = JSON.parse(test);
 
             for (let i = 0; i < test.length; ++i) {
                 test[i] = test[i].fields;
             }
 
             return test
-            //return Promise.resolve(test)
         }
 
 
+        function getResult() {
+            getData()
+            .then(response => {
+                return response;
+            })
 
+        }
+
+        let data = getResult();
+
+        console.log(data)
+
+
+/*
+    async function pp() { 
+            await fetch("{% url 'getNodes' %}", {
+            method: "GET",
+            headers: {
+                "X-Requested-With": "XMLHttpRequest",
+            }
+        })
+        .then(response => response)
+        .then(data => { 
+            return data;
+        })
+    }   
+    
+    let tmp = pp();
+*/
         //FIXME: Unresolved promise, data is there but cannot be accessed
 
-        //let tmp = Promise.resolve(getData()).then(data => {return data;})
-        let tmp
-        getData()
-        .then(data => {
-            console.log(data)
-            tmp = data;
-            console.log(tmp)
-        })
 
-        console.log(tmp)
 
 
         </script>
