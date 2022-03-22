@@ -291,6 +291,73 @@ function createDataPoints(chart, originalGens) {
   shiftChart();
 }
 
+function testAdd(node1, node2) {
+
+  let id1 = node1.image;
+  let id2 = node2.image;
+
+  let id1Birthyear;
+  let id2Birthyear;
+
+  let id1Index = getDataIndex(parseInt(id1));
+  let id2Index = getDataIndex(parseInt(id2));
+
+  //These statements account for if the node is in the data or nodeBoxData
+  if (id1Index != null) {
+    id1Birthyear = data[id1Index].birthyear
+  }
+  if (id2Index != null) {
+    id2Birthyear = data[id2Index].birthyear
+  }
+  if (id1Index == null) {
+    id1Index = getNodeBoxDataIndex(parseInt(id1));
+    id1Birthyear = nodeBoxData[id1Index].birthyear;
+  }
+  if (id2Index == null) {
+    id2Index = getNodeBoxDataIndex(parseInt(id2));
+    id2Birthyear = nodeBoxData[id2Index].birthyear;
+  }
+
+  $('#center-menu').html(
+  `<div id='center-menu' class='center-menu'>
+    <div><button onclick='closeMenu()'>X</button></div>
+
+    <div class='menu-pics-container'>
+      <div>
+        <img class='menu-pic' src='../../static/tree/images/pictures/${id1}.PNG'/>
+        <div id ='node-${id1}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px;'>
+          <div><b>John Doe</b></div>
+          <div><b>${id1Birthyear}</b></div>
+        </div>
+      </div>
+
+      <div>
+        <img class='menu-pic' src='../../static/tree/images/pictures/${id2}.PNG'/>
+        <div id ='node-${id2}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px;'>
+          <div><b>John Doe</b></div>
+          <div><b>${id2Birthyear}</b></div>
+        </div>
+      </div>
+    </div>
+
+    <div class='menu-button'>
+      <button id='removeButton' class='button-34' onclick='removeRelationship(${id1}, ${id2})'>Remove Relationship</button>
+      <button id='addMotherButton' class='button-34' onclick='addMotherRelationship(${id1}, ${id2})'>Add Mother/Child Relationship</button>
+      <button id='addSpouseButton' class='button-34' onclick='addSpouseRelationship(${id1}, ${id2})'>Add Spouse Relationship</button>
+    </div>
+  </div>`)
+
+  removeFromNodeContainer(id1)
+
+}
+
+function testRemoveFromConfirmBox(id1, id2) {
+  
+  if (nodeBoxData[getNodeBoxDataIndex(id1)] != null) {
+    testAdd(nodeBoxData[getNodeBoxDataIndex(id1)], data[getDataIndex(id2)])
+  }
+}
+
 function hasSpouse(node) {
   if (node.spouse != null) {
     return true;
@@ -951,44 +1018,6 @@ function removeRelationship(id1, id2) {
   box.style.border = ''
 
   closeMenu();
-}
-
-function changeAddButtonParameters() {
-  let box = document.getElementById('confirmBox')
-  let children = []
-
-  for (let i = 0; i < box.children.length; ++i) {
-    children.push(box.children[i].id.substr(4));
-  }
-
-  let button = document.getElementById('addMotherButton');
-  let button2 = document.getElementById('addSpouseButton');
-  let button3 = document.getElementById('swapButton');
-
-  if (children.length != 0) {
-    let param1 = children[0];
-    let param2 = children[1];
-    button.setAttribute('onclick',`changeAddButtonParameters(), addMotherRelationship(${param1}, ${param2})`);
-    button2.setAttribute('onclick',`changeAddButtonParameters(), addSpouseRelationship(${param1}, ${param2})`);
-  }
-}
-
-function changeRemoveButtonParameters() {
-  let box = document.getElementById('confirmBox');
-  let children = [];
-
-  for (let i = 0; i < box.children.length; ++i) {
-    children.push(box.children[i].id.substr(4));
-  }
-
-  let button = document.getElementById('removeButton');
-
-  if (children.length != 0) {
-    let param1 = children[0];
-    let param2 = children[1];
-    button.setAttribute('onclick',`changeRemoveButtonParameters(), removeRelationship(${param1}, ${param2})`);
-
-  }
 }
 
 function addToConfirmBox(id) {
