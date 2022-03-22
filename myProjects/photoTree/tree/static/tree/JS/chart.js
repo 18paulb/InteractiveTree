@@ -177,22 +177,6 @@ function makeMomArray() {
   }
   tmpArray = tmpMomArray;
 
-  //Sorts children oldest to youngest
-  //n^3 bigO, gross
-  /*
-  for (let i = 0; i < tmpArray.length; i++) {
-    for (let k = 0; k < tmpArray[i][0].children.length; ++k) {
-      for (let j = 0; j < tmpArray[i][0].children.length - i - 1; j++) {
-        if (tmpArray[i][0].children[j].birthyear > tmpArray[i][0].children[j+1].birthyear) {
-          let tmp = tmpArray[i][0].children[j];
-          tmpArray[i][0].children[j] = tmpArray[i][0].children[j+1];
-          tmpArray[i][0].children[j+1] = tmp;
-        }
-      }
-    }
-  }
-  */
-
 
   //Sorts momArray from oldest to youngest
   for (let i = 0; i < tmpArray.length; ++i) {
@@ -647,15 +631,6 @@ function adjustHigherGenNodes(nodeMother, currentMomNodeXPos) {
   let motherId = getDataIndex(nodeMother);
   let mother = data[motherId];
   
-  /*
-  let motherGen = getGeneration(mother);
-  let motherPlaceInFam;
-  if (mother.mother != null) {
-    motherPlaceInFam = getPlaceInFamily(mother);
-  } else {
-    motherPlaceInFam = getPlaceInFamily(getNode(mother.spouse));
-  }
-  */
   //Get an array of the children nodes
   let childNodeArray = getChildren(mother);
   let nodesToAdjust = []
@@ -830,12 +805,6 @@ function addMotherRelationship(id1, id2) {
     childIndex = getNodeBoxDataIndex(child.image);
     data.push(nodeBoxData[childIndex]);
 
-    /*
-    //TESTING FOR PRESENTATION
-    momIndex = getDataIndex(mother.image);
-    data.splice(momIndex - 1, 0, child)
-    //
-    */
 
     nodeBoxData.splice(childIndex, 1)
   } 
