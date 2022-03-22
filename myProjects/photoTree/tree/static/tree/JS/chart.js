@@ -237,9 +237,9 @@ function startEmpty() {
 
 
 
-function createChart(chart) {
+function createChart(chart, originalGens) {
 
-  createDataPoints(chart);
+  createDataPoints(chart, originalGens);
 
   /*
   for (let i = 0; i < momArray.length; ++i) {
@@ -264,7 +264,7 @@ function createChart(chart) {
 
 }
 //Creates Data Points
-function createDataPoints(chart) {
+function createDataPoints(chart, originalGens) {
   //In case you have to redraw chart
   removeAllChildNodes(chart);
 
@@ -278,14 +278,20 @@ function createDataPoints(chart) {
   for (let genIndex = 0; genIndex < (genCount + 1); genIndex++) { //creates data points now from oldest to youngest gen
     for (let i = 0; i < data.length; ++i) { //iterates through the entire data set to check if gen matches up
       let gen = getGeneration(data[i]);
-
       if (gen == genIndex) {
+        if (originalGens != null) {
+          //debugger
+          gen = originalGens.get(data[i]);
+        }
       //Getting X and Y Positions
       let li = document.createElement('li');
       let dividedHeight = chartWidth / genCount;
       let yPos = getY(dividedHeight, gen);
 
       let placeInGen = getPlaceInGeneration(data[i], gen);
+      if (placeInGen == undefined) {
+        placeInGen = 0;
+      }
       
 
       li.setAttribute('id', data[i].image);
@@ -293,7 +299,7 @@ function createDataPoints(chart) {
       
       if (gen < 3) {
         //If it is a first or second gen node
-        xPos = setX(data[i], generationMap, chartWidth, placeInGen);
+        xPos = setX(data[i], generationMap, chartWidth, placeInGen, originalGens);
       }
       else {
         //If it is a third gen or greater node
@@ -615,8 +621,13 @@ function getWidthOfFamily(node) {
 }
 
 //NEW getX Function (for gen1 and gen2 nodes)
-function setX(node, map, width, placeInGen) {
-  let keyGen = getGeneration(node);
+function setX(node, map, width, placeInGen, originalGens) {
+  let keyGen;
+  if (originalGens == null) {
+    keyGen = getGeneration(node);
+  } else {
+    keyGen = originalGens.get(node);
+  }
   let xPos = (width/(getNumInGeneration(keyGen) + 1)) * (placeInGen + 1);
   return xPos;
 }
@@ -904,6 +915,14 @@ function removeRelationship(id1, id2) {
 
   //Removes Spouse Relationship
   if (data[id1Index].spouse == id2) {
+
+    //put all of the nodes current generations in a map 
+    //(so remaining spouse's generation doesn't get messed up when new chart is created)
+    const originalGens = new Map();
+    for (let i = 0; i < data.length; i++) {
+      originalGens.set(data[i], getGeneration(data[i]));
+    }
+
     isRelated = true
 
     data[id1Index].spouse = null
@@ -921,14 +940,14 @@ function removeRelationship(id1, id2) {
       data.splice(id2Index, 1)
     }
 
-    closeMenu()
+    closeMenu();
 
-    createChart(chartList)
+    createChart(chartList, originalGens);
   
     let box = document.getElementById('confirmBox');
     box.innerHTML = ''
     box.style.border = ''
-
+    
     return;
   }
 
