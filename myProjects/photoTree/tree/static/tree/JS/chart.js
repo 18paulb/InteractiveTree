@@ -219,8 +219,6 @@ function startEmpty() {
 
 //All functions for chart creation and functionality
 
-
-
 function createChart(chart, originalGens) {
 
   createDataPoints(chart, originalGens);
@@ -358,14 +356,6 @@ function testRemoveFromConfirmBox(id1, id2) {
   }
 }
 
-function hasSpouse(node) {
-  if (node.spouse != null) {
-    return true;
-  } else {
-    return false;
-  }
-}
-
 function shiftChart() {
   //the lowest possible xPos
   let xBuffer = 200;
@@ -453,7 +443,6 @@ function shiftChart() {
    }
 }
 
-//FIXME
 function createLines() {
 
   //FIXME: SVG has to be wider than chartwidth, however find better way of doing this, don't use magic number
@@ -526,14 +515,6 @@ function adjustSpouseXPos(node, fixedSpouses) {
   fixedSpouses.push(node.image);
 }
 
-function getNode(nodeId) {
-  for (let i = 0; i < data.length; i++) {
-    if(data[i].image == nodeId) {
-      return data[i];
-    }
-  }
-}
-
 /**
  * Finds the x positions of the leftmost and rightmost child 
  * of the root node and sets the x position of the rootnode
@@ -554,76 +535,6 @@ function adjustRootNode() {
   if (rootNodeSpouse != null) {
     rootNodeSpouse.setAttribute('style', `--y: ${originalY}px; --x: ${newXPos + 100}px`);
   }
-}
-
-function getY(height, generation) {
-  let genCount = getLongestGenChain();
-  return (chartWidth + 225) - (chartWidth/genCount + 1) * generation;
-  //added a little to chartWidth to center it, can change later
-}
-
-function getLongestGenChain() {
-  let genCount = 0;
-  for (let j = 0; j < data.length; ++j) {
-    let tmp = getGenerationCount(data[j], 1);
-    if (tmp > genCount) {
-      genCount = tmp;
-    }
-  }
-  return genCount;
-}
-
-function getPlaceInGeneration(node, generation) {
-  let nodeArray = [];
-  nodeArray = getNodesInGeneration(generation);
-
-  let placeInGen;
-  for (let i = 0; i < nodeArray.length; i++) {
-    if(nodeArray[i] == node) {
-      placeInGen = i;
-    }
-  }
-  return placeInGen;
-}
-
-function getPlaceInFamily(node) {
-  let nodeArray = [];
-  nodeArray = getFamilyArray(node);
-
-  let placeInFamily;
-  for (let i = 0; i < nodeArray.length; i++) {
-    if(nodeArray[i] == node) {
-      placeInFamily = i;
-    }
-  }
-  return placeInFamily + 1;
-}
-
-function getNumChildrenInFamily(node) {
-  
-  let nodesInFamily = [];
-  for (let i = 0; i < data.length; ++i) {
-    if (data[i].mother == node.mother) {
-      nodesInFamily.push(data[i]);
-    }
-  }
-  return nodesInFamily.length;
-}
-
-function getFamilyArray(node) {
-  
-  let nodesInFamily = [];
-  for (let i = 0; i < data.length; ++i) {
-    if (data[i].mother == node.mother) {
-      nodesInFamily.push(data[i]);
-    }
-  }
-  return nodesInFamily;
-}
-
-function getWidthOfFamily(node) {
-  let width = 800; //TODO: make it variable based on generation
-  return width;
 }
 
 //NEW getX Function (for gen1 and gen2 nodes)
@@ -662,38 +573,6 @@ function setChildX(node, widthOfFamily) {
   return xPos;
 }
 
-function getX(node) {
-  if (node != null) {
-    let thisNode = document.getElementById(node);
-    let nodeXPos = parseAttribute('x', thisNode.style.cssText);
-    return nodeXPos;
-  }
-}
-
-function getMomsInGen(generation) {
-  theMomArray = [];
-  //gets all motherId's in data
-  for (let i = 0; i < data.length; i++) {
-    if(data[i].mother != null) {
-      if (theMomArray.every(element => element != data[i].mother)) {
-        theMomArray.push(data[i].mother); //push the motherIds
-      }
-    }
-  }
-  //gets array of motherId's in generation
-  newMomArray = []
-  for (let i = 0; i < theMomArray.length; i++) {
-    if (getGeneration(theMomArray[i]) == generation) {
-      newMomArray.push(theMomArray[i]);
-    }
-  }
-  return newMomArray;
-}
-
-function getMother(node) {
-  return node.mother;
-}
-
 function adjustHigherGenNodes(nodeMother, currentMomNodeXPos) {
   let motherId = getDataIndex(nodeMother);
   let mother = data[motherId];
@@ -730,41 +609,6 @@ function adjustHigherGenNodes(nodeMother, currentMomNodeXPos) {
     let originalY = parseAttribute('y', node.style.cssText);
     node.setAttribute('style', `--y: ${originalY}px; --x: ${nodesXPositions[i]}px`);
   }
-}
-
-function hasChildren(node) {
-  
-  let hasChildren = false;
-  for (let i = 0; i < data.length; i++) {
-    if (data[i].mother == node.image) {
-       hasChildren = true;
-    }
-  }
-  return hasChildren;
-}
-
-function isOnTree(node) {
-  let thisNode = document.getElementById(node.image);
-  let checkNode = false;
-  if (thisNode != null) {
-    checkNode = true;
-  }
-  return checkNode;
-}
-
-function getHypotenuse(datapoint1, datapoint2, left1, left2) {
-  triSide = datapoint1 - datapoint2;
-  tmpSpacing = left1 - left2;
-  hypotenuse = Math.sqrt((triSide * triSide) + (tmpSpacing * tmpSpacing));
-  return hypotenuse;
-}
-
-function getAngle(opposite, hypotenuse) {
-  let sine = Math.asin(opposite / hypotenuse);
-  //Convert from radians to degrees
-  sine = sine * (180 / Math.PI);
-
-  return sine;
 }
 
 function addSpouseRelationship(id1, id2) {
@@ -1215,12 +1059,128 @@ function closeMenu() {
   confirmBox.innerHTML = '';
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 
 //All helper functions to access data, etc.
+function hasSpouse(node) {
+  if (node.spouse != null) {
+    return true;
+  } else {
+    return false;
+  }
+}
 
+function getNode(nodeId) {
+  for (let i = 0; i < data.length; i++) {
+    if(data[i].image == nodeId) {
+      return data[i];
+    }
+  }
+}
 
+function getX(node) {
+  if (node != null) {
+    let thisNode = document.getElementById(node);
+    let nodeXPos = parseAttribute('x', thisNode.style.cssText);
+    return nodeXPos;
+  }
+}
 
+function getY(height, generation) {
+  let genCount = getLongestGenChain();
+  return (chartWidth + 225) - (chartWidth/genCount + 1) * generation;
+  //added a little to chartWidth to center it, can change later
+}
+
+function getLongestGenChain() {
+  let genCount = 0;
+  for (let j = 0; j < data.length; ++j) {
+    let tmp = getGenerationCount(data[j], 1);
+    if (tmp > genCount) {
+      genCount = tmp;
+    }
+  }
+  return genCount;
+}
+
+function getPlaceInGeneration(node, generation) {
+  let nodeArray = [];
+  nodeArray = getNodesInGeneration(generation);
+
+  let placeInGen;
+  for (let i = 0; i < nodeArray.length; i++) {
+    if(nodeArray[i] == node) {
+      placeInGen = i;
+    }
+  }
+  return placeInGen;
+}
+
+function getPlaceInFamily(node) {
+  let nodeArray = [];
+  nodeArray = getFamilyArray(node);
+
+  let placeInFamily;
+  for (let i = 0; i < nodeArray.length; i++) {
+    if(nodeArray[i] == node) {
+      placeInFamily = i;
+    }
+  }
+  return placeInFamily + 1;
+}
+
+function getNumChildrenInFamily(node) {
+  
+  let nodesInFamily = [];
+  for (let i = 0; i < data.length; ++i) {
+    if (data[i].mother == node.mother) {
+      nodesInFamily.push(data[i]);
+    }
+  }
+  return nodesInFamily.length;
+}
+
+function getFamilyArray(node) {
+  
+  let nodesInFamily = [];
+  for (let i = 0; i < data.length; ++i) {
+    if (data[i].mother == node.mother) {
+      nodesInFamily.push(data[i]);
+    }
+  }
+  return nodesInFamily;
+}
+
+function getWidthOfFamily(node) {
+  let width = 800; //TODO: make it variable based on generation
+  return width;
+}
+
+function getMomsInGen(generation) {
+  theMomArray = [];
+  //gets all motherId's in data
+  for (let i = 0; i < data.length; i++) {
+    if(data[i].mother != null) {
+      if (theMomArray.every(element => element != data[i].mother)) {
+        theMomArray.push(data[i].mother); //push the motherIds
+      }
+    }
+  }
+  //gets array of motherId's in generation
+  newMomArray = []
+  for (let i = 0; i < theMomArray.length; i++) {
+    if (getGeneration(theMomArray[i]) == generation) {
+      newMomArray.push(theMomArray[i]);
+    }
+  }
+  return newMomArray;
+}
+
+function getMother(node) {
+  return node.mother;
+}
 
 function getDataIndex(id) {
   for (let i = 0; i < data.length; ++i) {
@@ -1267,6 +1227,41 @@ function isMom(node) {
     }
   }
   return isMom;
+}
+
+function hasChildren(node) {
+  
+  let hasChildren = false;
+  for (let i = 0; i < data.length; i++) {
+    if (data[i].mother == node.image) {
+       hasChildren = true;
+    }
+  }
+  return hasChildren;
+}
+
+function isOnTree(node) {
+  let thisNode = document.getElementById(node.image);
+  let checkNode = false;
+  if (thisNode != null) {
+    checkNode = true;
+  }
+  return checkNode;
+}
+
+function getHypotenuse(datapoint1, datapoint2, left1, left2) {
+  triSide = datapoint1 - datapoint2;
+  tmpSpacing = left1 - left2;
+  hypotenuse = Math.sqrt((triSide * triSide) + (tmpSpacing * tmpSpacing));
+  return hypotenuse;
+}
+
+function getAngle(opposite, hypotenuse) {
+  let sine = Math.asin(opposite / hypotenuse);
+  //Convert from radians to degrees
+  sine = sine * (180 / Math.PI);
+
+  return sine;
 }
 
 function parseAttribute(lookFor, attribute) {
@@ -1318,9 +1313,6 @@ function hasRelationship(node) {
 
 }
 
-
-
-//Gets highest generation count
 function getGenerationCount(node, count) {
   if (node.mother == null) {
     if (node.spouse != null) {
@@ -1403,7 +1395,6 @@ function getRootNode(node) {
     return getRootNode(data[momIndex]);
   }
 }
-
 
 function getLeftmostChild(momNode) {
   let childElementXPos;
