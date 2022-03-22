@@ -150,10 +150,6 @@ function makeMomArray() {
         }
       }
     }
-  }
-
-  //Pushes spouse to moms
-  for (let i = 0; i < data.length; ++i) {
     if (data[i].spouse != null) {
       for (let j = 0; j < data.length; j++) {
         if (data[j].image == data[i].spouse) {
@@ -255,6 +251,7 @@ function createDataPoints(chart, originalGens) {
       let dividedHeight = chartWidth / genCount;
       let yPos = getY(dividedHeight, gen);
 
+      
       let placeInGen = getPlaceInGeneration(data[i], gen);
       if (placeInGen == undefined) {
         placeInGen = 0;
@@ -455,7 +452,7 @@ function createLines() {
     let xPos = parseAttribute('x', li[0].style.cssText);
 
     //Creates Child Lines
-    if (isMom(data[i])) {   
+    if (hasChildren(data[i])) {   
 
       let index = getMomArrayIndex(momArray, data[i].image);
 
@@ -756,6 +753,7 @@ function removeRelationship(id1, id2) {
     const originalGens = new Map();
     for (let i = 0; i < data.length; i++) {
       originalGens.set(data[i], getGeneration(data[i]));
+      debugger
     }
 
     isRelated = true
@@ -867,15 +865,17 @@ function removeRelationship(id1, id2) {
 function addToConfirmBox(id) {
   let box = document.getElementById("confirmBox");
 
+  //Doesn't let you add a node twice
   for (let i = 0; i < box.children.length; ++i) {
     if (box.children[i].id == `node${id}`) {
       return;
     }
   }
 
+  //Doesn't let you add more than 2 nodes
   if (box.children.length >= 2) {
     alert("Can't have more than 2 nodes in confirmation box.");
-    box.innerHTML = '';
+    $('#confirmBox').html('');
     return;
   }
 
@@ -886,28 +886,49 @@ function addToConfirmBox(id) {
   img.setAttribute('class', 'node-image');
   img.setAttribute('src', `../../static/tree/images/pictures/${id}.PNG`);
 
-  box.appendChild(img);
+  $('#confirmBox').append(img);
 
   //sets border for confirmBox
-  if (box.children.length > 0) {
-    box.style.border = "5px solid black";
+
+  if ($('#confirmBox').children.length > 0) {
+    $('#confirmBox').css('border', '5px solid black');
   }
 
-  //Changes Parameters for Change Relationship button
+  //Parses id to just original ID
   let children = [];
 
   for (let i = 0; i < box.children.length; ++i) {
     children.push(box.children[i].id.substr(4))
   }
 
-  let button = document.getElementById('changeButton');
-
-  //Open Menu immediately when there are two nodes in confirmBox
+  //Opens menu with all the info
   if (children.length == 2) {
     let param1 = children[0];
     let param2 = children[1];
 
-    openMenu(param1, param2);
+    let node1;
+    let node2;
+
+    let id1Index = getDataIndex(parseInt(param1));
+    let id2Index = getDataIndex(parseInt(param2));
+  
+    //These statements account for if the node is in the data or nodeBoxData
+    if (id1Index != null) {
+      node1 = data[id1Index]
+    }
+    if (id2Index != null) {
+      node2 = data[id2Index]
+    }
+    if (id1Index == null) {
+      id1Index = getNodeBoxDataIndex(parseInt(param1));
+      node1 = nodeBoxData[id1Index];
+    }
+    if (id2Index == null) {
+      id2Index = getNodeBoxDataIndex(parseInt(param2));
+      node2 = nodeBoxData[id2Index]
+    }
+
+    testAdd(node1, node2)
   }
 }
 
@@ -1218,17 +1239,6 @@ function randomizeDataOrder(data) {
   }
 }
 
-function isMom(node) {
-  let isMom = false;
-  for (let j = 0; j < momArray.length; ++j) {
-    if (momArray[j][0].data.image == node.image) {   
-      isMom = true;
-      break;
-    }
-  }
-  return isMom;
-}
-
 function hasChildren(node) {
   
   let hasChildren = false;
@@ -1301,7 +1311,7 @@ function hasRelationship(node) {
     hasRelationship = true;
   }
 
-  if (isMom(node)) {
+  if (hasChildren(node)) {
     hasRelationship = true;
   }
 
@@ -1368,7 +1378,7 @@ function getNodesInGeneration(generation) {
 
 function getChildren(motherNode) {
   let children = [];
-  if (isMom(motherNode)) {
+  if (hasChildren(motherNode)) {
     let index = getMomArrayIndex(momArray, motherNode.image);
     for (let i = 0; i < momArray[index][0].children.length; ++i) {
       children.push(momArray[index][0].children[i]);
