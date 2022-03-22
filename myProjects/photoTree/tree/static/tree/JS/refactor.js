@@ -107,6 +107,7 @@ let data = [
   },
 ]
 
+
 let nodeBoxData = [];
 
 let chartWidth = 1200;
@@ -218,6 +219,29 @@ function drop(ev) {
 
 let chartList = document.getElementById('chart');
 createChart();
+
+async function getData() {
+  let test = await $.ajax({
+      type: "GET",
+      dataType: "json",
+      url: "{% url 'getNodes' %}",
+      success: function (response) {
+          return response
+      },
+      
+      error: function (response) {
+          console.log(response);
+      },
+  })
+
+  for (let i = 0; i < test.length; ++i) {
+      test[i] = test[i].fields;
+  }
+
+  createChart(test)
+
+  
+}
 
 //All functions for chart creation and functionality
 
@@ -694,6 +718,7 @@ function removeRelationship(id1, id2) {
   closeMenu();
 }
 
+//FIXME finish JQuery
 function addToConfirmBox(id) {
   let box = document.getElementById("confirmBox");
 
@@ -703,6 +728,8 @@ function addToConfirmBox(id) {
       return;
     }
   }
+  
+  
 
   //Doesn't let you add more than 2 nodes
   if (box.children.length >= 2) {
@@ -718,11 +745,12 @@ function addToConfirmBox(id) {
   img.setAttribute('class', 'node-image');
   img.setAttribute('src', `../../static/tree/images/pictures/${id}.PNG`);
 
-  box.appendChild(img);
+  $('#confirmBox').append(img);
 
   //sets border for confirmBox
-  if (box.children.length > 0) {
-    box.style.border = "5px solid black";
+
+  if ($('#confirmBox').children.length > 0) {
+    $('#confirmBox').css('border', '5px solid black');
   }
 
   //Parses id to just original ID

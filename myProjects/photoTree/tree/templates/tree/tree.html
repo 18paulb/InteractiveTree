@@ -20,6 +20,8 @@
         {% endif %}
 -->
         <script>
+
+        //FIXME: unresolved promise
         async function getData() {
             let test = await $.ajax({
                 type: "GET",
@@ -34,48 +36,14 @@
                 },
             })
 
-            //test = JSON.parse(test);
-
             for (let i = 0; i < test.length; ++i) {
                 test[i] = test[i].fields;
             }
 
             console.log(test)
+            // makeArray(test)
             return test
         }
-
-        let data = getData();
-        console.log(data)
-
-/*
-        function getResult() {
-            getData()
-            .then(response => {
-                return response;
-            })
-
-        }
-*/
-
-
-/*
-    async function pp() { 
-            await fetch("{% url 'getNodes' %}", {
-            method: "GET",
-            headers: {
-                "X-Requested-With": "XMLHttpRequest",
-            }
-        })
-        .then(response => response)
-        .then(data => { 
-            return data;
-        })
-    }   
-    
-    let tmp = pp();
-*/
-        //FIXME: Unresolved promise, data is there but cannot be accessed
-
 
 
 

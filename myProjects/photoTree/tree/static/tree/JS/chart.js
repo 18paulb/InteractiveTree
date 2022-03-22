@@ -241,26 +241,9 @@ function createChart(chart, originalGens) {
 
   createDataPoints(chart, originalGens);
 
-  /*
-  for (let i = 0; i < momArray.length; ++i) {
-    if (momArray[i][0].data.image == 11) {
-      //debugger
-    }
-  
-    adjustChildNodesXPos(momArray[i][0].data);
-  }
-  */
-
-  /*
-   //Presentation
-   for (let i = 0; i < momArray.length; ++i) {
-    presentationChildren(momArray[i][0].data)
-  }
-  */
- 
-
-  createChildLines();
-  createSpouseLines();
+  //createChildLines();
+  //createSpouseLines();
+  createLines();
 
 }
 //Creates Data Points
@@ -421,80 +404,54 @@ function shiftChart() {
    }
 }
 
-function createChildLines() {
+//FIXME
+function createLines() {
+
+  //FIXME: SVG has to be wider than chartwidth, however find better way of doing this, don't use magic number
+  let svgString = `<svg id='lines' height="${chartWidth}" width="${chartWidth+1000}" xmlns="http://www.w3.org/2000/svg" style='z-index:-1;'>`;
+
   for (let i = 0; i < data.length; ++i) {
 
-    if (isMom(data[i])) {
-      let li = document.getElementById(data[i].image);
-  
-      yPos = parseAttribute('y', li.getAttribute('style'));
-      xPos = parseAttribute('x', li.getAttribute('style'));
-      
-      let index = getMomArrayIndex(momArray, data[i].image);
+    let li = $(`#${data[i].image}`);
+    let yPos = parseAttribute('y', li[0].style.cssText);
+    let xPos = parseAttribute('x', li[0].style.cssText);
 
-      //Getting longest generation chain
-      let genCount = getLongestGenChain();
+    //Creates Child Lines
+    if (isMom(data[i])) {   
+
+      let index = getMomArrayIndex(momArray, data[i].image);
 
       for (let j = 0; j < momArray[index][0].children.length; ++j) {
 
-        
-        let dividedHeight = chartWidth / genCount;
-        let gen = getGeneration(momArray[index][0].children[j]);
-        let childYPos = getY(dividedHeight, gen);
+        let childElement = $(`#${momArray[index][0].children[j].image}`)
 
-        let childElement = document.getElementById(momArray[index][0].children[j].image);
-        let childXPos = parseAttribute('x', childElement.getAttribute('style'));
+        let x1 = xPos;
+        let x2 = parseAttribute('x', childElement[0].style.cssText);
+        let y1 = yPos;
+        let y2 = parseAttribute('y', childElement[0].style.cssText);
 
-
-        let childHypotenuse = getHypotenuse(yPos, childYPos, xPos, childXPos);
-        let angle = getAngle(yPos - childYPos, childHypotenuse);
-        
-
-        //Adjusts angle if child is before mom in x-axis
-        if (childXPos < xPos) {
-          angle = (-1 * angle) + 180.5;
-        }
-  
-        li.innerHTML += `<div class="child-line" style="--hypotenuse: ${childHypotenuse}; --angle: ${angle}"></div>`;
-        
+        svgString += `<line class='svg-line' x1="${x1}" y1="${chartWidth - y1}" x2="${x2}" y2="${chartWidth - y2}" stroke="black" stroke-width='8' onclick='testAdd(data[${i}], momArray[${index}][0].children[${j}])'/>`
       }
     }
-  }
-}
 
-function createSpouseLines() {
-  for (let i = 0; i < data.length; ++i) {
-
-    let li = document.getElementById(data[i].image);
-
-    yPos = parseAttribute('y', li.getAttribute('style'));
-    xPos = parseAttribute('x', li.getAttribute('style'));
-
-    let genCount = getLongestGenChain();
-    
+    //Creates Spouse Lines
     if (data[i].spouse != null) {
 
-      let dividedHeight = chartWidth / genCount;
-      let gen = getGeneration(data[i]);
-      let spouseYPos = getY(dividedHeight, gen);
+      let spouseElement = $(`#${data[i].spouse}`);
+      let spouseXPos = parseAttribute('x', spouseElement[0].style.cssText);
+      let spouseYPos = parseAttribute('y', spouseElement[0].style.cssText);
 
-      let spouseElement = document.getElementById(data[i].spouse);
-      let spouseXPos = parseAttribute('x', spouseElement.getAttribute('style'));
-
-      let spouseHypotenuse = getHypotenuse(yPos, spouseYPos, xPos, spouseXPos);
-      let spouseAngle = getAngle(yPos - spouseYPos, spouseHypotenuse);
-      /*
-      if (spouseXPos < xPos) {
-        spouseAngle = (-1 * spouseAngle) + 180.5;
-      }
-      */
+      let line = `<line class='svg-line' x1="${xPos}" y1="${chartWidth - yPos}" x2="${spouseXPos}" y2="${chartWidth - spouseYPos}" stroke="blue" stroke-width='8' onclick='testAdd(data[${i}], data[getDataIndex(data[${i}].spouse)])'/>`
 
       //if statement so that two spouse lines aren't drawn between spouses
       if (spouseXPos > xPos) {
-        li.innerHTML += `<div class="spouse-line" style="--hypotenuse: ${spouseHypotenuse}; --angle: ${spouseAngle}"></div>`;
+        svgString += line
       }
     }
   }
+
+  svgString += "</svg>"
+  $('#chart').html($('#chart').html() + svgString);
 }
 
 function adjustSpouseXPos(node, fixedSpouses) {
@@ -1535,144 +1492,6 @@ function getSpacing(rootNode, spacing, targetNode) {
 
   return spacing
 }
-
-
-//You have at to adjust them after all children have been placed already
-//Will probably merge with the getX function
-//Add rules where rightmost child cannot pass leftmost child of adjacent tree and adjust spacing from there
-/*
-function adjustChildNodesXPos(momNode) {
-
-  let children = getChildren(momNode);
-
-  let mom = document.getElementById(`${momNode.image}`);
-  let momXPos = parseAttribute('x', mom.style.cssText);
-  let spacing = Math.round(getSpacing(getRootNode(momNode), chartWidth, children[0]));
-
-  //If there are an odd number of children
-  if (children.length % 2 == 1) {
-
-    //FIXME there are already drawn nodes in xPos's so this causes errors
-    //TRY setting up children x to 0 and then go from there
-    for (let i = 0; i < children.length; ++i) {
-      let child = document.getElementById(`${children[i].image}`)
-      let originalY = parseAttribute('y', child.style.cssText)
-      child.setAttribute('style', `--y: ${Math.round(originalY)}px; --x: ${0}px`)
-    }
-    //End Try
-
-    //Testing assuming that each node is 70 pixels wide, change to not use Magic Number
-    if (spacing < 80) {
-      spacing = 80
-    }
-  
-
-    let tmpSpacing = spacing;
-
-    //debugger
-
-    for (let i = 0; i < children.length; ++i) {
-
-      let child = document.getElementById(`${children[i].image}`);
-
-      let newXPos;
-      let originalY = parseAttribute('y', child.style.cssText);
-
-      let childGeneration = getGeneration(children[i]);
-
-      if (i == 0) {
-        newXPos = momXPos;
-        child.setAttribute('style', `--y: ${Math.round(originalY)}px; --x: ${Math.round(newXPos)}px`);
-
-        if (children[i].spouse != null) {
-          adjustSpouseXPos(children[i]);
-        }
-
-      }
-
-      else if (emptyXLocation(momXPos + spacing, childGeneration)) {
-        newXPos = momXPos + spacing;
-        child.setAttribute('style', `--y: ${Math.round(originalY)}px; --x: ${Math.round(newXPos)}px`);
-
-        if (children[i].spouse != null) {
-          adjustSpouseXPos(children[i]);
-        }
-
-      }
-    
-      else if (emptyXLocation(momXPos - spacing, childGeneration)) {
-        newXPos = momXPos - spacing;
-        child.setAttribute('style', `--y: ${Math.round(originalY)}px; --x: ${Math.round(newXPos)}px`);
-
-        if (children[i].spouse != null) {
-          adjustSpouseXPos(children[i]);
-        }
-      }
-
-      else {
-        spacing += tmpSpacing;
-        //If gets to else and doesn't get placed, then it would skip over the child, thus the i -= 1
-        i -= 1;
-      }
-    }
-  }
-
-  //If Even amount of children
-  if (children.length % 2 == 0) {
-
-    let spacing = 150;
-
-    //TEST
-    for (let i = 0; i < children.length; ++i) {
-      let child = document.getElementById(`${children[i].image}`);
-      let originalY = parseAttribute('y', child.style.cssText);
-      child.setAttribute('style', `--y: ${originalY}px; --x: ${0}px`);
-    }
-    //
-
-
-
-    for (let i = 0; i < children.length; ++i) {
-
-      let child = document.getElementById(`${children[i].image}`);
-
-      let newXPos;
-      let originalY = parseAttribute('y', child.style.cssText);
-
-      let childGeneration = getGeneration(children[i]);
-
-      if (i == 0) {
-        newXPos = momXPos + 50;
-        child.setAttribute('style', `--y: ${Math.round(originalY)}px; --x: ${Math.round(newXPos)}px`);
-      }
-
-      else if (i == 1) {
-        newXPos = momXPos - 50;
-        child.setAttribute('style', `--y: ${Math.round(originalY)}px; --x: ${Math.round(newXPos)}px`);
-      }
-
-      else if (emptyXLocation(momXPos + spacing, childGeneration)) {
-        newXPos = momXPos + spacing;
-        child.setAttribute('style', `--y: ${Math.round(originalY)}px; --x: ${Math.round(newXPos)}px`);
-      }
-    
-      else if (emptyXLocation(momXPos - spacing, childGeneration)) {
-        newXPos = momXPos - spacing;
-        child.setAttribute('style', `--y: ${Math.round(originalY)}px; --x: ${Math.round(newXPos)}px`);
-      }
-
-      else {
-        spacing += 100;
-        //If gets to else and doesn't get placed, then it would skip over the child, thus the i -= 1
-        i -= 1;
-      }
-
-    }
-
-
-  }
-}
-*/
 
 //FIXME could potentially be overlap of nodes because this checks for EXACT x, not range of x to account for node width
 function emptyXLocation(xPos, generation) {
