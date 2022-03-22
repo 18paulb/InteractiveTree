@@ -246,6 +246,7 @@ function createChart(chart, originalGens) {
   createLines();
 
 }
+
 //Creates Data Points
 function createDataPoints(chart, originalGens) {
   //In case you have to redraw chart
@@ -262,10 +263,11 @@ function createDataPoints(chart, originalGens) {
     for (let i = 0; i < data.length; ++i) { //iterates through the entire data set to check if gen matches up
       let gen = getGeneration(data[i]);
       if (gen == genIndex) {
+        
         if (originalGens != null) {
-          //debugger
           gen = originalGens.get(data[i]);
         }
+
       //Getting X and Y Positions
       let li = document.createElement('li');
       let dividedHeight = chartWidth / genCount;
@@ -292,10 +294,6 @@ function createDataPoints(chart, originalGens) {
 
 
       li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`);
-      //Maybe nest in div and make the style be invisible
-      /*li.innerHTML += `<div><button id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'>
-      <img class="data-point data-button" src="../../static/tree/images/pictures/${data[i].image}.PNG" onmouseenter='hoverMenu(${data[i].image})' onmouseleave='closeHoverMenu()'>
-      </button></div>`*/
 
       li.innerHTML += `<div id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'>
       <img class="data-point data-button" src="../../static/tree/images/pictures/${data[i].image}.PNG" onmouseenter='hoverMenu(${data[i].image})' onmouseleave='closeHoverMenu()'>
@@ -1378,19 +1376,6 @@ function getNodesInGeneration(generation) {
   return nodeGeneration;
 }
 
-//FIXME: Only pull the nodes that are mothers or children (don't count spouses)
-/*
-function getKeyNodesInGeneration(generation) {
-  let nodeGeneration = [];
-  for (let i = 0; i < data.length; i++) {
-    if (getGeneration(data[i]) == generation) {
-      
-    }
-  }
-  return nodeGeneration;
-}
-*/
-
 function getChildren(motherNode) {
   let children = [];
   if (isMom(motherNode)) {
@@ -1401,16 +1386,6 @@ function getChildren(motherNode) {
   }
 
   return children;
-}
-
-function getSiblings(childNode) {
-  let siblings = [];
-
-  let momIndex = getDataIndex(childNode.mother);
-
-  siblings = getChildren(data[momIndex]);
-
-  return siblings;
 }
 
 function getRootNode(node) {
@@ -1431,123 +1406,6 @@ function getRootNode(node) {
   }
 }
 
-function partOfFamilyLine(targetNode, node) {
-  let children = [];
-  if (isMom(node)) {
-    children = getChildren(node);
-  }
-
-  //Accounts for if spouse is Mom
-  if (node.spouse != null) {
-    let spouseIndex = getDataIndex(node.spouse);
-    if (isMom(data[spouseIndex])) {
-      children = getChildren(data[spouseIndex]);
-    }
-  }
-
-  if (node == targetNode) {
-    return true;
-  }
-
-  if (children.length != 0) {
-    for (let i = 0; i < children.length; ++i) {
-      if (children[i] == targetNode) {
-        return true;
-      }
-      else {
-        return partOfFamilyLine(targetNode, children[i])
-      }
-    }
-  }
-
-  return false;
-}
-
-function getSpacing(rootNode, spacing, targetNode) {
-  let children = [];
-  if (isMom(rootNode)) {
-    children = getChildren(rootNode);
-  }
-
-  //Accounts for if spouse is Mom
-  if (rootNode.spouse != null) {
-    let spouseIndex = getDataIndex(rootNode.spouse);
-    if (isMom(data[spouseIndex])) {
-      children = getChildren(data[spouseIndex]);
-    }
-  }
-
-  //Base Case
-  if (children.length == 0) {
-    return spacing;
-  }
-
-  if (children.length != 0) {
-    for (let i = 0; i < children.length; ++i) {
-      if (partOfFamilyLine(targetNode, children[i])) {
-        return getSpacing(children[i], (spacing / children.length), targetNode);
-      }
-    }
-  }
-
-  return spacing
-}
-
-//FIXME could potentially be overlap of nodes because this checks for EXACT x, not range of x to account for node width
-function emptyXLocation(xPos, generation) {
-  let chart = document.getElementById('chart');
-
-  let isEmpty = true;
-
-  let nodesInGeneration = getNodesInGeneration(generation);
-
-  for (let i = 0; i < nodesInGeneration.length; ++i) {
-    let node = document.getElementById(`${nodesInGeneration[i].image}`);
-    let tmpX = parseAttribute('x', node.style.cssText);
-
-    
-    if ((xPos == tmpX)) {
-      isEmpty = false;
-      return isEmpty;
-    }
-      
-    
-    if ((xPos >= tmpX - 30) && (xPos <= tmpX + 30)) {
-      isEmpty = false;
-      return isEmpty
-    }
-    
-    
-  }
-
-  return isEmpty;
-}
-
-//Used to prevent line overlap
-function leftmostChildPos(momNode) {
-  let childElementXPos;
-
-  for (let i = 0; i < momArray.length; ++i) {
-    if (momArray[i][0].data.image == momNode.image) {
-
-      //Initial comparing value
-      let tmpChild = document.getElementById(`${momArray[i][0].children[0].image}`);
-      childElementXPos = parseAttribute('x', tmpChild.style.cssText)
-
-      for (let j = 0; j < momArray[i][0].children.length; ++j) {
-        let child = document.getElementById(`${momArray[i][0].children[j].image}`);
-
-        let childXPos = parseAttribute('x', child.style.cssText);
-
-        if (childXPos < childElementXPos) {
-          childElementXPos = childXPos;
-        }
-      }
-      break;
-    }
-  }
-  return childElementXPos;
-}
 
 function getLeftmostChild(momNode) {
   let childElementXPos;
@@ -1580,32 +1438,6 @@ function getLeftmostChild(momNode) {
   return data[getDataIndex(parseInt(leftmostChild))];
 }
 
-
-function rightmostChildPos(momNode) {
-  let childElementXPos;
-
-  for (let i = 0; i < momArray.length; ++i) {
-    if (momArray[i][0].data.image == momNode.image) {
-
-      //Initial comparing value
-      let tmpChild = document.getElementById(`${momArray[i][0].children[0].image}`);
-      childElementXPos = parseAttribute('x', tmpChild.style.cssText)
-
-      for (let j = 0; j < momArray[i][0].children.length; ++j) {
-        let child = document.getElementById(`${momArray[i][0].children[j].image}`);
-
-        let childXPos = parseAttribute('x', child.style.cssText);
-
-        if (childXPos > childElementXPos) {
-          childElementXPos = childXPos;
-        }
-      }
-      break;
-    }
-  }
-  return childElementXPos;
-}
-
 function getRightmostChild(momNode) {
   let childElementXPos;
   let rightmostChild;
@@ -1633,58 +1465,3 @@ function getRightmostChild(momNode) {
   }
   return data[getDataIndex(parseInt(rightmostChild))]
 }
-
-function swapChildPos(child1, child2) {
-  let ch1 = document.getElementById(child1.image);
-  let ch2 = document.getElementById(child2.image);
-
-  let ch1OriginalY = parseAttribute('y', ch1.style.cssText);
-  let ch2OriginalY = parseAttribute('y', ch2.style.cssText);
-
-  let ch1OriginalX = parseAttribute('x', ch1.style.cssText);
-  let ch2OriginalX = parseAttribute('x', ch2.style.cssText);  
-
-  ch1.setAttribute('style', `--y: ${Math.round(ch1OriginalY)}px; --x: ${Math.round(ch2OriginalX)}px`);
-  ch2.setAttribute('style', `--y: ${Math.round(ch2OriginalY)}px; --x: ${Math.round(ch1OriginalX)}px`);
-}
-
-
-function presentationChildren(momNode) {
-  //if mom node left child is more left than rightmost child
-  
-  let gen = getGeneration(momNode)
-
-  let momsInGen = []
-
-  for (let i = 0; i < momArray.length; ++i) {
-    if (getGeneration(momArray[i][0].data) == gen) {
-      momsInGen.push(momArray[i][0].data)
-    }
-  }
-
-  let docNode = document.getElementById(momNode.image)
-
-  let nodeX = parseAttribute('x', docNode.style.cssText)
-
-  for (let i = 0; i < momsInGen.length; ++i) {
-    let tmpNode = document.getElementById(momsInGen[i].image);
-
-    let tmpX = parseAttribute('x', tmpNode.style.cssText);
-
-    //if tmp node is to the left of node
-    if (tmpX < nodeX) {
-      if (rightmostChildPos(momsInGen[i]) > leftmostChildPos(momNode)) {
-        swapChildPos(getLeftmostChild(momNode), getRightmostChild(momsInGen[i]))
-      }
-    }
-
-    //if tmp node is to the right of node
-    if (tmpX > nodeX) {
-      if (leftmostChildPos(momsInGen[i]) < rightmostChildPos(momNode)) {
-        swapChildPos(getRightmostChild(momNode), getLeftmostChild(momsInGen[i]))
-      }    
-    }
-  }
-
-}
-
