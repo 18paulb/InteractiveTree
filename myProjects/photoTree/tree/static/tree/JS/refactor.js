@@ -1,4 +1,4 @@
-
+/*
 let data = [
   {
     "image": 1,
@@ -63,7 +63,7 @@ let data = [
     "birthyear": 1950
   },
 */
-
+/*
   {
     "image": 11,
     "mother": null,
@@ -107,7 +107,7 @@ let data = [
     "birthyear": 1981
   },
 ]
-
+*/
 
 let nodeBoxData = [];
 
@@ -214,7 +214,7 @@ function drop(ev) {
     let param1 = children[0];
     let param2 = children[1];
 
-    testRemoveFromConfirmBox(param1, param2)
+    testRemoveFromConfirmBox(param1, param2, data)
   }
 }
 
@@ -234,7 +234,7 @@ $.ajax({
     //debugger
     //FIXME, momArray isn't being passed into
     let momArray = makeMomArray(test)
-    createChart(test)
+    createChart(test, momArray)
   },
   
   error: function (response) {
@@ -247,21 +247,21 @@ $.ajax({
 //All functions for chart creation and functionality
 
 
-function createChart(data) {
+function createChart(data, momArray) {
 
-  createDataPoints(data);
+  createDataPoints(data, momArray);
 
-  createLines(data);
+  createLines(data, momArray);
 }
 
-function createDataPoints(data) {
+function createDataPoints(data, momArray) {
   //In case you have to redraw chart, removes previously placed nodes
   $('#chart').empty();
 
   let generationMap = new Map();
   let genCount = 0;
   for (let j = 0; j < data.length; ++j) {
-    let tmp = getGenerationCount(data[j], 1);
+    let tmp = getGenerationCount(data[j], 1, data);
     if (tmp > genCount) {
       genCount = tmp;
     }
@@ -275,30 +275,29 @@ function createDataPoints(data) {
 
     let genCount = 0;
     for (let j = 0; j < data.length; ++j) {
-      let tmp = getGenerationCount(data[j], 1);
+      let tmp = getGenerationCount(data[j], 1, data);
       if (tmp > genCount) {
         genCount = tmp;
       }
     }
 
     //Getting X and Y Positions
-    let gen = getGeneration(data[i]);
+    let gen = getGeneration(data[i], data);
 
     let dividedHeight = chartWidth / genCount;
     let yPos = getY(dividedHeight, gen);
 
-    let xPos = getX(data[i], generationMap, chartWidth);
+    let xPos = getX(data[i], generationMap, chartWidth, data);
 
     //Took out divId that was buttonID
     $('#chart').append(
       `<li id=${data[i].image} style='--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px'>
-        <div onclick='addToConfirmBox(${data[i].image})' ondrop='addToConfirmBox(${data[i].image}), drop(event)' ondragover='allowDrop(event)'>
+        <div onclick='addToConfirmBox(${data[i].image}, ${data})' ondrop='addToConfirmBox(${data[i].image}, ${data}), drop(event)' ondragover='allowDrop(event)'>
           <img class="data-point data-button" src="../../static/tree/images/pictures/${data[i].image}.PNG">
         </div>
       </li>`)
 
   }
-
 }
 
 //Works for clicking on the lines
@@ -310,8 +309,8 @@ function testAdd(node1, node2, data) {
   let id1Birthyear;
   let id2Birthyear;
 
-  let id1Index = getDataIndex(parseInt(id1));
-  let id2Index = getDataIndex(parseInt(id2));
+  let id1Index = getDataIndex(parseInt(id1), data);
+  let id2Index = getDataIndex(parseInt(id2), data);
 
   //These statements account for if the node is in the data or nodeBoxData
   if (id1Index != null) {
@@ -370,7 +369,7 @@ function testRemoveFromConfirmBox(id1, id2, data) {
 }
 
 //FIXME
-function createLines(data) {
+function createLines(data, momArray) {
 
   //FIXME: SVG has to be wider than chartwidth, however find better way of doing this, don't use magic number
   let svgString = `<svg id='lines' height="${chartWidth}" width="${chartWidth+100}" xmlns="http://www.w3.org/2000/svg" style='z-index:-1;'>`;
@@ -382,7 +381,7 @@ function createLines(data) {
     let xPos = parseAttribute('x', li[0].style.cssText);
 
     //Creates Child Lines
-    if (isMom(data[i])) {   
+    if (isMom(data[i], momArray)) {   
 
       let index = getMomArrayIndex(momArray, data[i].image);
 
@@ -406,7 +405,7 @@ function createLines(data) {
       let spouseXPos = parseAttribute('x', spouseElement[0].style.cssText);
       let spouseYPos = parseAttribute('y', spouseElement[0].style.cssText);
 
-      let line = `<line class='svg-line' x1="${xPos}" y1="${chartWidth - yPos}" x2="${spouseXPos}" y2="${chartWidth - spouseYPos}" stroke="blue" stroke-width='8' onclick='testAdd(data[${i}], data[getDataIndex(data[${i}].spouse)], ${data})'/>`
+      let line = `<line class='svg-line' x1="${xPos}" y1="${chartWidth - yPos}" x2="${spouseXPos}" y2="${chartWidth - spouseYPos}" stroke="blue" stroke-width='8' onclick='testAdd(data[${i}], data[getDataIndex(data[${i}].spouse, data)], ${data})'/>`
 
       //if statement so that two spouse lines aren't drawn between spouses
       if (spouseXPos > xPos) {
@@ -425,31 +424,31 @@ function getY(dividedHeight, generation) {
   return (chartWidth  + (chartWidth / 6)) - dividedHeight * generation;
 }
 
-function getX(node, map, width) {
+function getX(node, map, width, data) {
   let genCount = 0;
   let xPos;
 
   //Gets highest Generation
   for (let j = 0; j < data.length; ++j) {
-    let tmp = getGenerationCount(data[j], 1);
+    let tmp = getGenerationCount(data[j], 1, data);
     if (tmp > genCount) {
       genCount = tmp;
     }
   }
 
   let currGeneration;
-  let keyGen = getGeneration(node);
+  let keyGen = getGeneration(node, data);
 
   currGeneration = map.get(keyGen);
 
-  xPos = (width / getNumInGeneration(keyGen)) * currGeneration;
+  xPos = (width / getNumInGeneration(keyGen, data)) * currGeneration;
   currGeneration++;
 
   map.set(keyGen, currGeneration);
 
   //TEST ADDED THIS RULE TO STOP TOP NODE FROM SHIFTING
   //SIDEFFECTS, ANY GENERATION WITH 1 node will be placed directly in center, might not be beneficial at all
-  if (getNumInGeneration(keyGen) == 1) {
+  if (getNumInGeneration(keyGen, data) == 1) {
     xPos = width / 2
   } 
 
@@ -511,13 +510,13 @@ function addSpouseRelationship(id1, id2) {
     nodeBoxData.splice(spouse2Index, 1);
   }
 
-  if (getDataIndex(spouse1.image) != null) {
-    spouse1Index = getDataIndex(spouse1.image);
+  if (getDataIndex(spouse1.image, data) != null) {
+    spouse1Index = getDataIndex(spouse1.image, data);
     data[spouse1Index].spouse = spouse2.image;
   }
 
-  if (getDataIndex(spouse2.image) != null) {
-    spouse2Index = getDataIndex(spouse2.image);
+  if (getDataIndex(spouse2.image, data) != null) {
+    spouse2Index = getDataIndex(spouse2.image, data);
     data[spouse2Index].spouse = spouse1.image;
   }
 
@@ -530,7 +529,7 @@ function addSpouseRelationship(id1, id2) {
 }
 
 //TODO fix issues
-function addMotherRelationship(id1, id2) {
+function addMotherRelationship(id1, id2, momArray) {
   //SOLVE:
   //4. Impossible to do with current data but if male, you can't make it mother
   //5. If moved from nodeBoxData into confirmBox and error occurs (ie more than 2 nodes) and confirmBox is cleared, the data from nodeBoxData is lost forever
@@ -584,8 +583,8 @@ function addMotherRelationship(id1, id2) {
     nodeBoxData.splice(momIndex, 1)
   }
 
-  if (getDataIndex(child.image) != null) {
-    childIndex = getDataIndex(child.image);
+  if (getDataIndex(child.image, data) != null) {
+    childIndex = getDataIndex(child.image, data);
     data[childIndex].mother = mother.image;
   }
 
@@ -603,10 +602,10 @@ function addMotherRelationship(id1, id2) {
 
 
 
-function removeRelationship(id1, id2) {
+function removeRelationship(id1, id2, momArray) {
 
-  let id1Index = getDataIndex(id1)
-  let id2Index = getDataIndex(id2)
+  let id1Index = getDataIndex(id1, data)
+  let id2Index = getDataIndex(id2, data)
 
   let isRelated = false
 
@@ -622,7 +621,7 @@ function removeRelationship(id1, id2) {
       data.splice(id1Index, 1)
     }
 
-    id2Index = getDataIndex(id2)
+    id2Index = getDataIndex(id2, data)
 
     if (!(hasRelationship(data[id2Index]))) {
       addToNodeContainer(id2)
@@ -640,8 +639,8 @@ function removeRelationship(id1, id2) {
   }
 
   //Removes Mother/Child Relationship
-  id1Index = getDataIndex(id1);
-  id2Index = getDataIndex(id2);
+  id1Index = getDataIndex(id1, data);
+  id2Index = getDataIndex(id2, data);
 
   if (data[id1Index].mother == id2) {
     for (let i = 0; i < momArray.length; ++i) {
@@ -657,7 +656,7 @@ function removeRelationship(id1, id2) {
               data.splice(id1Index, 1);
             }
 
-            id2Index = getDataIndex(id2);
+            id2Index = getDataIndex(id2, data);
             
             momArray = makeMomArray();
 
@@ -687,7 +686,7 @@ function removeRelationship(id1, id2) {
               data.splice(id2Index, 1);
             }
 
-            id1Index = getDataIndex(id1);
+            id1Index = getDataIndex(id1, data);
 
             momArray = makeMomArray();
 
@@ -717,7 +716,10 @@ function removeRelationship(id1, id2) {
 }
 
 //FIXME finish JQuery
-function addToConfirmBox(id) {
+function addToConfirmBox(id, data) {
+
+  debugger
+
   let box = document.getElementById("confirmBox");
 
   //Doesn't let you add a node twice
@@ -766,8 +768,8 @@ function addToConfirmBox(id) {
     let node1;
     let node2;
 
-    let id1Index = getDataIndex(parseInt(param1));
-    let id2Index = getDataIndex(parseInt(param2));
+    let id1Index = getDataIndex(parseInt(param1), data);
+    let id2Index = getDataIndex(parseInt(param2), data);
   
     //These statements account for if the node is in the data or nodeBoxData
     if (id1Index != null) {
@@ -791,7 +793,7 @@ function addToConfirmBox(id) {
 
 function addToNodeContainer(id) {
 
-  let index = getDataIndex(id);
+  let index = getDataIndex(id, data);
 
   nodeBoxData.push(data[index]);
 
@@ -806,10 +808,10 @@ function addToNodeContainer(id) {
 
   button.setAttribute('id', `button${id}`);
   button.setAttribute('class', 'nodeBox-button');
-  button.setAttribute('onclick', `addToConfirmBox(${id}), removeFromNodeContainer(${id})`);
+  button.setAttribute('onclick', `addToConfirmBox(${id}, ${data}), removeFromNodeContainer(${id})`);
   
-  button.setAttribute('ondragstart', `addToConfirmBox(${id})`)
-  button.setAttribute('onclick', `addToConfirmBox(${id}), removeFromNodeContainer(${id})`);
+  button.setAttribute('ondragstart', `addToConfirmBox(${id}, ${data})`)
+  button.setAttribute('onclick', `addToConfirmBox(${id}, ${data}), removeFromNodeContainer(${id})`);
 
   button.appendChild(img);
 
@@ -831,7 +833,7 @@ function closeMenu() {
 
 
 
-function getDataIndex(id) {
+function getDataIndex(id, data) {
   for (let i = 0; i < data.length; ++i) {
     if (id === data[i].image) {
       return i;
@@ -857,7 +859,7 @@ function getMomArrayIndex(array, id) {
   }
 }
 
-function isMom(node) {
+function isMom(node, momArray) {
   let isMom = false;
   for (let j = 0; j < momArray.length; ++j) {
     if (momArray[j][0].data.image == node.image) {   
@@ -897,7 +899,7 @@ function parseAttribute(lookFor, attribute) {
   return parseInt(numString);
 }
 
-function hasRelationship(node) {
+function hasRelationship(node, momArray) {
 
   let hasRelationship = false;
 
@@ -905,7 +907,7 @@ function hasRelationship(node) {
     hasRelationship = true;
   }
 
-  if (isMom(node)) {
+  if (isMom(node, momArray)) {
     hasRelationship = true;
   }
 
@@ -918,13 +920,13 @@ function hasRelationship(node) {
 }
 
 //Gets highest generation count
-function getGenerationCount(node, count) {
+function getGenerationCount(node, count, data) {
   if (node.mother == null) {
       if (node.spouse != null) {
-      let spouseIndex = getDataIndex(node.spouse);
+      let spouseIndex = getDataIndex(node.spouse, data);
       if (data[spouseIndex].mother != null) {
-        let motherIndex = getDataIndex(data[spouseIndex].mother);
-        return count += getGenerationCount(data[motherIndex], count);
+        let motherIndex = getDataIndex(data[spouseIndex].mother, data);
+        return count += getGenerationCount(data[motherIndex], count, data);
       }
       else {
         return count;
@@ -935,25 +937,25 @@ function getGenerationCount(node, count) {
     }
   }
 
-  let motherIndex = getDataIndex(node.mother);
+  let motherIndex = getDataIndex(node.mother, data);
 
   if (node.mother != null) {
-    return count += getGenerationCount(data[motherIndex], count);
+    return count += getGenerationCount(data[motherIndex], count, data);
   }
 }
 
-function getGeneration(node) {
+function getGeneration(node, data) {
   let count = 1;
 
-  count = getGenerationCount(node, count);
+  count = getGenerationCount(node, count, data);
 
   return count;
 }
 
-function getNumInGeneration(generation) {
+function getNumInGeneration(generation, data) {
   let numInGen = 0;
   for (let i = 0; i < data.length; ++i) {
-    if (getGeneration(data[i]) == generation) {
+    if (getGeneration(data[i], data) == generation) {
       numInGen++;
     }
   }
@@ -963,7 +965,7 @@ function getNumInGeneration(generation) {
 function getNodesInGeneration(generation) {
   let nodeGeneration = [];
   for (let i = 0; i < data.length; ++i) {
-    if (getGeneration(data[i]) == generation) {
+    if (getGeneration(data[i], data) == generation) {
       nodeGeneration.push(data[i]);
     }
   }
@@ -971,9 +973,9 @@ function getNodesInGeneration(generation) {
   return nodeGeneration;
 }
 
-function getChildren(motherNode) {
+function getChildren(motherNode, momArray) {
   let children = [];
-  if (isMom(motherNode)) {
+  if (isMom(motherNode), momArray) {
     let index = getMomArrayIndex(momArray, motherNode.image);
     for (let i = 0; i < momArray[index][0].children.length; ++i) {
       children.push(momArray[index][0].children[i]);
@@ -995,9 +997,9 @@ function getSiblings(childNode) {
 
 function getRootNode(node) {
   if (node.mother == null) {
-    let spouseIndex = getDataIndex(node.spouse);
+    let spouseIndex = getDataIndex(node.spouse, data);
     if (node.spouse != null && data[spouseIndex].mother != null) {
-      let motherIndex = getDataIndex(data[spouseIndex].mother);
+      let motherIndex = getDataIndex(data[spouseIndex].mother, data);
       return getRootNode(data[motherIndex]);
     }
     else {
@@ -1006,22 +1008,22 @@ function getRootNode(node) {
   }
 
   if (node.mother != null) {
-    let momIndex = getDataIndex(node.mother);
+    let momIndex = getDataIndex(node.mother, data);
     return getRootNode(data[momIndex]);
   }
 }
 
-function partOfFamilyLine(targetNode, node) {
+function partOfFamilyLine(targetNode, node, momArray) {
   let children = [];
-  if (isMom(node)) {
-    children = getChildren(node);
+  if (isMom(node), momArray) {
+    children = getChildren(node, momArray);
   }
 
   //Accounts for if spouse is Mom
   if (node.spouse != null) {
-    let spouseIndex = getDataIndex(node.spouse);
-    if (isMom(data[spouseIndex])) {
-      children = getChildren(data[spouseIndex]);
+    let spouseIndex = getDataIndex(node.spouse, data);
+    if (isMom(data[spouseIndex]), momArray) {
+      children = getChildren(data[spouseIndex], momArray);
     }
   }
 
@@ -1035,7 +1037,7 @@ function partOfFamilyLine(targetNode, node) {
         return true;
       }
       else {
-        return partOfFamilyLine(targetNode, children[i])
+        return partOfFamilyLine(targetNode, children[i], momArray)
       }
     }
   }
@@ -1043,17 +1045,17 @@ function partOfFamilyLine(targetNode, node) {
   return false;
 }
 
-function getSpacing(rootNode, spacing, targetNode) {
+function getSpacing(rootNode, spacing, targetNode, momArray) {
   let children = [];
-  if (isMom(rootNode)) {
-    children = getChildren(rootNode);
+  if (isMom(rootNode), momArray) {
+    children = getChildren(rootNode, momArray);
   }
 
   //Accounts for if spouse is Mom
   if (rootNode.spouse != null) {
-    let spouseIndex = getDataIndex(rootNode.spouse);
-    if (isMom(data[spouseIndex])) {
-      children = getChildren(data[spouseIndex]);
+    let spouseIndex = getDataIndex(rootNode.spouse, data);
+    if (isMom(data[spouseIndex], momArray)) {
+      children = getChildren(data[spouseIndex], momArray);
     }
   }
 
@@ -1064,8 +1066,8 @@ function getSpacing(rootNode, spacing, targetNode) {
 
   if (children.length != 0) {
     for (let i = 0; i < children.length; ++i) {
-      if (partOfFamilyLine(targetNode, children[i])) {
-        return getSpacing(children[i], (spacing / children.length), targetNode);
+      if (partOfFamilyLine(targetNode, children[i], momArray)) {
+        return getSpacing(children[i], (spacing / children.length), targetNode, momArray);
       }
     }
   }
@@ -1074,7 +1076,7 @@ function getSpacing(rootNode, spacing, targetNode) {
 }
 
 //FIXME: prioritize moving spouses with no moms and also spouses who are already on the tree
-function adjustSpouseXPos(node) {
+function adjustSpouseXPos(node, data) {
 
   let spouse = $(`#${node.spouse}`);
   let currNode = $(`#${node.image}`);
@@ -1082,7 +1084,7 @@ function adjustSpouseXPos(node) {
   let spouseXPos = parseAttribute('x', spouse[0].style.cssText);
   let nodeXPos = parseAttribute('x', currNode[0].style.cssText);
 
-  let generation = getGeneration(node)
+  let generation = getGeneration(node, data)
 
   //FIXME: everything below this has to change
   let spacing = 100;
