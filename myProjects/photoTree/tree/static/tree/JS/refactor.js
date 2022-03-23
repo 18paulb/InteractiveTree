@@ -1,121 +1,8 @@
-/*
-let data = [
-  {
-    "image": 1,
-    "mother": 9,
-    "spouse": null,
-    "birthyear": 2006
-  },
-  {
-    "image": 2,
-    "mother": 9,
-    "spouse": null,
-    "birthyear": 2004
-  },
-  {
-    "image": 3,
-    "mother": 9,
-    "spouse": null,
-    "birthyear": 2002
-  },
-  {
-    "image": 4,
-    "mother": 9,
-    "spouse": null,
-    "birthyear": 2010
-  },
-  {
-    "image": 5,
-    "mother": 9,
-    "spouse": null,
-    "birthyear": 2008
-  },
-  {
-    "image": 6,
-    "mother": 9,
-    "spouse": null,
-    "birthyear": 2013
-  },
-  {
-    "image": 7,
-    "mother": 9,
-    "spouse": null,
-    "birthyear": 2001
-  },
-  {
-    "image": 8,
-    "mother": 11,
-    "spouse": 9,
-    "birthyear": 1978
-  },
-  {
-    "image": 9,
-    //"mother": 10,
-    "mother": null,  //FIXME CHANGED
-    "spouse": 8,
-    "birthyear": 1979,
-  },
-  /*
-  {
-    "image": 10,
-    "mother": null,
-    "spouse": null,
-    "birthyear": 1950
-  },
-*/
-/*
-  {
-    "image": 11,
-    "mother": null,
-    "spouse": 12,
-    "birthyear": 1955
-  },
-  {
-    "image": 12,
-    "mother": null,
-    "spouse": 11,
-    "birthyear": 1955
-  },
-  {
-    "image": 13,
-    "mother": 11,
-    "spouse": 14,
-    "birthyear": 1980
-  },
-  {
-    "image": 14,
-    "mother": null,
-    "spouse": 13,
-    "birthyear": 1979
-  },
-  {
-    "image": 15,
-    "mother": 11,
-    "spouse": 17,
-    "birthyear": 1984
-  },
-  {
-    "image": 16,
-    "mother": 15,
-    "spouse": null,
-    "birthyear": 2005
-  },
-  {
-    "image": 17,
-    "mother": null,
-    "spouse": 15,
-    "birthyear": 1981
-  },
-]
-*/
-
 let nodeBoxData = [];
 
 let chartWidth = 1200;
 
 //Used to connect children to moms
-let momArray = [];
-
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Defines class to be used for the objects of the values in momMap
 class mom {
@@ -191,7 +78,6 @@ function makeMomArray(data) {
   return tmpArray;
 }
 
-//momArray = makeMomArray();
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -231,8 +117,6 @@ $.ajax({
       test[i] = test[i].fields;
     }
 
-    //debugger
-    //FIXME, momArray isn't being passed into
     let momArray = makeMomArray(test)
     createChart(test, momArray)
   },
@@ -241,8 +125,6 @@ $.ajax({
       console.log(response);
   },
 })
-
-
 
 //All functions for chart creation and functionality
 
@@ -453,7 +335,6 @@ function getX(node, map, width, data) {
   } 
 
   return xPos;
-
 }
 
 function getHypotenuse(datapoint1, datapoint2, left1, left2) {
@@ -598,10 +479,6 @@ function addMotherRelationship(id1, id2, momArray) {
 
 }
 
-
-
-
-
 function removeRelationship(id1, id2, momArray) {
 
   let id1Index = getDataIndex(id1, data)
@@ -702,7 +579,6 @@ function removeRelationship(id1, id2, momArray) {
     }
   }
 
-
   if (!isRelated) {
     alert("Error, No Direct Relationship");
   }
@@ -729,8 +605,6 @@ function addToConfirmBox(id, data) {
     }
   }
   
-  
-
   //Doesn't let you add more than 2 nodes
   if (box.children.length >= 2) {
     alert("Can't have more than 2 nodes in confirmation box.");
