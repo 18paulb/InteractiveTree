@@ -185,6 +185,8 @@ function createDataPoints(data, momArray) {
 //Works for clicking on the lines
 function testAdd(node1, node2, data) {
 
+  debugger
+  
   let id1 = node1.image;
   let id2 = node2.image;
 
