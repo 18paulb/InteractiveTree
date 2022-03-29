@@ -3,6 +3,8 @@ let nodeBoxData = [];
 let chartWidth = 1200;
 
 //Used to connect children to moms
+let momArray = [];
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Defines class to be used for the objects of the values in momMap
 class mom {
@@ -85,7 +87,8 @@ function allowDrop(ev) {
   ev.preventDefault();
 }
 
-function drop(ev) {
+//FIXME: was just ev, might cause problems
+function drop(ev, data) {
   ev.preventDefault();
 
   let box = document.getElementById("confirmBox");
@@ -126,7 +129,10 @@ $.ajax({
   },
 })
 
+
+
 //All functions for chart creation and functionality
+
 
 
 function createChart(data, momArray) {
@@ -174,7 +180,7 @@ function createDataPoints(data, momArray) {
     //Took out divId that was buttonID
     $('#chart').append(
       `<li id=${data[i].image} style='--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px'>
-        <div onclick='addToConfirmBox(${data[i].image}, ${data})' ondrop='addToConfirmBox(${data[i].image}, ${data}), drop(event)' ondragover='allowDrop(event)'>
+        <div onclick='addToConfirmBox(${data[i].image}, ${data})' ondrop='addToConfirmBox(${data[i].image}, ${data}), drop(event, ${data})' ondragover='allowDrop(event)'>
           <img class="data-point data-button" src="../../static/tree/images/pictures/${data[i].image}.PNG">
         </div>
       </li>`)
@@ -185,8 +191,6 @@ function createDataPoints(data, momArray) {
 //Works for clicking on the lines
 function testAdd(node1, node2, data) {
 
-  debugger
-  
   let id1 = node1.image;
   let id2 = node2.image;
 
@@ -235,9 +239,9 @@ function testAdd(node1, node2, data) {
     </div>
 
     <div class='menu-button'>
-      <button id='removeButton' class='button-34' onclick='removeRelationship(${id1}, ${id2})'>Remove Relationship</button>
-      <button id='addMotherButton' class='button-34' onclick='addMotherRelationship(${id1}, ${id2})'>Add Mother/Child Relationship</button>
-      <button id='addSpouseButton' class='button-34' onclick='addSpouseRelationship(${id1}, ${id2})'>Add Spouse Relationship</button>
+      <button id='removeButton' class='button-34' onclick='removeRelationship(${id1}, ${id2}, ${data})'>Remove Relationship</button>
+      <button id='addMotherButton' class='button-34' onclick='addMotherRelationship(${id1}, ${id2}, ${data})'>Add Mother/Child Relationship</button>
+      <button id='addSpouseButton' class='button-34' onclick='addSpouseRelationship(${id1}, ${id2}, ${data})'>Add Spouse Relationship</button>
     </div>
   </div>`)
 
@@ -337,6 +341,7 @@ function getX(node, map, width, data) {
   } 
 
   return xPos;
+
 }
 
 function getHypotenuse(datapoint1, datapoint2, left1, left2) {
@@ -354,7 +359,7 @@ function getAngle(opposite, hypotenuse) {
   return sine;
 }
 
-function addSpouseRelationship(id1, id2) {
+function addSpouseRelationship(id1, id2, data) {
   let node1;
   let node2;
 
@@ -412,7 +417,7 @@ function addSpouseRelationship(id1, id2) {
 }
 
 //TODO fix issues
-function addMotherRelationship(id1, id2, momArray) {
+function addMotherRelationship(id1, id2, data) {
   //SOLVE:
   //4. Impossible to do with current data but if male, you can't make it mother
   //5. If moved from nodeBoxData into confirmBox and error occurs (ie more than 2 nodes) and confirmBox is cleared, the data from nodeBoxData is lost forever
@@ -481,7 +486,11 @@ function addMotherRelationship(id1, id2, momArray) {
 
 }
 
-function removeRelationship(id1, id2, momArray) {
+
+
+
+
+function removeRelationship(id1, id2, momArray, data) {
 
   let id1Index = getDataIndex(id1, data)
   let id2Index = getDataIndex(id2, data)
@@ -496,14 +505,14 @@ function removeRelationship(id1, id2, momArray) {
     data[id2Index].spouse = null
 
     if (!(hasRelationship(data[id1Index]))) {
-      addToNodeContainer(id1)
+      addToNodeContainer(id1, data)
       data.splice(id1Index, 1)
     }
 
     id2Index = getDataIndex(id2, data)
 
     if (!(hasRelationship(data[id2Index]))) {
-      addToNodeContainer(id2)
+      addToNodeContainer(id2, data)
       data.splice(id2Index, 1)
     }
 
@@ -531,7 +540,7 @@ function removeRelationship(id1, id2, momArray) {
             data[id1Index].mother = null;
 
             if (!hasRelationship(data[id1Index])) {
-              addToNodeContainer(data[id1Index].image);
+              addToNodeContainer(data[id1Index].image, data);
               data.splice(id1Index, 1);
             }
 
@@ -540,7 +549,7 @@ function removeRelationship(id1, id2, momArray) {
             momArray = makeMomArray();
 
             if (!hasRelationship(data[id2Index])) {
-              addToNodeContainer(data[id2Index].image);
+              addToNodeContainer(data[id2Index].image, data);
               data.splice(id2Index, 1);
             }
 
@@ -561,7 +570,7 @@ function removeRelationship(id1, id2, momArray) {
             data[id2Index].mother = null;
 
             if (!hasRelationship(data[id2Index])) {
-              addToNodeContainer(data[id2Index].image);
+              addToNodeContainer(data[id2Index].image, data);
               data.splice(id2Index, 1);
             }
 
@@ -570,7 +579,7 @@ function removeRelationship(id1, id2, momArray) {
             momArray = makeMomArray();
 
             if (!hasRelationship(data[id1Index])) {
-              addToNodeContainer(data[id1Index].image);
+              addToNodeContainer(data[id1Index].image, data);
               data.splice(id1Index, 1);
             }
 
@@ -580,6 +589,7 @@ function removeRelationship(id1, id2, momArray) {
       }
     }
   }
+
 
   if (!isRelated) {
     alert("Error, No Direct Relationship");
@@ -667,7 +677,7 @@ function addToConfirmBox(id, data) {
   }
 }
 
-function addToNodeContainer(id) {
+function addToNodeContainer(id, data) {
 
   let index = getDataIndex(id, data);
 
