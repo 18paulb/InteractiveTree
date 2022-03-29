@@ -226,6 +226,7 @@ function createChart(chart) {
 }
 
 //Creates Data Points
+//FIXME: Compare this to function in refactor and make changes
 function createDataPoints(chart) {
   //In case you have to redraw chart
   removeAllChildNodes(chart);
@@ -241,12 +242,6 @@ function createDataPoints(chart) {
     for (let i = 0; i < data.length; ++i) { //iterates through the entire data set to check if gen matches up
       let gen = getGeneration(data[i]);
       if (gen == genIndex) {
-        
-        /*
-        if (originalGens != null) {
-          gen = originalGens.get(data[i]);
-        }
-        */
 
       //Getting X and Y Positions
       let li = document.createElement('li');
@@ -279,7 +274,7 @@ function createDataPoints(chart) {
       li.innerHTML += `<div id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'>
       <img class="data-point data-button" src="../../static/tree/images/pictures/${data[i].image}.PNG" onmouseenter='hoverMenu(${data[i].image})' onmouseleave='closeHoverMenu()'>
       </div>`
-
+      
       chart.appendChild(li);
       }
     }
@@ -318,7 +313,6 @@ function testAdd(node1, node2) {
   $('#center-menu').html(
   `<div id='center-menu' class='center-menu'>
     <div><button onclick='closeMenu()'>X</button></div>
-
     <div class='menu-pics-container'>
       <div>
         <img class='menu-pic' src='../../static/tree/images/pictures/${id1}.PNG'/>
@@ -327,7 +321,6 @@ function testAdd(node1, node2) {
           <div><b>${id1Birthyear}</b></div>
         </div>
       </div>
-
       <div>
         <img class='menu-pic' src='../../static/tree/images/pictures/${id2}.PNG'/>
         <div id ='node-${id2}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px;'>
@@ -336,7 +329,6 @@ function testAdd(node1, node2) {
         </div>
       </div>
     </div>
-
     <div class='menu-button'>
       <button id='removeButton' class='button-34' onclick='removeRelationship(${id1}, ${id2})'>Remove Relationship</button>
       <button id='addMotherButton' class='button-34' onclick='addMotherRelationship(${id1}, ${id2})'>Add Mother/Child Relationship</button>
@@ -344,7 +336,8 @@ function testAdd(node1, node2) {
     </div>
   </div>`)
 
-  removeFromNodeContainer(id1)
+  //FIXME: Causing DOM removal error, idk why not neccesay
+  //removeFromNodeContainer(id1)
 
 }
 
@@ -539,13 +532,6 @@ function adjustRootNode() {
 //NEW getX Function (for gen1 and gen2 nodes)
 function setX(node, map, width, placeInGen) {
   let keyGen = getGeneration(node);
-  /*
-  if (originalGens == null) {
-    keyGen = getGeneration(node);
-  } else {
-    keyGen = originalGens.get(node);
-  }
-  */
 
   let xPos = (width/(getNumInGeneration(keyGen) + 1)) * (placeInGen + 1);
   return xPos;
@@ -557,7 +543,12 @@ function setChildX(node, widthOfFamily) {
   let placeInFam = getPlaceInFamily(node);
   
   let nodeMother = node.mother;
-  let momXPos = getX(nodeMother);
+  let momXPos;
+  if (nodeMother != null) {
+    momXPos = getX(nodeMother);
+  } else {
+    momXPos = 0;
+  }
   let famSpacing = widthOfFamily/(numChildren + 1);
 
   let momGen = getGeneration(node.mother);
@@ -576,6 +567,7 @@ function setChildX(node, widthOfFamily) {
 }
 
 function adjustHigherGenNodes(nodeMother, currentMomNodeXPos) {
+  
   let motherId = getDataIndex(nodeMother);
   let mother = data[motherId];
   
@@ -744,6 +736,7 @@ function addMotherRelationship(id1, id2) {
 }
 
 //FIXME: If nodes are in different gens, it should not remove the line
+//TODO: What is the purpose of this function? - Brandon
 function removeSpouseLine(id1, id2) {
   let node1XPos = getX(id1);
   let node2XPos = getX(id2);
@@ -774,16 +767,6 @@ function removeRelationship(id1, id2) {
 
   //Removes Spouse Relationship
   if (data[id1Index].spouse == id2) {
-    
-    //put all of the nodes current generations in a map 
-    //(so remaining spouse's generation doesn't get messed up when new chart is created)
-    /*
-    const originalGens = new Map();
-    for (let i = 0; i < data.length; i++) {
-      originalGens.set(data[i], getGeneration(data[i]));
-      //debugger
-    } 
-    */
 
     isRelated = true
 
@@ -804,13 +787,8 @@ function removeRelationship(id1, id2) {
 
     closeMenu();
 
-    //check if either node1 or node2 have children
-    if (hasChildren(data[id1Index]) || hasChildren(data[id2Index])) {
-      removeSpouseLine(id1, id2);
-    } else {
-      createChart(chartList);
-    }
-  
+    createChart(chartList);
+
     let box = document.getElementById('confirmBox');
     box.innerHTML = ''
     box.style.border = ''
@@ -991,7 +969,6 @@ function addToNodeContainer(id) {
 }
 
 function removeFromNodeContainer(id) {
-
   let container = document.getElementById('nodeContainer');
 
   let child = document.getElementById("button" + id);
@@ -1066,7 +1043,6 @@ function openMenu(id1, id2) {
     menu.innerHTML = `<div id='center-menu' class='center-menu'>
   
     <div><button onclick='closeMenu()'>X</button></div>
-
     <div class='menu-pics-container'>
       <div>
         <img class='menu-pic' src='../../static/tree/images/pictures/${id1}.PNG'/>
@@ -1075,7 +1051,6 @@ function openMenu(id1, id2) {
           <div><b>${id1Birthyear}</b></div>
         </div>
       </div>
-
       <div>
         <img class='menu-pic' src='../../static/tree/images/pictures/${id2}.PNG'/>
         <div id ='node-${id2}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px;'>
@@ -1084,7 +1059,6 @@ function openMenu(id1, id2) {
         </div>
       </div>
     </div>
-
     <div class='menu-button'>
       <button id='removeButton' class='button-34' onclick='removeRelationship(${id1}, ${id2})'>Remove Relationship</button>
       <button id='addMotherButton' class='button-34' onclick=addMotherRelationship(${id1}, ${id2})>Add Mother/Child Relationship</button>
@@ -1277,7 +1251,7 @@ function hasChildren(node) {
   
   let hasChildren = false;
   for (let i = 0; i < data.length; i++) {
-    if (data[i].mother == node.image) {
+    if (data[i]?.mother == node?.image) {
        hasChildren = true;
     }
   }
@@ -1358,8 +1332,8 @@ function hasRelationship(node) {
 }
 
 function getGenerationCount(node, count) {
-  if (node.mother == null) {
-    if (node.spouse != null) {
+  if (node?.mother == null) {
+    if (node?.spouse != null) {
       let spouseIndex = getDataIndex(node.spouse);
       if (data[spouseIndex].mother != null) {
         let motherIndex = getDataIndex(data[spouseIndex].mother);
