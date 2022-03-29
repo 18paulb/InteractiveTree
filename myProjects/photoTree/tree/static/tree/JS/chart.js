@@ -808,11 +808,13 @@ function removeRelationship(id1, id2) {
     closeMenu();
 
     //check if either node1 or node2 have children
+    
     if (hasChildren(data[id1Index]) || hasChildren(data[id2Index])) {
       removeSpouseLine(id1, id2);
     } else {
       createChart(chartList);
     }
+    
   
     let box = document.getElementById('confirmBox');
     box.innerHTML = ''
@@ -994,11 +996,11 @@ function addToNodeContainer(id) {
 }
 
 function removeFromNodeContainer(id) {
-  //let container = document.getElementById('nodeContainer');
-  //let child = document.getElementById("button" + id);
-  //container.removeChild(child);
+  let container = document.getElementById('nodeContainer');
 
-  $(`#button${id}`).remove();
+  let child = document.getElementById("button" + id);
+
+  container.removeChild(child);
 }
 
 function removeAllChildNodes(parent) {
