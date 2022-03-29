@@ -215,9 +215,9 @@ function startEmpty() {
 
 //All functions for chart creation and functionality
 
-function createChart(chart, originalGens) {
+function createChart(chart) {
 
-  createDataPoints(chart, originalGens);
+  createDataPoints(chart);
 
   //createChildLines();
   //createSpouseLines();
@@ -226,7 +226,7 @@ function createChart(chart, originalGens) {
 }
 
 //Creates Data Points
-function createDataPoints(chart, originalGens) {
+function createDataPoints(chart) {
   //In case you have to redraw chart
   removeAllChildNodes(chart);
 
@@ -242,9 +242,11 @@ function createDataPoints(chart, originalGens) {
       let gen = getGeneration(data[i]);
       if (gen == genIndex) {
         
+        /*
         if (originalGens != null) {
           gen = originalGens.get(data[i]);
         }
+        */
 
       //Getting X and Y Positions
       let li = document.createElement('li');
@@ -263,7 +265,7 @@ function createDataPoints(chart, originalGens) {
       
       if (gen < 3) {
         //If it is a first or second gen node
-        xPos = setX(data[i], generationMap, chartWidth, placeInGen, originalGens);
+        xPos = setX(data[i], generationMap, chartWidth, placeInGen);
       }
       else {
         //If it is a third gen or greater node
@@ -465,7 +467,7 @@ function createLines() {
         let y1 = yPos;
         let y2 = parseAttribute('y', childElement[0].style.cssText);
 
-        svgString += `<line class='svg-line' x1="${x1}" y1="${chartWidth - y1}" x2="${x2}" y2="${chartWidth - y2}" stroke="black" stroke-width='8' onclick='testAdd(data[${i}], momArray[${index}][0].children[${j}])'/>`
+        svgString += `<line class='svg-line' x1="${x1}" y1="${chartWidth - y1}" x2="${x2}" y2="${chartWidth - y2}" stroke="black" stroke-width='6' onclick='testAdd(data[${i}], momArray[${index}][0].children[${j}])'/>`
       }
     }
 
@@ -476,7 +478,7 @@ function createLines() {
       let spouseXPos = parseAttribute('x', spouseElement[0].style.cssText);
       let spouseYPos = parseAttribute('y', spouseElement[0].style.cssText);
 
-      let line = `<line class='svg-line' x1="${xPos}" y1="${chartWidth - yPos}" x2="${spouseXPos}" y2="${chartWidth - spouseYPos}" stroke="blue" stroke-width='8' onclick='testAdd(data[${i}], data[getDataIndex(data[${i}].spouse)])'/>`
+      let line = `<line class='svg-line' x1="${xPos}" y1="${chartWidth - yPos}" x2="${spouseXPos}" y2="${chartWidth - spouseYPos}" stroke="blue" stroke-width='6' onclick='testAdd(data[${i}], data[getDataIndex(data[${i}].spouse)])'/>`
 
       //if statement so that two spouse lines aren't drawn between spouses
       if (spouseXPos > xPos) {
@@ -535,13 +537,16 @@ function adjustRootNode() {
 }
 
 //NEW getX Function (for gen1 and gen2 nodes)
-function setX(node, map, width, placeInGen, originalGens) {
-  let keyGen;
+function setX(node, map, width, placeInGen) {
+  let keyGen = getGeneration(node);
+  /*
   if (originalGens == null) {
     keyGen = getGeneration(node);
   } else {
     keyGen = originalGens.get(node);
   }
+  */
+
   let xPos = (width/(getNumInGeneration(keyGen) + 1)) * (placeInGen + 1);
   return xPos;
 }
@@ -738,6 +743,28 @@ function addMotherRelationship(id1, id2) {
 
 }
 
+//FIXME: If nodes are in different gens, it should not remove the line
+function removeSpouseLine(id1, id2) {
+  let node1XPos = getX(id1);
+  let node2XPos = getX(id2);
+  let node1Elem = document.getElementById(id1);
+  let node2Elem = document.getElementById(id2);
+  let node1YPos = parseAttribute('y', node1Elem.style.cssText);
+  let node2YPos = parseAttribute('y', node2Elem.style.cssText);
+  
+  const svgLines = document.querySelectorAll(".svg-line");
+  for (let i = 0; i < svgLines.length; i++) {
+    let elem1X = svgLines[i].x1.baseVal.value;
+    let elem1Y = svgLines[i].y1.baseVal.value;
+    let elem2X = svgLines[i].x2.baseVal.value;
+    let elem2Y = svgLines[i].y2.baseVal.value;
+
+    if (node2XPos == elem1X && node1XPos == elem2X && (node1YPos - elem1Y) < 30 && (node2YPos - elem2Y) < 30) {
+      svgLines[i].remove();
+    }
+  }
+}
+
 function removeRelationship(id1, id2) {
 
   let id1Index = getDataIndex(id1)
@@ -747,14 +774,16 @@ function removeRelationship(id1, id2) {
 
   //Removes Spouse Relationship
   if (data[id1Index].spouse == id2) {
-
+    
     //put all of the nodes current generations in a map 
     //(so remaining spouse's generation doesn't get messed up when new chart is created)
+    /*
     const originalGens = new Map();
     for (let i = 0; i < data.length; i++) {
       originalGens.set(data[i], getGeneration(data[i]));
-      debugger
-    }
+      //debugger
+    } 
+    */
 
     isRelated = true
 
@@ -775,7 +804,12 @@ function removeRelationship(id1, id2) {
 
     closeMenu();
 
-    createChart(chartList, originalGens);
+    //check if either node1 or node2 have children
+    if (hasChildren(data[id1Index]) || hasChildren(data[id2Index])) {
+      removeSpouseLine(id1, id2);
+    } else {
+      createChart(chartList);
+    }
   
     let box = document.getElementById('confirmBox');
     box.innerHTML = ''
@@ -984,7 +1018,7 @@ function hoverMenu(nodeId) {
   //Make this class a datapoint technically and make XY pos's from there, just get X,Y from node and then adjust slightly for it to be near node
   hMenu.innerHTML = `
   <div id='hover-menu' class='hover-menu hover-point' style='--y: ${nodeY + 100}px; --x: ${nodeX - 25}px'>
-    <div>Gen: ${getGeneration(data[nodeIndex])} <br> Node: ${data[nodeIndex].image}</b><br>x: ${nodeX}</div>
+    <div>Gen: ${getGeneration(data[nodeIndex])} <br> Node: ${data[nodeIndex].image}</b><br>Spouse: ${data[nodeIndex].spouse}<br>x: ${nodeX}</div>
       <img class='menu-pic' src='../../static/tree/images/pictures/${nodeId}.PNG'/>
       <div id ='node-${nodeId}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column;'>
         <div><b>John Doe</br></div>
