@@ -1,114 +1,3 @@
-/*
-let data = [
-  {
-    "image": 1,
-    "mother": 9,
-    "spouse": null,
-    "birthyear": 2006
-  },
-  {
-    "image": 2,
-    "mother": 9,
-    "spouse": null,
-    "birthyear": 2004
-  },
-  {
-    "image": 3,
-    "mother": 9,
-    "spouse": null,
-    "birthyear": 2002
-  },
-  {
-    "image": 4,
-    "mother": 9,
-    "spouse": null,
-    "birthyear": 2010
-  },
-  {
-    "image": 5,
-    "mother": 9,
-    "spouse": null,
-    "birthyear": 2008
-  },
-  {
-    "image": 6,
-    "mother": 9,
-    "spouse": null,
-    "birthyear": 2013
-  },
-  {
-    "image": 7,
-    "mother": 9,
-    "spouse": null,
-    "birthyear": 2001
-  },
-  {
-    "image": 8,
-    "mother": 11,
-    "spouse": 9,
-    "birthyear": 1978
-  },
-  {
-    "image": 9,
-    //"mother": 10,
-    "mother": null,  //FIXME CHANGED
-    "spouse": 8,
-    "birthyear": 1979,
-  },
-  /*
-  {
-    "image": 10,
-    "mother": null,
-    "spouse": null,
-    "birthyear": 1950
-  },
-*/
-/*
-  {
-    "image": 11,
-    "mother": null,
-    "spouse": 12,
-    "birthyear": 1955
-  },
-  {
-    "image": 12,
-    "mother": null,
-    "spouse": 11,
-    "birthyear": 1955
-  },
-  {
-    "image": 13,
-    "mother": 11,
-    "spouse": 14,
-    "birthyear": 1980
-  },
-  {
-    "image": 14,
-    "mother": null,
-    "spouse": 13,
-    "birthyear": 1979
-  },
-  {
-    "image": 15,
-    "mother": 11,
-    "spouse": 17,
-    "birthyear": 1984
-  },
-  {
-    "image": 16,
-    "mother": 15,
-    "spouse": null,
-    "birthyear": 2005
-  },
-  {
-    "image": 17,
-    "mother": null,
-    "spouse": 15,
-    "birthyear": 1981
-  },
-]
-*/
-
 let nodeBoxData = [];
 
 let chartWidth = 1200;
@@ -191,7 +80,6 @@ function makeMomArray(data) {
   return tmpArray;
 }
 
-//momArray = makeMomArray();
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -199,7 +87,8 @@ function allowDrop(ev) {
   ev.preventDefault();
 }
 
-function drop(ev) {
+//FIXME: was just ev, might cause problems
+function drop(ev, data) {
   ev.preventDefault();
 
   let box = document.getElementById("confirmBox");
@@ -231,8 +120,6 @@ $.ajax({
       test[i] = test[i].fields;
     }
 
-    //debugger
-    //FIXME, momArray isn't being passed into
     let momArray = makeMomArray(test)
     createChart(test, momArray)
   },
@@ -245,6 +132,7 @@ $.ajax({
 
 
 //All functions for chart creation and functionality
+
 
 
 function createChart(data, momArray) {
@@ -292,7 +180,7 @@ function createDataPoints(data, momArray) {
     //Took out divId that was buttonID
     $('#chart').append(
       `<li id=${data[i].image} style='--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px'>
-        <div onclick='addToConfirmBox(${data[i].image}, ${data})' ondrop='addToConfirmBox(${data[i].image}, ${data}), drop(event)' ondragover='allowDrop(event)'>
+        <div onclick='addToConfirmBox(${data[i].image}, ${data})' ondrop='addToConfirmBox(${data[i].image}, ${data}), drop(event, ${data})' ondragover='allowDrop(event)'>
           <img class="data-point data-button" src="../../static/tree/images/pictures/${data[i].image}.PNG">
         </div>
       </li>`)
@@ -351,9 +239,9 @@ function testAdd(node1, node2, data) {
     </div>
 
     <div class='menu-button'>
-      <button id='removeButton' class='button-34' onclick='removeRelationship(${id1}, ${id2})'>Remove Relationship</button>
-      <button id='addMotherButton' class='button-34' onclick='addMotherRelationship(${id1}, ${id2})'>Add Mother/Child Relationship</button>
-      <button id='addSpouseButton' class='button-34' onclick='addSpouseRelationship(${id1}, ${id2})'>Add Spouse Relationship</button>
+      <button id='removeButton' class='button-34' onclick='removeRelationship(${id1}, ${id2}, ${data})'>Remove Relationship</button>
+      <button id='addMotherButton' class='button-34' onclick='addMotherRelationship(${id1}, ${id2}, ${data})'>Add Mother/Child Relationship</button>
+      <button id='addSpouseButton' class='button-34' onclick='addSpouseRelationship(${id1}, ${id2}, ${data})'>Add Spouse Relationship</button>
     </div>
   </div>`)
 
@@ -471,7 +359,7 @@ function getAngle(opposite, hypotenuse) {
   return sine;
 }
 
-function addSpouseRelationship(id1, id2) {
+function addSpouseRelationship(id1, id2, data) {
   let node1;
   let node2;
 
@@ -529,7 +417,7 @@ function addSpouseRelationship(id1, id2) {
 }
 
 //TODO fix issues
-function addMotherRelationship(id1, id2, momArray) {
+function addMotherRelationship(id1, id2, data) {
   //SOLVE:
   //4. Impossible to do with current data but if male, you can't make it mother
   //5. If moved from nodeBoxData into confirmBox and error occurs (ie more than 2 nodes) and confirmBox is cleared, the data from nodeBoxData is lost forever
@@ -602,7 +490,7 @@ function addMotherRelationship(id1, id2, momArray) {
 
 
 
-function removeRelationship(id1, id2, momArray) {
+function removeRelationship(id1, id2, momArray, data) {
 
   let id1Index = getDataIndex(id1, data)
   let id2Index = getDataIndex(id2, data)
@@ -617,14 +505,14 @@ function removeRelationship(id1, id2, momArray) {
     data[id2Index].spouse = null
 
     if (!(hasRelationship(data[id1Index]))) {
-      addToNodeContainer(id1)
+      addToNodeContainer(id1, data)
       data.splice(id1Index, 1)
     }
 
     id2Index = getDataIndex(id2, data)
 
     if (!(hasRelationship(data[id2Index]))) {
-      addToNodeContainer(id2)
+      addToNodeContainer(id2, data)
       data.splice(id2Index, 1)
     }
 
@@ -652,7 +540,7 @@ function removeRelationship(id1, id2, momArray) {
             data[id1Index].mother = null;
 
             if (!hasRelationship(data[id1Index])) {
-              addToNodeContainer(data[id1Index].image);
+              addToNodeContainer(data[id1Index].image, data);
               data.splice(id1Index, 1);
             }
 
@@ -661,7 +549,7 @@ function removeRelationship(id1, id2, momArray) {
             momArray = makeMomArray();
 
             if (!hasRelationship(data[id2Index])) {
-              addToNodeContainer(data[id2Index].image);
+              addToNodeContainer(data[id2Index].image, data);
               data.splice(id2Index, 1);
             }
 
@@ -682,7 +570,7 @@ function removeRelationship(id1, id2, momArray) {
             data[id2Index].mother = null;
 
             if (!hasRelationship(data[id2Index])) {
-              addToNodeContainer(data[id2Index].image);
+              addToNodeContainer(data[id2Index].image, data);
               data.splice(id2Index, 1);
             }
 
@@ -691,7 +579,7 @@ function removeRelationship(id1, id2, momArray) {
             momArray = makeMomArray();
 
             if (!hasRelationship(data[id1Index])) {
-              addToNodeContainer(data[id1Index].image);
+              addToNodeContainer(data[id1Index].image, data);
               data.splice(id1Index, 1);
             }
 
@@ -791,7 +679,7 @@ function addToConfirmBox(id, data) {
   }
 }
 
-function addToNodeContainer(id) {
+function addToNodeContainer(id, data) {
 
   let index = getDataIndex(id, data);
 
