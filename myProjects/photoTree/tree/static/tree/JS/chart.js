@@ -226,6 +226,7 @@ function createChart(chart) {
 }
 
 //Creates Data Points
+//FIXME: Compare this to function in refactor and make changes
 function createDataPoints(chart) {
   //In case you have to redraw chart
   removeAllChildNodes(chart);
@@ -344,7 +345,8 @@ function testAdd(node1, node2) {
     </div>
   </div>`)
 
-  removeFromNodeContainer(id1)
+  //FIXME: Causing DOM removal error, idk why not neccesay
+  //removeFromNodeContainer(id1)
 
 }
 
@@ -744,6 +746,7 @@ function addMotherRelationship(id1, id2) {
 }
 
 //FIXME: If nodes are in different gens, it should not remove the line
+//TODO: What is the purpose of this function? - Brandon
 function removeSpouseLine(id1, id2) {
   let node1XPos = getX(id1);
   let node2XPos = getX(id2);
@@ -991,12 +994,11 @@ function addToNodeContainer(id) {
 }
 
 function removeFromNodeContainer(id) {
+  //let container = document.getElementById('nodeContainer');
+  //let child = document.getElementById("button" + id);
+  //container.removeChild(child);
 
-  let container = document.getElementById('nodeContainer');
-
-  let child = document.getElementById("button" + id);
-
-  container.removeChild(child);
+  $(`#button${id}`).remove();
 }
 
 function removeAllChildNodes(parent) {
