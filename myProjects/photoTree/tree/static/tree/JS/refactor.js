@@ -3,6 +3,8 @@ let nodeBoxData = [];
 let chartWidth = 1200;
 
 //Used to connect children to moms
+let momArray = [];
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Defines class to be used for the objects of the values in momMap
 class mom {
@@ -127,6 +129,8 @@ $.ajax({
   },
 })
 
+
+
 //All functions for chart creation and functionality
 
 
@@ -187,8 +191,6 @@ function createDataPoints(data, momArray) {
 //Works for clicking on the lines
 function testAdd(node1, node2, data) {
 
-  debugger
-  
   let id1 = node1.image;
   let id2 = node2.image;
 
@@ -339,6 +341,7 @@ function getX(node, map, width, data) {
   } 
 
   return xPos;
+
 }
 
 function getHypotenuse(datapoint1, datapoint2, left1, left2) {
@@ -483,15 +486,11 @@ function addMotherRelationship(id1, id2, data) {
 
 }
 
-<<<<<<< HEAD
 
 
 
 
 function removeRelationship(id1, id2, momArray, data) {
-=======
-function removeRelationship(id1, id2, momArray) {
->>>>>>> 81c24ec024240682d66494ab1fa8bd3762d1847d
 
   let id1Index = getDataIndex(id1, data)
   let id2Index = getDataIndex(id2, data)
@@ -590,6 +589,7 @@ function removeRelationship(id1, id2, momArray) {
       }
     }
   }
+
 
   if (!isRelated) {
     alert("Error, No Direct Relationship");
