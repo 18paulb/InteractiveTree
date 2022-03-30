@@ -973,7 +973,11 @@ function getRootNode(node) {
       return getRootNode(data[motherIndex]);
     }
     else {
-      return node;
+      if (!hasChildren(node)) {
+        return getNode(node.spouse);
+      } else {
+        return node;
+      }
     }
   }
 

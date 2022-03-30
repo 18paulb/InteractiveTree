@@ -247,12 +247,13 @@ function createDataPoints(chart) {
       
       if (gen < 3) {
         //If it is a first or second gen node
-        xPos = setX(data[i], generationMap, chartWidth, placeInGen);
+        xPos = setHighGenX(data[i], generationMap, chartWidth, placeInGen);
       }
       else {
         //If it is a third gen or greater node
         let widthOfFamily = getWidthOfFamily(data[i]);
-        xPos = setChildX(data[i], widthOfFamily);
+        let firstRun = true;
+        xPos = setChildX(data[i], widthOfFamily, firstRun);
       }
 
 
@@ -336,91 +337,21 @@ function testRemoveFromConfirmBox(id1, id2) {
 }
 
 function shiftChart() {
-  //the lowest possible xPos
+  //1. Shift all nodes to the left to better align on the screen
+  //XBuffer: A specified X value to shift all of the nodes to the left by
   let xBuffer = 200;
+  shiftNodesByMargin(xBuffer);
   
-  //Get the leftmost XPos on tree
-  let xPos = getX(data[0].image);
-  let checkXPos;
+  //2. fix spouse X positioning
+  //FIXME: may not be needed with the new fixSecondGenSpacing function
+  //fixSpouseXPos();
   
-  for (let i = 1; i < data.length; i++) {
-    checkXPos = getX(data[i].image);
-    if (checkXPos < xPos) {
-      xPos = checkXPos;
-    }
-  }
-
-  //shift the xPos of every node by the margin
-  let margin = Math.abs(xPos - xBuffer);
+  //3. Adjust spacing between children of the 2nd gen (and their children) so they are all equally spaced
+  fixSecondGenNodeSpacing();
   
-  for (let i = 0; i < data.length; i++) {
-    let node = document.getElementById(data[i].image);
-    let originalY = parseAttribute('y', node.style.cssText);
-    let originalX = parseAttribute('x', node.style.cssText);
-    node.setAttribute('style', `--y: ${originalY}px; --x: ${originalX + margin}px`);
-  }
-
-  //fix spouse X positioning
-  let fixedSpouses = []
-   for (let i = 0; i < data.length; ++i) {
-     if (data[i].spouse != null) {
-       if (fixedSpouses.every(element => element != data[i].image)) {
-        adjustSpouseXPos(data[i], fixedSpouses);
-       }
-     }
-   }
-
-   //Check to make sure the x distance between all nodes is the same
-  let rootNode = getRootNode(data[0]);
-  let rootNodeChildren = getChildren(rootNode);
-  let rootNodeChildrenXPos = [];
-  
-  //find the max difference in x position between each node
-  let maxXDiff = 0;
-  for (let i = 0; i < rootNodeChildren.length; i++) {
-    let rootNodeChildXPos = getX(rootNodeChildren[i].image);
-    rootNodeChildrenXPos.push(rootNodeChildXPos);
-    if (i != 0) {
-      let xDiff = rootNodeChildrenXPos[i] - rootNodeChildrenXPos[i - 1];
-      if (xDiff > maxXDiff) {
-        maxXDiff = xDiff;
-      }
-    }
-  }
-
-  //update all node's x positions by the maxXDiff
-  for (let i = 0; i < rootNodeChildren.length; i++) {
-    if (i != 0) {
-      let thisDiff = Math.abs(rootNodeChildrenXPos[i] - rootNodeChildrenXPos[i-1]);
-      if(thisDiff != maxXDiff) {
-        let node = document.getElementById(rootNodeChildren[i].image);
-        let originalY = parseAttribute('y', node.style.cssText);
-        node.setAttribute('style', `--y: ${originalY}px; --x: ${rootNodeChildrenXPos[i] + (maxXDiff - thisDiff)}px`);
-        if (rootNodeChildren[i].spouse != null) {
-          node = document.getElementById(rootNodeChildren[i].spouse);
-          let originalX = parseAttribute('x', node.style.cssText);
-          node.setAttribute('style', `--y: ${originalY}px; --x: ${originalX + (maxXDiff - thisDiff)}px`);
-        }
-        if(hasChildren(rootNodeChildren[i])) {
-          let children = getChildren(rootNodeChildren[i]);
-          for (let i = 0; i < children.length; i++) {
-            node = document.getElementById(children[i].image);
-            let originalX = parseAttribute('x', node.style.cssText);
-            originalY = parseAttribute('y', node.style.cssText);
-            node.setAttribute('style', `--y: ${originalY}px; --x: ${originalX + (maxXDiff - thisDiff)}px`);
-          }
-        }
-      }
-    }
-  }
-
-  //FIXME: Why set all the data to rootNode
-   //adjust root node
-   for (let i = 0; i < data.length; i++) {
-     if (data[i] == rootNode) {
-        adjustRootNode();
-     }
-   }
+  //4. Center Root Node between her leftmost and rightmost child
+  //FIXED: adjust root node (just got rid of the loop, don't know why I was iterating through all the data haha)
+  adjustRootNode();
 }
 
 function createLines() {
@@ -472,6 +403,41 @@ function createLines() {
   $('#chart').html($('#chart').html() + svgString);
 }
 
+function shiftNodesByMargin(xBuffer) {
+  
+  //Get the leftmost XPos on tree
+  let xPos = getX(data[0].image);
+  let checkXPos;
+  
+  for (let i = 1; i < data.length; i++) {
+    checkXPos = getX(data[i].image);
+    if (checkXPos < xPos) {
+      xPos = checkXPos;
+    }
+  }
+
+  //shift the xPos of every node by the margin
+  let margin = Math.abs(xPos - xBuffer);
+  
+  for (let i = 0; i < data.length; i++) {
+    let node = document.getElementById(data[i].image);
+    let originalY = parseAttribute('y', node.style.cssText);
+    let originalX = parseAttribute('x', node.style.cssText);
+    node.setAttribute('style', `--y: ${originalY}px; --x: ${originalX + margin}px`);
+  }
+}
+
+function fixSpouseXPos() {
+  let fixedSpouses = []
+  for (let i = 0; i < data.length; ++i) {
+    if (data[i].spouse != null) {
+      if (fixedSpouses.every(element => element != data[i].image)) {
+        adjustSpouseXPos(data[i], fixedSpouses);
+      }
+    }
+  }
+}
+
 function adjustSpouseXPos(node, fixedSpouses) {
   let spouseElement = document.getElementById(`${node.spouse}`);
   let spouseId = node.spouse;
@@ -494,15 +460,69 @@ function adjustSpouseXPos(node, fixedSpouses) {
   fixedSpouses.push(node.image);
 }
 
+function fixSecondGenNodeSpacing() {
+  
+  let rootNode = getRootNode(data[0]);
+  let rootNodeChildren = getChildren(rootNode);
+
+  //find the max difference in x position between each child in the second gen
+  let maxDiff = 0;
+  let childrenXPos = []
+  for (let i = 0; i < rootNodeChildren.length; i++) {
+    let currChildXPos = getX(rootNodeChildren[i].image);
+    childrenXPos.push(currChildXPos);
+    if (i != 0) {
+      let currDiff = childrenXPos[i] - childrenXPos[i - 1];
+      if (currDiff > maxDiff) {
+        maxDiff = currDiff;
+      }
+    }
+  }
+
+  //update all node's x positions by the maxXDiff
+  for (let i = 1; i < rootNodeChildren.length; i++) {
+    let currDiff = getX(rootNodeChildren[i].image) - getX(rootNodeChildren[i - 1].image);
+    if (currDiff != maxDiff) {
+      updateXPos(rootNodeChildren[i], getX(rootNodeChildren[i - 1].image) + maxDiff);
+    }
+  }
+}
+
+function updateXPos(node, newXPos) {
+  setX(node, newXPos);
+
+  //if node has spouse
+  if (node.spouse != null) {
+    newXPos = newXPos + 100;
+    setX(getNode(node.spouse), newXPos);
+    
+    //if node's spouse has children
+    if (hasChildren(getNode(node.spouse))) {
+      let nodeChildren = getChildren(getNode(node.spouse));
+      for (let i = 0; i < nodeChildren.length; i++) {
+        let firstRun = false;
+        setX(nodeChildren[i], setChildX(nodeChildren[i], getWidthOfFamily(nodeChildren[i]), firstRun));
+      }
+    }
+  }
+
+  //if node has children
+  if (hasChildren(node)) {
+    let nodeChildren = getChildren(node);
+    for (let i = 0; i < nodeChildren.length; i++) {
+      let firstRun = false;
+      setX(nodeChildren[i], setChildX(nodeChildren[i], getWidthOfFamily(nodeChildren[i]), firstRun));
+    }
+  }
+}
+
 /**
  * Finds the x positions of the leftmost and rightmost child 
  * of the root node and sets the x position of the rootnode
  * and root spouse at the central position of those two nodes.
  */
-//FIXME: Adjust to account for different data posisiont, data[0] probably doesn't work
+//FIXED: Issue was with getting the leftmost and rightmost nodes
 function adjustRootNode() {
-
-  debugger
 
   let leftmostChild = getLeftmostChild(getRootNode(data[0]));
   let rightmostChild = getRightmostChild(getRootNode(data[0]));
@@ -520,8 +540,14 @@ function adjustRootNode() {
   }
 }
 
+function setX(node, newXPos) {
+  let nodeElement = document.getElementById(node.image);
+  let originalY = parseAttribute('y', nodeElement.style.cssText);
+  nodeElement.setAttribute('style', `--y: ${originalY}px; --x: ${newXPos}px`);
+}
+
 //NEW getX Function (for gen1 and gen2 nodes)
-function setX(node, map, width, placeInGen) {
+function setHighGenX(node, map, width, placeInGen) {
   let keyGen = getGeneration(node);
 
   let xPos = (width/(getNumInGeneration(keyGen) + 1)) * (placeInGen + 1);
@@ -529,17 +555,13 @@ function setX(node, map, width, placeInGen) {
 }
 
 //setX for gen3 and above nodes
-function setChildX(node, widthOfFamily) {
+function setChildX(node, widthOfFamily, firstRun) {
   let numChildren = getNumChildrenInFamily(node);
   let placeInFam = getPlaceInFamily(node);
   
   let nodeMother = node.mother;
-  let momXPos;
-  if (nodeMother != null) {
-    momXPos = getX(nodeMother);
-  } else {
-    momXPos = 0;
-  }
+  let momXPos = getX(nodeMother);
+  
   let famSpacing = widthOfFamily/(numChildren + 1);
 
   let momGen = getGeneration(node.mother);
@@ -551,9 +573,12 @@ function setChildX(node, widthOfFamily) {
     }
     
     //adjust positions of higher gen nodes
-    if (numChildren > 1) {
-      adjustHigherGenNodes(nodeMother, momXPos);
+    if (firstRun) {
+      if (numChildren > 1) {
+        adjustHigherGenNodes(nodeMother, momXPos);
+      }
     }
+
   return xPos;
 }
 
@@ -578,7 +603,7 @@ function adjustHigherGenNodes(nodeMother, currentMomNodeXPos) {
   }
 
   //2. Adjust the xPositions of elements in the momXPositions array
-  let adjustX = 50;
+  let adjustX = 30;
   for (let i = 0; i < nodesXPositions.length; i++) {
     if (nodesXPositions[i] > currentMomNodeXPos) {
       nodesXPositions[i] += adjustX;
@@ -1394,7 +1419,11 @@ function getRootNode(node) {
       return getRootNode(data[motherIndex]);
     }
     else {
-      return node;
+      if (!hasChildren(node)) {
+        return getNode(node.spouse);
+      } else {
+        return node;
+      }
     }
   }
 

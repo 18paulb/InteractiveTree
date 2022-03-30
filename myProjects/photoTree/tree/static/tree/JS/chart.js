@@ -995,7 +995,7 @@ function hoverMenu(nodeId) {
   //Make this class a datapoint technically and make XY pos's from there, just get X,Y from node and then adjust slightly for it to be near node
   hMenu.innerHTML = `
   <div id='hover-menu' class='hover-menu hover-point' style='--y: ${nodeY + 100}px; --x: ${nodeX - 25}px'>
-    <div>Gen: ${getGeneration(data[nodeIndex])} <br> Node: ${data[nodeIndex].image}</b><br>Spouse: ${data[nodeIndex].spouse}<br>x: ${nodeX}</div>
+    <div>Gen: ${getGeneration(data[nodeIndex])} <br> Node: ${data[nodeIndex].image}</b><br>Spouse: ${data[nodeIndex].spouse}<br>Mother: ${data[nodeIndex]?.mother}<br>x: ${nodeX}</div>
       <img class='menu-pic' src='../../static/tree/images/pictures/${nodeId}.PNG'/>
       <div id ='node-${nodeId}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column;'>
         <div><b>John Doe</br></div>
@@ -1404,7 +1404,11 @@ function getRootNode(node) {
       return getRootNode(data[motherIndex]);
     }
     else {
-      return node;
+      if (!hasChildren(node)) {
+        return getNode(node.spouse);
+      } else {
+        return node;
+      }
     }
   }
 
