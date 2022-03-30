@@ -142,7 +142,7 @@ function createChart(data, momArray) {
   createLines(data, momArray);
 }
 
-function createDataPoints(data, momArray) {
+function createDataPoints(data) {
   //In case you have to redraw chart, removes previously placed nodes
   $('#chart').empty();
 
