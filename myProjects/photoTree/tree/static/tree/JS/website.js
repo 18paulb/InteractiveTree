@@ -618,7 +618,7 @@ function adjustHigherGenNodes(nodeMother, currentMomNodeXPos) {
   }
 
   //2. Adjust the xPositions of elements in the momXPositions array
-  let adjustX = 30;
+  let adjustX = 15;
   for (let i = 0; i < nodesXPositions.length; i++) {
     if (nodesXPositions[i] > currentMomNodeXPos) {
       nodesXPositions[i] += adjustX;
