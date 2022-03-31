@@ -3,102 +3,117 @@ let data = [
     "image": 1,
     "mother": null,
     "spouse": 2,
-    "birthyear": 1888
+    "birthyear": 1888,
+    "name": "Joseph P. Kennedy",
   },
   {
     "image": 2,
     "mother": null,
     "spouse": 1,
-    "birthyear": 1890
+    "birthyear": 1890,
+    "name": "Rose Fitzgerald",
   },
   {
     "image": 3,
     "mother": 2,
     "spouse": null,
-    "birthyear": 1915
+    "birthyear": 1915,
+    "name": "Joseph P. Kennedy Jr.",
   },
   {
     "image": 4,
     "mother": 2,
     "spouse": 5,
-    "birthyear": 1917
+    "birthyear": 1917,
+    "name": "John F. Kennedy",
   },
   {
     "image": 5,
     "mother": null,
     "spouse": 4,
-    "birthyear": 1929
+    "birthyear": 1929,
+    "name": "Jacqueline Bouvier",
   },
   {
     "image": 6,
     "mother": 5,
     "spouse": null,
-    "birthyear": 1957
+    "birthyear": 1957,
+    "name": "Caroline Kennedy",
   },
   {
     "image": 7,
     "mother": 5,
     "spouse": null,
-    "birthyear": 1960
+    "birthyear": 1960,
+    "name": "John F. Kennedy Jr.",
   },
   {
     "image": 8,
     "mother": 2,
     "spouse": null,
-    "birthyear": 1918
+    "birthyear": 1918,
+    "name": "Rosemary Kennedy",
   },
   {
     "image": 9,
     "mother": 2,
     "spouse": 10,
-    "birthyear": 1920
+    "birthyear": 1920,
+    "name": "Kathleen Kennedy",
   },
   {
     "image": 10,
     "mother": null,
     "spouse": 9,
-    "birthyear": 1917
+    "birthyear": 1917,
+    "name": "William Cavendish",
   },
   {
     "image": 23,
     "mother": 2,
     "spouse": 24,
-    "birthyear": 1925
+    "birthyear": 1925,
+    "name": "Robert Kennedy",
   },
   {
     "image": 24,
     "mother": null,
     "spouse": 23,
-    "birthyear": 1928
+    "birthyear": 1928,
+    "name": "Ethel Skakel",
   },
   {
     "image": 25,
     "mother": 24,
     "spouse": null,
-    "birthyear": 1952
+    "birthyear": 1952,
+    "name": "Robert F. Kennedy Jr.",
   },
   {
     "image": 26,
     "mother": 24,
     "spouse": null,
-    "birthyear": 1955
+    "birthyear": 1955,
+    "name": "David A. Kennedy",
   },
   {
     "image": 27,
     "mother": 24,
     "spouse": null,
-    "birthyear": 1956
+    "birthyear": 1956,
+    "name": "Mary Courtney Kennedy",
   },
   {
     "image": 28,
     "mother": 24,
     "spouse": null,
-    "birthyear": 1958
+    "birthyear": 1958,
+    "name": "Michael Kennedy",
   },
 ]
 
 let nodeBoxData = [];
-//randomizeDataOrder(data);
 
 //Change this and HTML in order to change graph size
 //let chartWidth = screen.width;
@@ -305,14 +320,14 @@ function testAdd(node1, node2) {
       <div>
         <img class='menu-pic' src='../../static/tree/images/pictures/Kennedy/${id1}.PNG'/>
         <div id ='node-${id1}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px;'>
-          <div><b>John Doe</b></div>
+          <div><b>${node1.name}</b></div>
           <div><b>${id1Birthyear}</b></div>
         </div>
       </div>
       <div>
         <img class='menu-pic' src='../../static/tree/images/pictures/Kennedy/${id2}.PNG'/>
         <div id ='node-${id2}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px;'>
-          <div><b>John Doe</b></div>
+          <div><b>${node2.name}</b></div>
           <div><b>${id2Birthyear}</b></div>
         </div>
       </div>
@@ -1007,13 +1022,15 @@ function hoverMenu(nodeId) {
   let nodeX = parseAttribute('x', node.style.cssText);
   let nodeY = parseAttribute('y', node.style.cssText);
 
+  let nodeIdName = data[getDataIndex(nodeId)].name
+
   //Make this class a datapoint technically and make XY pos's from there, just get X,Y from node and then adjust slightly for it to be near node
   hMenu.innerHTML = `
   <div id='hover-menu' class='hover-menu hover-point' style='--y: ${nodeY + 100}px; --x: ${nodeX - 25}px'>
     <div>Gen: ${getGeneration(data[nodeIndex])} <br> Node: ${data[nodeIndex].image}</b><br>Spouse: ${data[nodeIndex].spouse}<br>x: ${nodeX}</div>
       <img class='menu-pic' src='../../static/tree/images/pictures/Kennedy/${nodeId}.PNG'/>
       <div id ='node-${nodeId}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column;'>
-        <div><b>John Doe</br></div>
+        <div><b>${nodeIdName}</br></div>
         <div><b>${data[nodeIndex]?.birthyear}</b></div>
       </div>
   </div>
@@ -1025,78 +1042,11 @@ function closeHoverMenu() {
     menu.innerHTML = '';
 }
 
-function openMenu(id1, id2) {
-
-  let box = document.getElementById('confirmBox');
-
-  let id1Birthyear;
-  let id2Birthyear;
-
-  let id1Index = getDataIndex(parseInt(id1));
-  let id2Index = getDataIndex(parseInt(id2));
-
-  //These statements account for if the node is in the data or nodeBoxData
-  if (id1Index != null) {
-    id1Birthyear = data[id1Index].birthyear
-  }
-  if (id2Index != null) {
-    id2Birthyear = data[id2Index].birthyear
-  }
-  if (id1Index == null) {
-    id1Index = getNodeBoxDataIndex(parseInt(id1));
-    id1Birthyear = nodeBoxData[id1Index].birthyear;
-  }
-  if (id2Index == null) {
-    id2Index = getNodeBoxDataIndex(parseInt(id2));
-    id2Birthyear = nodeBoxData[id2Index].birthyear;
-  }
-
-
-  if (box.children.length == 2) {
-    let menu = document.getElementById('center-menu');
-
-    menu.innerHTML = `<div id='center-menu' class='center-menu'>
-  
-    <div><button onclick='closeMenu()'>X</button></div>
-    <div class='menu-pics-container'>
-      <div>
-        <img class='menu-pic' src='../../static/tree/images/pictures/Kennedy/${id1}.PNG'/>
-        <div id ='node-${id1}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px;'>
-          <div><b>John Doe</b></div>
-          <div><b>${id1Birthyear}</b></div>
-        </div>
-      </div>
-      <div>
-        <img class='menu-pic' src='../../static/tree/images/pictures/Kennedy/${id2}.PNG'/>
-        <div id ='node-${id2}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px;'>
-          <div><b>John Doe</b></div>
-          <div><b>${id2Birthyear}</b></div>
-        </div>
-      </div>
-    </div>
-    <div class='menu-button'>
-      <button id='removeButton' class='button-34' onclick='removeRelationship(${id1}, ${id2})'>Remove Relationship</button>
-      <button id='addMotherButton' class='button-34' onclick=addMotherRelationship(${id1}, ${id2})>Add Mother/Child Relationship</button>
-      <button id='addSpouseButton' class='button-34' onclick=addSpouseRelationship(${id1}, ${id2})>Add Spouse Relationship</button>
-    </div>
-    </div>`
-
-  } else {
-    let menu = document.getElementById('center-menu');
-    menu.innerHTML = '';
-  }
-
-
-  changeRemoveButtonParameters()
-  changeAddButtonParameters()
-}
 
 function closeMenu() {
   let menu = document.getElementById('center-menu') 
 
   //TODO Add if that put nodedataBox nodes back to nodeBox
-
-
   menu.innerHTML = '';
 
   let confirmBox = document.getElementById('confirmBox');
