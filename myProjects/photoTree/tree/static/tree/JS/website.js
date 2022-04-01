@@ -527,6 +527,9 @@ function updateXPos(node, newXPos) {
     for (let i = 0; i < nodeChildren.length; i++) {
       let firstRun = false;
       setX(nodeChildren[i], setChildX(nodeChildren[i], getWidthOfFamily(nodeChildren[i]), firstRun));
+      if (hasChildren(nodeChildren[i])) {
+        updateXPos(nodeChildren[i], setChildX(nodeChildren[i], getWidthOfFamily(nodeChildren[i])));
+      }
     }
   }
 }
@@ -1148,7 +1151,17 @@ function getFamilyArray(node) {
 }
 
 function getWidthOfFamily(node) {
-  let width = 800; //TODO: make it variable based on generation
+  let width;
+  let nodeGen = getGeneration(node);
+  
+  if (nodeGen <= 2) {
+    width = 1000;
+  } else if (nodeGen == 3) {
+    width = 800;
+  } else { // if Gen is greater than 3
+    width = 600;
+  }
+
   return width;
 }
 

@@ -355,10 +355,17 @@ function testRemoveFromConfirmBox(id1, id2) {
   }
 }
 
+/**
+ * Currently calls:
+ * 1. shiftNodesByMargin
+ * 2. fixSecondGenSpacing (since all other gen's spacing depends on 2nd generation)
+ *  - TODO: cannot currently add spouses on 3rd or lower gens
+ * 3. adjustRootNode
+ */
 function shiftChart() {
   //1. Shift all nodes to the left to better align on the screen
   //XBuffer: A specified X value to shift all of the nodes to the left by
-  let xBuffer = 200;
+  let xBuffer = 400;
   shiftNodesByMargin(xBuffer);
   
   //3. Adjust spacing between children of the 2nd gen (and their children) so they are all equally spaced
@@ -442,7 +449,7 @@ function shiftNodesByMargin(xBuffer) {
   }
 }
 
-
+//Not currently being used
 function adjustSpouseXPos(node, fixedSpouses) {
   let spouseElement = document.getElementById(`${node.spouse}`);
   let spouseId = node.spouse;
@@ -484,18 +491,24 @@ function fixSecondGenNodeSpacing() {
       }
     }
   }
-
   //update all node's x positions by the maxXDiff
-  for (let i = 1; i < rootNodeChildren.length; i++) {
-    let currDiff = getX(rootNodeChildren[i].image) - getX(rootNodeChildren[i - 1].image);
-    if (currDiff != maxDiff) {
-      updateXPos(rootNodeChildren[i], getX(rootNodeChildren[i - 1].image) + maxDiff);
+  for (let i = 0; i < rootNodeChildren.length; i++) {
+    if (i == 0) {
+      let isFirstChild = true;
+      updateXPos(rootNodeChildren[i], getX(rootNodeChildren[i].image), isFirstChild);
+    } else {
+      let currDiff = getX(rootNodeChildren[i].image) - getX(rootNodeChildren[i - 1].image);
+      if (currDiff != maxDiff) {
+        updateXPos(rootNodeChildren[i], getX(rootNodeChildren[i - 1].image) + maxDiff);
+      }
     }
   }
 }
 
-function updateXPos(node, newXPos) {
-  setX(node, newXPos);
+function updateXPos(node, newXPos, isFirstChild) {
+  if (!isFirstChild) {
+    setX(node, newXPos);
+  }
 
   //if node has spouse
   if (node.spouse != null) {
@@ -508,7 +521,11 @@ function updateXPos(node, newXPos) {
       for (let i = 0; i < nodeChildren.length; i++) {
         let firstRun = false;
         setX(nodeChildren[i], setChildX(nodeChildren[i], getWidthOfFamily(nodeChildren[i]), firstRun));
+        if (hasChildren(nodeChildren[i])) {
+          updateXPos(nodeChildren[i], setChildX(nodeChildren[i], getWidthOfFamily(nodeChildren[i])));
+        }
       }
+      checkForOverlap(getNode(node.spouse));
     }
   }
 
@@ -518,7 +535,11 @@ function updateXPos(node, newXPos) {
     for (let i = 0; i < nodeChildren.length; i++) {
       let firstRun = false;
       setX(nodeChildren[i], setChildX(nodeChildren[i], getWidthOfFamily(nodeChildren[i]), firstRun));
+      if (hasChildren(nodeChildren[i])) {
+        updateXPos(nodeChildren[i], setChildX(nodeChildren[i], getWidthOfFamily(nodeChildren[i])));
+      }
     }
+    checkForOverlap(node);
   }
 }
 
@@ -562,6 +583,7 @@ function setHighGenX(node, map, width, placeInGen) {
 
 //setX for gen3 and above nodes
 function setChildX(node, widthOfFamily, firstRun) {
+  
   let numChildren = getNumChildrenInFamily(node);
   let placeInFam = getPlaceInFamily(node);
   
@@ -1140,7 +1162,17 @@ function getFamilyArray(node) {
 }
 
 function getWidthOfFamily(node) {
-  let width = 800; //TODO: make it variable based on generation
+  let width;
+  let nodeGen = getGeneration(node);
+  
+  if (nodeGen <= 2) {
+    width = 1000;
+  } else if (nodeGen == 3) {
+    width = 800;
+  } else { // if Gen is greater than 3
+    width = 600;
+  }
+
   return width;
 }
 
@@ -1165,7 +1197,7 @@ function getMomsInGen(generation) {
 }
 
 function getMother(node) {
-  return node.mother;
+  return getNode(node.mother);
 }
 
 function getDataIndex(id) {
@@ -1287,6 +1319,85 @@ function hasRelationship(node) {
   return hasRelationship;
 
 }
+
+/**
+ * checks for any overlap between the leftmost and rightmost children of any 3rd gen and greater nodes
+ */
+ function checkForOverlap(node) 
+ {
+   //get the leftmost and rightmost children
+   let leftmostChild = getLeftmostChild(node);
+   let rightmostChild = getRightmostChild(node);
+   
+   //figure out who the "grandmother" node is (so you can find all her children)
+   let nodeMother = getMother(node);
+   if (nodeMother == null) 
+   {
+     nodeMother = getMother(getNode(node.spouse));
+   }
+   
+   //get mother's place in gen (to compare the other mother's children to)
+   let motherNodeChildren = getChildren(nodeMother);
+   let motherPlaceInGen;
+   
+   for (let i = 0; i < motherNodeChildren.length; i++) 
+   {
+     if (motherNodeChildren[i] == node || motherNodeChildren[i] == getNode(node.spouse)) 
+     {
+       motherPlaceInGen = i;
+     }
+   }
+ 
+   //checks the children that could potentially be overlapping (right/left mother child)
+   let motherToLeft;
+   let motherToRight;
+   let leftMotherChild
+   let rightMotherChild;
+   if (motherPlaceInGen == 0) 
+   {
+     motherToRight = motherNodeChildren[1];
+     if (hasChildren(motherToRight))
+     {
+       rightMotherChild = getLeftmostChild(motherToRight);
+       if (getX(rightMotherChild.image) - getX(rightmostChild.image) < 150)
+       {
+         return true;
+       }
+     }
+   } else if (motherPlaceInGen == motherNodeChildren.length - 1) 
+   {
+     motherToLeft = motherNodeChildren[motherNodeChildren.length - 2];
+       if (hasChildren(motherToLeft))
+       {
+         leftMotherChild = getRightmostChild(motherToRight);
+         if (getX(leftmostChild.image) - getX(leftMotherChild.image) < 150)
+         {
+           return true;
+         }
+       }
+   } else 
+   {
+     motherToRight = motherNodeChildren[motherPlaceInGen + 1];
+     motherToLeft = motherNodeChildren[motherPlaceInGen - 1];
+     if (hasChildren(motherToRight)) 
+     {
+       rightMotherChild = getLeftmostChild(motherToRight);
+       if (getX(rightMotherChild.image) - getX(rightmostChild.image) < 150)
+       {
+         return true;
+       }
+     }
+     if (hasChildren(motherToLeft)) 
+     {
+       leftMotherChild = getRightmostChild(motherToRight);
+       if (getX(leftmostChild.image) - getX(leftMotherChild.image) < 150)
+       {
+         return true;
+       }
+     }
+   }
+   return false;
+ }
 
 function getGenerationCount(node, count) {
   if (node?.mother == null) {
@@ -1480,7 +1591,7 @@ function getTreeLine(node, tree) {
   return tree;
 }
 
-debugger
+//debugger
 
 let tmpData = []
 let array = getTreeLine(getNode(2), tmpData);
