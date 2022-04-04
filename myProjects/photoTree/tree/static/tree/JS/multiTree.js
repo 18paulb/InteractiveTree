@@ -497,10 +497,7 @@ function fixSecondGenNodeSpacing() {
       let isFirstChild = true;
       updateXPos(rootNodeChildren[i], getX(rootNodeChildren[i].image), isFirstChild);
     } else {
-      let currDiff = getX(rootNodeChildren[i].image) - getX(rootNodeChildren[i - 1].image);
-      if (currDiff != maxDiff) {
-        updateXPos(rootNodeChildren[i], getX(rootNodeChildren[i - 1].image) + maxDiff);
-      }
+      updateXPos(rootNodeChildren[i], getX(rootNodeChildren[i - 1].image) + maxDiff);
     }
   }
 }
@@ -509,7 +506,7 @@ function updateXPos(node, newXPos, isFirstChild) {
   if (!isFirstChild) {
     setX(node, newXPos);
   }
-
+  
   //if node has spouse
   if (node.spouse != null) {
     newXPos = newXPos + 100;
@@ -525,7 +522,11 @@ function updateXPos(node, newXPos, isFirstChild) {
           updateXPos(nodeChildren[i], setChildX(nodeChildren[i], getWidthOfFamily(nodeChildren[i])));
         }
       }
-      checkForOverlap(getNode(node.spouse));
+      if (checkForOverlap(getNode(node.spouse))) {
+        let isOverlap = true;
+        console.log("Found overlap")
+        //TODO: Adjust overlapping nodes
+      }
     }
   }
 
@@ -539,7 +540,11 @@ function updateXPos(node, newXPos, isFirstChild) {
         updateXPos(nodeChildren[i], setChildX(nodeChildren[i], getWidthOfFamily(nodeChildren[i])));
       }
     }
-    checkForOverlap(node);
+    if (checkForOverlap(node)) {
+      let isOverlap = true;
+      console.log("Found overlap")
+      //TODO: Adjust overlapping nodes
+    }
   }
 }
 
@@ -610,8 +615,8 @@ function setChildX(node, widthOfFamily, firstRun) {
   return xPos;
 }
 
-function adjustHigherGenNodes(nodeMother, currentMomNodeXPos) {
-  
+function adjustHigherGenNodes(nodeMother, currentMomNodeXPos, isOverlap) {
+  //debugger
   let motherId = getDataIndex(nodeMother);
   let mother = data[motherId];
   
@@ -631,7 +636,12 @@ function adjustHigherGenNodes(nodeMother, currentMomNodeXPos) {
   }
 
   //2. Adjust the xPositions of elements in the momXPositions array
-  let adjustX = 15;
+  let adjustX;
+  if (!isOverlap) {
+    adjustX = 15;
+  } else {
+    adjustX = 75
+  }
   for (let i = 0; i < nodesXPositions.length; i++) {
     if (nodesXPositions[i] > currentMomNodeXPos) {
       nodesXPositions[i] += adjustX;
@@ -1359,43 +1369,83 @@ function hasRelationship(node) {
      if (hasChildren(motherToRight))
      {
        rightMotherChild = getLeftmostChild(motherToRight);
-       if (getX(rightMotherChild.image) - getX(rightmostChild.image) < 150)
+       if (getX(rightMotherChild.image) - getX(rightmostChild.image) < 200)
        {
          return true;
        }
      }
+    if (hasSpouse(motherToRight)) {
+      if (hasChildren(getNode(motherToRight.spouse))) 
+      {
+        rightMotherChild = getLeftmostChild(getNode(motherToRight.spouse));
+        if (getX(rightMotherChild.image) - getX(rightmostChild.image) < 200)
+        {
+          return true;
+        }
+      }
+    }
    } else if (motherPlaceInGen == motherNodeChildren.length - 1) 
    {
      motherToLeft = motherNodeChildren[motherNodeChildren.length - 2];
        if (hasChildren(motherToLeft))
        {
          leftMotherChild = getRightmostChild(motherToRight);
-         if (getX(leftmostChild.image) - getX(leftMotherChild.image) < 150)
+         if (getX(leftmostChild.image) - getX(leftMotherChild.image) < 200)
          {
            return true;
          }
        }
+       if (hasSpouse(motherToLeft)) {
+        if (hasChildren(getNode(motherToLeft.spouse)))
+        {
+          leftMotherChild = getRightmostChild(getNode(motherToLeft.spouse));
+          if (getX(leftmostChild.image) - getX(leftMotherChild.image) < 200)
+          {
+            return true;
+          }
+        }
+      }
    } else 
    {
      motherToRight = motherNodeChildren[motherPlaceInGen + 1];
      motherToLeft = motherNodeChildren[motherPlaceInGen - 1];
-     if (hasChildren(motherToRight)) 
+    if (hasChildren(motherToRight)) 
      {
        rightMotherChild = getLeftmostChild(motherToRight);
-       if (getX(rightMotherChild.image) - getX(rightmostChild.image) < 150)
+       if (getX(rightMotherChild.image) - getX(rightmostChild.image) < 200)
        {
          return true;
        }
      }
-     if (hasChildren(motherToLeft)) 
+    if (hasSpouse(motherToRight)) {
+      if (hasChildren(getNode(motherToRight.spouse))) 
+      {
+        rightMotherChild = getLeftmostChild(getNode(motherToRight.spouse));
+        if (getX(rightMotherChild.image) - getX(rightmostChild.image) < 200)
+        {
+          return true;
+        }
+      }
+    }
+    if (hasChildren(motherToLeft)) 
      {
        leftMotherChild = getRightmostChild(motherToRight);
-       if (getX(leftmostChild.image) - getX(leftMotherChild.image) < 150)
+       if (getX(leftmostChild.image) - getX(leftMotherChild.image) < 200)
        {
          return true;
        }
      }
-   }
+    if (hasSpouse(motherToLeft)) {
+      if (hasChildren(getNode(motherToLeft.spouse)))
+      {
+        leftMotherChild = getRightmostChild(getNode(motherToLeft.spouse));
+        if (getX(leftmostChild.image) - getX(leftMotherChild.image) < 200)
+        {
+          return true;
+        }
+      }
+    }
+  }
    return false;
  }
 
