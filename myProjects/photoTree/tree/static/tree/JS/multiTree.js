@@ -824,7 +824,6 @@ function removeRelationship(id1, id2) {
     box.style.border = ''
 
 
-
     //Testing for multi tree changes
 
     node1 = getNode(id1);
@@ -863,6 +862,8 @@ function removeRelationship(id1, id2) {
         }
       }
     }
+
+    ///debugger
 
     let root = getRootNode(newTree[0])
 
