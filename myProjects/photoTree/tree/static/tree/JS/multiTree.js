@@ -526,6 +526,7 @@ function updateXPos(node, newXPos, isFirstChild) {
         let isOverlap = true;
         console.log("Found overlap")
         //TODO: Adjust overlapping nodes
+        //updateXPos();
       }
     }
   }
@@ -544,6 +545,7 @@ function updateXPos(node, newXPos, isFirstChild) {
       let isOverlap = true;
       console.log("Found overlap")
       //TODO: Adjust overlapping nodes
+      //updateXPos();
     }
   }
 }
