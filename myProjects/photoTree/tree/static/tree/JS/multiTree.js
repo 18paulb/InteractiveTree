@@ -115,7 +115,7 @@ let data = [
 
 //For multi Trees
 let dataMap = new Map();
-dataMap.set('1', data);
+dataMap.set(getRootNode(data[0]).image, data);
 
 let nodeBoxData = [];
 
@@ -825,7 +825,7 @@ function removeRelationship(id1, id2) {
     box.innerHTML = ''
     box.style.border = ''
 
-    //TODO: Check if new relationship causes line to have become its own tree based on spouse
+
     //Testing for multi tree changes
 
     node1 = getNode(id1);
@@ -834,19 +834,42 @@ function removeRelationship(id1, id2) {
     let newTree = []
 
     //FIXME: Think about and change these if statements, what if one of the nodes got put in the nodeBoxContainer, etc. Look at fringe cases
+    //Spouse is already removed
+    //debugger
+
     if (node1.mother == null) {
       newTree = getTreeLine(node1, newTree);
+      //To remove duplicates
+      newTree = new Set(newTree);
+      newTree = Array.from(newTree);
     }
     else if (node2.mother == null) {
       newTree = getTreeLine(node2, newTree);
+      //To remove duplicates
+      newTree = new Set(newTree);
+      newTree = Array.from(newTree);
     }
-    else if (node1.mother == null && node2.mother == null) {
-      newTree = getTreeLine(node1, newTree);
+    else {
+      //Something
     }
-    else if (node2.mother == null && node1.mother == null) {
-      newTree = getTreeLine(nodw2, newTree);
+
+    //Removes data from original data set
+    //FIXME: Will have to adjust later if there are a lot of trees that need splicing
+    for (let i = 0; i < dataMap.get(2).length; ++i) {
+      for (let j = 0; j < newTree.length; ++j) {
+        if (newTree[j].image == dataMap.get(2)[i].image) {
+          dataMap.get(2).splice(i,1);
+          i -= 1
+          break;
+        }
+      }
     }
-    else {}
+
+    ///debugger
+
+    let root = getRootNode(newTree[0])
+
+    dataMap.set(getRootNode(newTree[0]).image, newTree)
     
     return;
   }
@@ -1517,7 +1540,8 @@ function getChildren(motherNode) {
 }
 
 function getRootNode(node) {
-  if (node.mother == null) {
+  //added node.spouse != null, might cause errors
+  if (node.mother == null && node.spouse != null) {
     let spouseIndex = getDataIndex(node.spouse);
     if (node.spouse != null && data[spouseIndex].mother != null) {
       let motherIndex = getDataIndex(data[spouseIndex].mother);
@@ -1536,6 +1560,9 @@ function getRootNode(node) {
     let momIndex = getDataIndex(node.mother);
     return getRootNode(data[momIndex]);
   }
+
+  //added
+  return node;
 }
 
 function getLeftmostChild(momNode) {
@@ -1600,7 +1627,7 @@ function getRightmostChild(momNode) {
 
 
 //FOR MULTITREE TESTING
-//FIXME: Could possible exceed call stack
+//FIXME: Could possibly exceed call stack
 function getTreeLine(node, tree) {
 
   //If node is Mother gets children
@@ -1617,7 +1644,6 @@ function getTreeLine(node, tree) {
       children = getChildren(getNode(node.spouse));
     }
   }
-
 
   //Base Case
   if (children.length == 0) {
@@ -1642,13 +1668,3 @@ function getTreeLine(node, tree) {
 
   return tree;
 }
-
-//debugger
-
-let tmpData = []
-let array = getTreeLine(getNode(2), tmpData);
-tmpData = new Set(tmpData);
-tmpData = Array.from(tmpData);
- 
-let int = 0;
-
