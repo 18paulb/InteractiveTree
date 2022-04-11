@@ -365,7 +365,7 @@ function testRemoveFromConfirmBox(id1, id2) {
 function shiftChart() {
   //1. Shift all nodes to the left to better align on the screen
   //XBuffer: A specified X value to shift all of the nodes to the left by
-  let xBuffer = 400;
+  let xBuffer = 300;
   shiftNodesByMargin(xBuffer);
   
   //3. Adjust spacing between children of the 2nd gen (and their children) so they are all equally spaced
@@ -500,11 +500,12 @@ function fixSecondGenNodeSpacing() {
       updateXPos(rootNodeChildren[i], getX(rootNodeChildren[i - 1].image) + maxDiff);
     }
   }
+  
+  //fix overlaps
+  checkOverlaps(rootNodeChildren);
 }
 
 function updateXPos(node, newXPos, isFirstChild) {
-  let rightOverlap = false;
-  let leftOverlap = false;
   
   if (!isFirstChild) {
     setX(node, newXPos);
@@ -525,22 +526,6 @@ function updateXPos(node, newXPos, isFirstChild) {
           updateXPos(nodeChildren[i], setChildX(nodeChildren[i], getWidthOfFamily(nodeChildren[i])));
         }
       }
-      
-      if (checkForOverlapToRight(getNode(node.spouse))) {
-        let isOverlap = true;
-        console.log("Found overlap to right")
-        //TODO: Adjust overlapping nodes
-        rightOverlap = true;
-        fixOverlap(getNode(node.spouse), leftOverlap, rightOverlap);
-      }
-
-      if (checkForOverlapToLeft(getNode(node.spouse))) {
-        let isOverlap = true;
-        console.log("Found overlap to left")
-        //TODO: Adjust overlapping nodes
-        leftOverlap = true;
-        fixOverlap(getNode(node.spouse), leftOverlap, rightOverlap);
-      }
     }
   }
 
@@ -553,21 +538,6 @@ function updateXPos(node, newXPos, isFirstChild) {
       if (hasChildren(nodeChildren[i])) {
         updateXPos(nodeChildren[i], setChildX(nodeChildren[i], getWidthOfFamily(nodeChildren[i])));
       }
-    }
-    
-    if (checkForOverlapToRight(node)) {
-      let isOverlap = true;
-      console.log("Found overlap to right")
-      //TODO: Adjust overlapping nodes
-      rightOverlap = true;
-      fixOverlap(node, leftOverlap, rightOverlap);
-    }
-    if (checkForOverlapToLeft(node)) {
-      let isOverlap = true;
-      console.log("Found overlap to left")
-      //TODO: Adjust overlapping nodes
-      leftOverlap = true;
-      fixOverlap(node, leftOverlap, rightOverlap);
     }
   }
 }
@@ -684,7 +654,7 @@ function adjustHigherGenNodes(nodeMother, currentMomNodeXPos, isOverlap) {
 }
 
 function fixOverlap(node, leftOverlap, rightOverlap) {
-
+  
   //figure out who the "grandmother" node is (so you can find all her children)
   let nodeMother = getMother(node);
   if (nodeMother == null) 
@@ -699,36 +669,85 @@ function fixOverlap(node, leftOverlap, rightOverlap) {
   //2. If overlap is to the right:
   if (rightOverlap)
   {
-    //adjust all nodes to the right of currFamily
-    /*
-    let rightmostChild = getRightmostChild(node);
-    let motherToRight = motherNodeChildren[motherPlaceInGen + 1];
-    let rightMotherOverlapChild = getLeftmostChild(motherToRight);
-    let xDiff = (200 - (getX(rightMotherOverlapChild.image) - getX(rightmostChild.image)));
+    //get the rightmost child of node
+    let rightmostChild;
+    if (hasChildren(node)) 
+    {
+      rightmostChild = getRightmostChild(node);
+    } else if (hasChildren(getNode(node.spouse)))
+    {
+      rightmostChild = getRightmostChild(getNode(node.spouse));
+    }
 
+    //get the next mother to the right
+    let motherToRight = motherNodeChildren[motherPlaceInGen + 1];
+    
+    //get the leftmost child of mother to the right
+    let rightMotherOverlapChild;
+    if (hasChildren(motherToRight)) 
+    {
+      rightMotherOverlapChild = getLeftmostChild(motherToRight);
+    } else if (hasChildren(getNode(motherToRight.spouse)))
+    {
+      rightMotherOverlapChild = getLeftmostChild(getNode(motherToRight.spouse));
+    }
+
+    //set an x value to adjust all nodes to the right by (based on the overlap)
+    let xDiff = 151 - (getX(rightMotherOverlapChild.image) - getX(rightmostChild.image));
+
+    //adjust the x positions of all nodes to the right
     for (let motherIndex = motherPlaceInGen + 1; motherIndex < motherNodeChildren.length; motherIndex++)
     {
       let currMother = motherNodeChildren[motherIndex];
-      if (hasChildren(currMother))
-      {
-        let newXPos = getX(currMother.image) + xDiff;
-        updateXPos(currMother, newXPos);
-      }
-      else if (hasChildren(getNode(currMother.spouse)))
-      {
-        
-      }
+      let newXPos;
+      
+      newXPos = getX(currMother.image) + xDiff;
+      updateXPos(currMother, newXPos);
     }
-    */
   }
     
   //If overlap is to the left:
   if (leftOverlap)  
   {
-    //adjust all nodes to the left of currFamily
+    //get the leftmost child of node
+    let leftmostChild;
+    if (hasChildren(node)) 
+    {
+      leftmostChild = getLeftmostChild(node);
+    } else if (hasChildren(getNode(node.spouse)))
+    {
+      leftmostChild = getLeftmostChild(getNode(node.spouse));
+    }
+
+    //get the next mother to the left
+    let motherToLeft = motherNodeChildren[motherPlaceInGen - 1];
+    
+    //get the rightmost child of mother to the left
+    let leftMotherOverlapChild;
+    if (hasChildren(motherToLeft)) 
+    {
+      leftMotherOverlapChild = getRightmostChild(motherToLeft);
+    } else if (hasChildren(getNode(motherToLeft.spouse)))
+    {
+      leftMotherOverlapChild = getRightmostChild(getNode(motherToLeft.spouse));
+    }
+
+    //set an x value to adjust all nodes to the left by (based on the overlap)
+    let xDiff = 151 - (getX(leftmostChild.image) - getX(leftMotherOverlapChild.image));
+
+    //adjust the x positions of all nodes to the left
+    for (let motherIndex = motherPlaceInGen - 1; motherIndex >= 0; motherIndex--)
+    {
+      let currMother = motherNodeChildren[motherIndex];
+      let newXPos;
+      
+      newXPos = getX(currMother.image) - xDiff;
+      updateXPos(currMother, newXPos);
+    }
   }
 
-  //3. shiftChart() (should fix root node and spacing between rest of 2nd gen)
+  // (should fix root node and spacing between rest of 2nd gen)
+  //shiftChart();
 }
 
 function addSpouseRelationship(id1, id2) {
@@ -1425,6 +1444,49 @@ function hasRelationship(node) {
 
 }
 
+//function for checking for any overlapping nodes
+function checkOverlaps(rootNodeChildren) {
+  for (let i = 0; i < rootNodeChildren.length; i++) 
+  {
+    let rightOverlap = false;
+    let leftOverlap = false;
+
+    if (hasChildren(rootNodeChildren[i])) 
+    {
+      if (checkForOverlapToRight(rootNodeChildren[i])) 
+      {
+        console.log("Found overlap to right")
+        rightOverlap = true;
+        fixOverlap(rootNodeChildren[i], leftOverlap, rightOverlap);
+      }
+      if (checkForOverlapToLeft(rootNodeChildren[i])) 
+      {
+        console.log("Found overlap to left")
+        leftOverlap = true;
+        fixOverlap(rootNodeChildren[i], leftOverlap, rightOverlap);
+      }
+    }
+    else if (rootNodeChildren[i].spouse != null) 
+    {
+      if (hasChildren(getNode(rootNodeChildren[i].spouse))) 
+      {
+        if (checkForOverlapToRight(getNode(rootNodeChildren[i].spouse))) 
+        {
+          console.log("Found overlap to right")
+          rightOverlap = true;
+          fixOverlap(getNode(rootNodeChildren[i].spouse), leftOverlap, rightOverlap);
+        }
+        if (checkForOverlapToLeft(getNode(rootNodeChildren[i].spouse))) 
+        {
+          console.log("Found overlap to left")
+          leftOverlap = true;
+          fixOverlap(getNode(rootNodeChildren[i].spouse), leftOverlap, rightOverlap);
+        }
+      }
+    }
+  }
+}
+
 /**
  * checks for any overlap of any children to the right
  */
@@ -1453,7 +1515,7 @@ function checkForOverlapToRight(node)
     if (hasChildren(motherToRight)) 
     {
       rightMotherOverlapChild = getLeftmostChild(motherToRight);
-      if (getX(rightMotherOverlapChild.image) - getX(rightmostChild.image) < 200)
+      if (getX(rightMotherOverlapChild.image) - getX(rightmostChild.image) < 150)
       {
         return true;
       }
@@ -1464,7 +1526,7 @@ function checkForOverlapToRight(node)
       if (hasChildren(motherToRightSpouse)) 
       {
         rightMotherOverlapChild = getLeftmostChild(motherToRightSpouse);
-        if (getX(rightMotherOverlapChild.image) - getX(rightmostChild.image) < 200)
+        if (getX(rightMotherOverlapChild.image) - getX(rightmostChild.image) < 150)
         {
           return true;
         }
@@ -1502,7 +1564,7 @@ function checkForOverlapToLeft(node)
     if (hasChildren(motherToLeft)) 
     {
       leftMotherOverlapChild = getRightmostChild(motherToLeft);
-      if (getX(leftmostChild.image) - getX(leftMotherOverlapChild.image) < 200)
+      if (getX(leftmostChild.image) - getX(leftMotherOverlapChild.image) < 150)
       {
         return true;
       }
@@ -1513,7 +1575,7 @@ function checkForOverlapToLeft(node)
       if (hasChildren(motherToLeftSpouse)) 
       {
         leftMotherOverlapChild = getRightmostChild(motherToLeftSpouse);
-        if (getX(leftmostChild.image) - getX(leftMotherOverlapChild.image) < 200)
+        if (getX(leftmostChild.image) - getX(leftMotherOverlapChild.image) < 150)
         {
           return true;
         }
