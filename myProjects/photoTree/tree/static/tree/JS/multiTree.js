@@ -398,11 +398,12 @@ function addSpouseRelationship(id1, id2) {
   let spouse1 = node1;
   let spouse2 = node2;
 
+  let currTree;
   if (getNodeBoxDataIndex(spouse1.image) != null) {
     spouse1Index = getNodeBoxDataIndex(spouse1.image);
     
-    
-    data.push(nodeBoxData[spouse1Index]);
+    currTree = getTree(spouse1);
+    currTree.push(nodeBoxData[spouse1Index]);
     nodeBoxData.splice(spouse1Index, 1);
   } 
 
