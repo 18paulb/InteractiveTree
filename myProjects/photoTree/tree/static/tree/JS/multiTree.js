@@ -291,32 +291,14 @@ function createDataPoints(chart) {
   shiftChart();
 }
 
+//REFACTORED
 function testAdd(node1, node2) {
 
   let id1 = node1.image;
   let id2 = node2.image;
 
-  let id1Birthyear;
-  let id2Birthyear;
-
-  let id1Index = getDataIndex(parseInt(id1));
-  let id2Index = getDataIndex(parseInt(id2));
-
-  //These statements account for if the node is in the data or nodeBoxData
-  if (id1Index != null) {
-    id1Birthyear = data[id1Index].birthyear
-  }
-  if (id2Index != null) {
-    id2Birthyear = data[id2Index].birthyear
-  }
-  if (id1Index == null) {
-    id1Index = getNodeBoxDataIndex(parseInt(id1));
-    id1Birthyear = nodeBoxData[id1Index].birthyear;
-  }
-  if (id2Index == null) {
-    id2Index = getNodeBoxDataIndex(parseInt(id2));
-    id2Birthyear = nodeBoxData[id2Index].birthyear;
-  }
+  let id1Birthyear = getNode(node1).birthyear;
+  let id2Birthyear = getNode(node2).birthyear;
 
   $('#center-menu').html(
   `<div id='center-menu' class='center-menu'>
@@ -537,8 +519,11 @@ function addMotherRelationship(id1, id2) {
 }
 
 function removeRelationship(id1, id2) {
-  let id1Index = getDataIndex(id1);
-  let id2Index = getDataIndex(id2);
+
+  debugger
+
+  //let id1Index = getDataIndex(id1);
+  //let id2Index = getDataIndex(id2);
 
   node1 = getNode(id1);
   node2 = getNode(id2);
@@ -549,12 +534,16 @@ function removeRelationship(id1, id2) {
   let newTree = []
 
   //Removes Spouse Relationship
-  if (data[id1Index].spouse == id2) {
+  if (node1.spouse == id2) {
 
     isRelated = true;
 
-    data[id1Index].spouse = null;
-    data[id2Index].spouse = null;
+    //data[id1Index].spouse = null;
+    //data[id2Index].spouse = null;
+    node1.spouse = null;
+    node2.spouse = null;
+
+    //TODO: Continue From Here, Refactor
 
     if (!(hasRelationship(data[id1Index]))) {
       addToNodeContainer(id1);
@@ -661,7 +650,7 @@ function removeRelationship(id1, id2) {
               data.splice(id1Index, 1);
             }
 
-            //debugger
+            debugger
 
             //TODO: Test, will probably break
             //If it is it's own root node AKA its own tree
@@ -778,11 +767,9 @@ function addToConfirmBox(id) {
   }
 }
 
+//REFACTORED
 function addToNodeContainer(id) {
-
-  let index = getDataIndex(id);
-
-  nodeBoxData.push(data[index]);
+  nodeBoxData.push(getNode(id))
 
   let container = document.getElementById('nodeContainer');
   let nodeId = `node${id}`;
@@ -1372,16 +1359,6 @@ function getMomArrayIndex(array, id) {
     if (array[i][0].data.image == id) {
       return i;
     }
-  }
-}
-
-//For testing with different data positions
-function randomizeDataOrder(data) {
-  for (let i = 0; i < data.length; ++i) {
-    let randomIndex = Math.floor(Math.random() * data.length);
-    let tmpVal = data[randomIndex];
-    data[randomIndex] = data[i];
-    data[i] = tmpVal;
   }
 }
 
