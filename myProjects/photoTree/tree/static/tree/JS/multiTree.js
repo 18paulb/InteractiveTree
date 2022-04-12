@@ -294,11 +294,13 @@ function createDataPoints(chart) {
 //REFACTORED
 function testAdd(node1, node2) {
 
+  //debugger
+
   let id1 = node1.image;
   let id2 = node2.image;
 
-  let id1Birthyear = getNode(node1).birthyear;
-  let id2Birthyear = getNode(node2).birthyear;
+  let id1Birthyear = node1.birthyear;
+  let id2Birthyear = node2.birthyear;
 
   $('#center-menu').html(
   `<div id='center-menu' class='center-menu'>
