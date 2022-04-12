@@ -294,11 +294,13 @@ function createDataPoints(chart) {
 //REFACTORED
 function testAdd(node1, node2) {
 
+  //debugger
+
   let id1 = node1.image;
   let id2 = node2.image;
 
-  let id1Birthyear = getNode(node1).birthyear;
-  let id2Birthyear = getNode(node2).birthyear;
+  let id1Birthyear = node1.birthyear;
+  let id2Birthyear = node2.birthyear;
 
   $('#center-menu').html(
   `<div id='center-menu' class='center-menu'>
@@ -402,7 +404,7 @@ function addSpouseRelationship(id1, id2) {
   if (getNodeBoxDataIndex(spouse1.image) != null) {
     spouse1Index = getNodeBoxDataIndex(spouse1.image);
     
-    currTree = getTree(spouse1);
+    currTree = getTree(spouse2);
     currTree.push(nodeBoxData[spouse1Index]);
     nodeBoxData.splice(spouse1Index, 1);
   } 
@@ -508,7 +510,7 @@ function addMotherRelationship(id1, id2) {
 
 function removeRelationship(id1, id2) {
 
-  debugger
+  //debugger
 
   //let id1Index = getDataIndex(id1);
   //let id2Index = getDataIndex(id2);
@@ -600,7 +602,7 @@ function removeRelationship(id1, id2) {
               data.splice(id2Index, 1);
             }
             
-            debugger
+            //debugger
             //TODO: Test, will probably break
             //If it is it's own root node
             if ((getRootNode(node1).image == node1.image || getRootNode(node1).image == node1.spouse) && !inNodeBox(node1.image)) {
@@ -638,7 +640,7 @@ function removeRelationship(id1, id2) {
               data.splice(id1Index, 1);
             }
 
-            debugger
+            //debugger
 
             //TODO: Test, will probably break
             //If it is it's own root node AKA its own tree
