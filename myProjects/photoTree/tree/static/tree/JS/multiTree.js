@@ -1224,15 +1224,6 @@ function hasSpouse(node) {
     return false;
   }
 }
-/*
-function getNode(nodeId) {
-  for (let i = 0; i < data.length; i++) {
-    if(data[i].image == nodeId) {
-      return data[i];
-    }
-  }
-}
-*/
 
 function getNode(nodeId) {
 
@@ -1697,31 +1688,7 @@ function getChildren(motherNode) {
 
   return children;
 }
-/*
-function getRootNode(node) {
-  //added node.spouse != null, might cause errors
-  if (node.mother == null && node.spouse != null) {
-    let spouseIndex = getDataIndex(node.spouse);
-    if (node.spouse != null && data[spouseIndex].mother != null) {
-      let motherIndex = getDataIndex(data[spouseIndex].mother);
-      return getRootNode(data[motherIndex]);
-    }
-    else {
-      if (!hasChildren(node)) {
-        return getNode(node.spouse);
-      } else {
-        return node;
-      }
-    }
-  }
 
-  if (node.mother != null) {
-    let momIndex = getDataIndex(node.mother);
-    return getRootNode(data[momIndex]);
-  }
-  return node;
-}
-*/
 function getRootNode(node) {
   //added node.spouse != null, might cause errors
   if (node.mother == null && node.spouse != null) {
