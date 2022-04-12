@@ -115,7 +115,8 @@ let data = [
 
 //For multi Trees
 let dataMap = new Map();
-dataMap.set(getRootNode(data[0]).image, data);
+//Hard Coding Root Node for starting tree
+dataMap.set(data[1].image, data);
 
 let nodeBoxData = [];
 
@@ -577,6 +578,7 @@ function removeRelationship(id1, id2) {
 
 
     //Testing for multi tree changes
+    
     //FIXME: Think about and change these if statements, what if one of the nodes got put in the nodeBoxContainer, etc. Look at fringe cases
     //Note: Spouse is already removed
     if (node1.mother == null && !inNodeBox(node1.image)) {
@@ -622,14 +624,13 @@ function removeRelationship(id1, id2) {
             }
             
             debugger
-            //FIXME: Test, will probably break
-            //If it is it's own root node AKA its own 
-            if (getRootNode(node1).image == node1.image && !inNodeBox(node1.image)) {
+            //TODO: Test, will probably break
+            //If it is it's own root node
+            if ((getRootNode(node1).image == node1.image || getRootNode(node1).image == node1.spouse) && !inNodeBox(node1.image)) {
               newTree = getTreeLine(node1, newTree);
               oldRoot = getRootNode(node2);
               addToTreeMap(newTree, dataMap.get(oldRoot.image));
             }
-
             break;
           }
         }
@@ -660,11 +661,11 @@ function removeRelationship(id1, id2) {
               data.splice(id1Index, 1);
             }
 
-            debugger
+            //debugger
 
-            //FIXME: Test, will probably break
+            //TODO: Test, will probably break
             //If it is it's own root node AKA its own tree
-            if (getRootNode(node2).image == node2.image && !inNodeBox(node2.image)) {
+            if ((getRootNode(node2).image == node2.image || getRootNode(node2).image == node2.spouse) && !inNodeBox(node2.image)) {
               newTree = getTreeLine(node2, newTree);
               oldRoot = getRootNode(node1);
               addToTreeMap(newTree, dataMap.get(oldRoot.image));
@@ -691,6 +692,9 @@ function removeRelationship(id1, id2) {
 }
 
 function addToTreeMap(newTree, oldTree) {
+
+  let root = getRootNode(newTree[0])
+
   for (let i = 0; i < oldTree.length; ++i) {
     for (let j = 0; j < newTree.length; ++j) {
       if (newTree[j].image == oldTree[i].image) {
@@ -700,8 +704,6 @@ function addToTreeMap(newTree, oldTree) {
       }
     }
   }
-
-  let root = getRootNode(newTree[0])
 
   dataMap.set(root.image, newTree)
 }
@@ -1222,7 +1224,7 @@ function hasSpouse(node) {
     return false;
   }
 }
-
+/*
 function getNode(nodeId) {
   for (let i = 0; i < data.length; i++) {
     if(data[i].image == nodeId) {
@@ -1230,6 +1232,19 @@ function getNode(nodeId) {
     }
   }
 }
+*/
+
+function getNode(nodeId) {
+
+  for (let value of dataMap.values()) {
+    for (let i = 0; i < value.length; ++i) {
+      if (value[i].image == nodeId) {
+        return value[i];
+      }
+    }
+  }
+}
+
 
 function getX(node) {
   if (node != null) {
@@ -1682,7 +1697,7 @@ function getChildren(motherNode) {
 
   return children;
 }
-
+/*
 function getRootNode(node) {
   //added node.spouse != null, might cause errors
   if (node.mother == null && node.spouse != null) {
@@ -1704,8 +1719,28 @@ function getRootNode(node) {
     let momIndex = getDataIndex(node.mother);
     return getRootNode(data[momIndex]);
   }
+  return node;
+}
+*/
+function getRootNode(node) {
+  //added node.spouse != null, might cause errors
+  if (node.mother == null && node.spouse != null) {
+    //let spouseIndex = getDataIndex(node.spouse);
+    if (node.spouse != null && getNode(node.spouse).mother != null) {
+      return getRootNode(getNode(node.mother));
+    }
+    else {
+      if (!hasChildren(node)) {
+        return getNode(node.spouse);
+      } else {
+        return node;
+      }
+    }
+  }
 
-  //added
+  if (node.mother != null) {
+    return getRootNode(getNode(node.mother));
+  }
   return node;
 }
 
