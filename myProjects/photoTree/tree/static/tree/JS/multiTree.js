@@ -408,26 +408,9 @@ function createLines() {
 
 
 function addSpouseRelationship(id1, id2) {
-  let node1;
-  let node2;
-
-  for (let i = 0; i < data.length; ++i) {
-    if (data[i].image == id1) {
-      node1 = data[i];
-    }
-    if (data[i].image == id2) {
-      node2 = data[i];
-    }
-  }
-
-  for (let i = 0; i < nodeBoxData.length; ++i) {
-    if (nodeBoxData[i].image == id1) {
-      node1 = nodeBoxData[i];
-    }
-    if (nodeBoxData[i].image == id2) {
-     node2 = nodeBoxData[i];
-    }
-  }
+  debugger
+  let node1 = getNode(id1);
+  let node2 = getNode(id2);
 
   //For Spouse -> Spouse
   let spouse1 = node1;
@@ -435,6 +418,8 @@ function addSpouseRelationship(id1, id2) {
 
   if (getNodeBoxDataIndex(spouse1.image) != null) {
     spouse1Index = getNodeBoxDataIndex(spouse1.image);
+    
+    
     data.push(nodeBoxData[spouse1Index]);
     nodeBoxData.splice(spouse1Index, 1);
   } 
@@ -442,6 +427,8 @@ function addSpouseRelationship(id1, id2) {
   //What if spouse2 is in nodeBoxData
   if (getNodeBoxDataIndex(spouse2.image) != null) {
     spouse2Index = getNodeBoxDataIndex(spouse2.image);
+    
+    
     data.push(nodeBoxData[spouse2Index]);
     nodeBoxData.splice(spouse2Index, 1);
   }
@@ -706,6 +693,16 @@ function addToTreeMap(newTree, oldTree) {
   }
 
   dataMap.set(root.image, newTree)
+}
+
+function removeFromTreeMap(originalTree, treeToBeAdded) {
+
+  let root = getRootNode(newTree[0])
+
+  for (let j = 0; j < treeToBeAdded.length; ++j) {
+    originalTree.push(treeToBeAdded[i]);
+    originalTree.splice(i, 1);
+  }
 }
 
 function addToConfirmBox(id) {
@@ -1231,6 +1228,22 @@ function getNode(nodeId) {
     for (let i = 0; i < value.length; ++i) {
       if (value[i].image == nodeId) {
         return value[i];
+      }
+    }
+  }
+
+  for (let i = 0; i < nodeBoxData.length; i++) {
+    if (nodeBoxData[i].image == nodeId) {
+      return nodeBoxData[i];
+    }
+  }
+}
+
+function getTree(node) {
+  for (let value of dataMap.values()) {
+    for (let i = 0; i < value.length; ++i) {
+      if (value[i] == node) {
+        return value;
       }
     }
   }
