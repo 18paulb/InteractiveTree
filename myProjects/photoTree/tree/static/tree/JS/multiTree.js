@@ -399,25 +399,29 @@ function addSpouseRelationship(id1, id2) {
   //For Spouse -> Spouse
   let spouse1 = node1;
   let spouse2 = node2;
-
+  
+  //checks nodeBox
   let currTree;
+  let spouse1Index;
+  let spouse2Index;
+
   if (getNodeBoxDataIndex(spouse1.image) != null) {
     spouse1Index = getNodeBoxDataIndex(spouse1.image);
     
     currTree = getTree(spouse2);
     currTree.push(nodeBoxData[spouse1Index]);
     nodeBoxData.splice(spouse1Index, 1);
-  } 
+  }
 
-  //What if spouse2 is in nodeBoxData
   if (getNodeBoxDataIndex(spouse2.image) != null) {
     spouse2Index = getNodeBoxDataIndex(spouse2.image);
     
-    
-    data.push(nodeBoxData[spouse2Index]);
+    currTree = getTree(spouse1);
+    currTree.push(nodeBoxData[spouse2Index]);
     nodeBoxData.splice(spouse2Index, 1);
   }
 
+  //assigns each node their new spouse
   if (getDataIndex(spouse1.image) != null) {
     spouse1Index = getDataIndex(spouse1.image);
     data[spouse1Index].spouse = spouse2.image;
@@ -428,13 +432,11 @@ function addSpouseRelationship(id1, id2) {
     data[spouse2Index].spouse = spouse1.image;
   }
 
-  
   createChart(chartList);
 
   document.getElementById('confirmBox').innerHTML = '';
 
   closeMenu();
-
 }
 
 //TODO fix issues
@@ -510,7 +512,7 @@ function addMotherRelationship(id1, id2) {
 
 function removeRelationship(id1, id2) {
 
-  //debugger
+  debugger
 
   //let id1Index = getDataIndex(id1);
   //let id2Index = getDataIndex(id2);
@@ -520,7 +522,7 @@ function removeRelationship(id1, id2) {
 
   let isRelated = false;
 
-  let oldRoot = getRootNode(getNode(id1));
+  let oldRoot = getRootNode(node1);
   let newTree = []
 
   //Removes Spouse Relationship
@@ -602,10 +604,10 @@ function removeRelationship(id1, id2) {
               data.splice(id2Index, 1);
             }
             
-            //debugger
+            debugger
             //TODO: Test, will probably break
             //If it is it's own root node
-            if ((getRootNode(node1).image == node1.image || getRootNode(node1).image == node1.spouse) && !inNodeBox(node1.image)) {
+            if ((getRootNode(node1)?.image == node1.image || getRootNode(node1)?.image == node1.spouse) && !inNodeBox(node1.image)) {
               newTree = getTreeLine(node1, newTree);
               oldRoot = getRootNode(node2);
               addToTreeMap(newTree, dataMap.get(oldRoot.image));
@@ -644,7 +646,7 @@ function removeRelationship(id1, id2) {
 
             //TODO: Test, will probably break
             //If it is it's own root node AKA its own tree
-            if ((getRootNode(node2).image == node2.image || getRootNode(node2).image == node2.spouse) && !inNodeBox(node2.image)) {
+            if ((getRootNode(node2)?.image == node2.image || getRootNode(node2)?.image == node2.spouse) && !inNodeBox(node2.image)) {
               newTree = getTreeLine(node2, newTree);
               oldRoot = getRootNode(node1);
               addToTreeMap(newTree, dataMap.get(oldRoot.image));
@@ -993,27 +995,27 @@ function shiftNodesByMargin(xBuffer) {
 }
 
 //Not currently being used
-function adjustSpouseXPos(node, fixedSpouses) {
-  let spouseElement = document.getElementById(`${node.spouse}`);
-  let spouseId = node.spouse;
-  let spouseNode = getNode(spouseId);
-  let spouseXPos = getX(spouseId);
+// function adjustSpouseXPos(node, fixedSpouses) {
+//   let spouseElement = document.getElementById(`${node.spouse}`);
+//   let spouseId = node.spouse;
+//   let spouseNode = getNode(spouseId);
+//   let spouseXPos = getX(spouseId);
 
-  let currNodeElement = document.getElementById(`${node.image}`);
-  let currNodeXPos = getX(node.image);
+//   let currNodeElement = document.getElementById(`${node.image}`);
+//   let currNodeXPos = getX(node.image);
 
-  let spacing = 100;
-  let originalY = parseAttribute('y', spouseElement.style.cssText);
+//   let spacing = 100;
+//   let originalY = parseAttribute('y', spouseElement.style.cssText);
 
-  if (hasChildren(spouseNode)) {
-    currNodeElement.setAttribute('style', `--y: ${originalY}px; --x: ${spouseXPos - spacing}px`);
-  } else {
-    spouseElement.setAttribute('style', `--y: ${originalY}px; --x: ${currNodeXPos + spacing}px`);
-  }
+//   if (hasChildren(spouseNode)) {
+//     currNodeElement.setAttribute('style', `--y: ${originalY}px; --x: ${spouseXPos - spacing}px`);
+//   } else {
+//     spouseElement.setAttribute('style', `--y: ${originalY}px; --x: ${currNodeXPos + spacing}px`);
+//   }
 
-  fixedSpouses.push(spouseId);
-  fixedSpouses.push(node.image);
-}
+//   fixedSpouses.push(spouseId);
+//   fixedSpouses.push(node.image);
+// }
 
 function adjustHigherGenNodes(nodeMother, currentMomNodeXPos, isOverlap) {
   //debugger
@@ -1212,8 +1214,13 @@ function hasSpouse(node) {
   }
 }
 
+/**
+ * Checks through all the trees and the nodeBox
+ * @param {*node.image of the node we are looking for} nodeId 
+ * @returns node with the matching nodeId
+ */
 function getNode(nodeId) {
-
+  //checks trees for node
   for (let value of dataMap.values()) {
     for (let i = 0; i < value.length; ++i) {
       if (value[i].image == nodeId) {
@@ -1221,7 +1228,7 @@ function getNode(nodeId) {
       }
     }
   }
-
+  //checks nodeBox for node
   for (let i = 0; i < nodeBoxData.length; i++) {
     if (nodeBoxData[i].image == nodeId) {
       return nodeBoxData[i];
@@ -1352,6 +1359,7 @@ function getMother(node) {
   return getNode(node.mother);
 }
 
+//FIXME: instead of iterating through all the data, could we pass in a tree to iterate through?
 function getDataIndex(id) {
   for (let i = 0; i < data.length; ++i) {
     if (id === data[i].image) {
@@ -1683,25 +1691,26 @@ function getChildren(motherNode) {
 }
 
 function getRootNode(node) {
-  //added node.spouse != null, might cause errors
-  if (node.mother == null && node.spouse != null) {
-    //let spouseIndex = getDataIndex(node.spouse);
-    if (node.spouse != null && getNode(node.spouse).mother != null) {
+  //check if node is the root node
+  if (node.mother == null && getNode(node.spouse)?.mother == null) {
+    if (!hasChildren(node)) {
+      return getNode(node.spouse);
+    } 
+    else {
+      return node;
+    }
+  }
+  //if node is not the root node, then recursively check
+  else {
+    if (node.mother != null) {
       return getRootNode(getNode(node.mother));
     }
-    else {
-      if (!hasChildren(node)) {
-        return getNode(node.spouse);
-      } else {
-        return node;
+    if (node.spouse != null) {
+      if (getNode(node.spouse).mother != null) {
+        return getRootNode(getNode(getNode(node.spouse).mother));
       }
     }
   }
-
-  if (node.mother != null) {
-    return getRootNode(getNode(node.mother));
-  }
-  return node;
 }
 
 function getLeftmostChild(momNode) {
@@ -1709,8 +1718,6 @@ function getLeftmostChild(momNode) {
   let leftmostChild;
 
   for (let i = 0; i < momArray.length; ++i) {
-
-
 
     if (momArray[i][0].data.image == momNode.image) {
 
