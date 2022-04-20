@@ -143,10 +143,11 @@ class mom {
   }
 }
 
+//REFACTORED
 function makeMomArray() {
   
   let tmpArray = [];
-/*
+
 //FIXME: O(n^4) with functions called, make better
 //Initializes momObjects and pushes data to the object
   for (let value of dataMap.values()) {
@@ -164,60 +165,10 @@ function makeMomArray() {
     let tmpChildren = getChildren(tmpArray[i].data);
     tmpArray[i].children = tmpChildren;
   }
-*/
-  
 
-  
-  for (let i = 0; i < data.length; ++i) {
-    tmpArray.push([]);
-    tmpArray[i].push(new mom);
-  }
-  
-
-  //Pushes children to moms
-  
-  for (let i = 0; i < data.length; ++i) {
-    if (data[i].mother != null) {
-      for (let j = 0; j < data.length; j++) {
-        if (data[j].image == data[i].mother) {
-          tmpArray[j][0].children.push(data[i]);
-        }
-      }
-    }
-    if (data[i].spouse != null) {
-      for (let j = 0; j < data.length; j++) {
-        if (data[j].image == data[i].spouse) {
-          tmpArray[j][0].spouse = data[j].image;
-        }
-      }
-    }
-  }
-  
-
-  //Pushes data to mom
-  for (let i = 0; i < data.length; ++i) {
-    tmpArray[i][0].data = data[i];
-  }
-
-  //Cleaning Up Array to only leave moms
-  let tmpMomArray = [];
   for (let i = 0; i < tmpArray.length; ++i) {
-    if (tmpArray[i][0].children.length != 0) {
-      tmpMomArray.push(tmpArray[i]);
-   }
-  }
-  tmpArray = tmpMomArray;
-
-
-  //Sorts momArray from oldest to youngest
-  for (let i = 0; i < tmpArray.length; ++i) {
-    for (let j = 0; j < tmpArray.length - i - 1; ++j) {
-      if (tmpArray[i][0].data.birthyear < tmpArray[j][0].data.birthyear) {
-        let tmp = tmpArray[i]
-        tmpArray[i] = tmpArray[j]
-        tmpArray[j] = tmp;
-      }
-    }
+    let spouse = getNode(tmpArray[i].data.spouse);
+    tmpArray[i].spouse = spouse.image;
   }
 
   return tmpArray;
@@ -226,10 +177,6 @@ function makeMomArray() {
 momArray = makeMomArray();
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-let chartList = document.getElementById('chart');
-
-createChart(chartList);
 
 //FOR PRESENTATION
 function startEmpty() {
@@ -244,7 +191,9 @@ function startEmpty() {
   createChart(chartList)
 }
 
+let chartList = document.getElementById('chart');
 
+createChart(chartList);
 
 
 //All functions for chart creation and functionality
@@ -363,54 +312,59 @@ function testRemoveFromConfirmBox(id1, id2) {
   }
 }
 
-
 function createLines() {
 
   //FIXME: SVG has to be wider than chartwidth, however find better way of doing this, don't use magic number
   let svgString = `<svg id='lines' height="${chartWidth}" width="${chartWidth+1000}" xmlns="http://www.w3.org/2000/svg" style='z-index:-1;'>`;
 
-  for (let i = 0; i < data.length; ++i) {
+  for (let value of dataMap.values()) {
+    for (let i = 0; i < value.length; ++i) {
+      let li = $(`#${value[i].image}`);
+      let yPos = parseAttribute('y', li[0].style.cssText);
+      let xPos = parseAttribute('x', li[0].style.cssText);
+  
+      //Creates Child Lines
+      if (hasChildren(value[i])) {   
+  
+        let index = getMomArrayIndex(momArray, value[i].image);
+  
+        for (let j = 0; j < momArray[index].children.length; ++j) {
+  
+          let childElement = $(`#${momArray[index].children[j].image}`)
+  
+          let x1 = xPos;
+          let x2 = parseAttribute('x', childElement[0].style.cssText);
+          let y1 = yPos;
+          let y2 = parseAttribute('y', childElement[0].style.cssText);  
 
-    let li = $(`#${data[i].image}`);
-    let yPos = parseAttribute('y', li[0].style.cssText);
-    let xPos = parseAttribute('x', li[0].style.cssText);
+          let valId = value[i].image;
 
-    //Creates Child Lines
-    if (hasChildren(data[i])) {   
+          svgString += `<line class='svg-line' x1="${x1}" y1="${chartWidth - y1}" x2="${x2}" y2="${chartWidth - y2}" stroke="black" stroke-width='6' onclick='testAdd(getNode(${valId}), momArray[${index}].children[${j}])'/>`
+        }
+      }
+  
+      //Creates Spouse Lines
+      if (value[i].spouse != null) {
+  
+        let spouseElement = $(`#${value[i].spouse}`);
+        let spouseXPos = parseAttribute('x', spouseElement[0].style.cssText);
+        let spouseYPos = parseAttribute('y', spouseElement[0].style.cssText); 
 
-      let index = getMomArrayIndex(momArray, data[i].image);
-
-      for (let j = 0; j < momArray[index][0].children.length; ++j) {
-
-        let childElement = $(`#${momArray[index][0].children[j].image}`)
-
-        let x1 = xPos;
-        let x2 = parseAttribute('x', childElement[0].style.cssText);
-        let y1 = yPos;
-        let y2 = parseAttribute('y', childElement[0].style.cssText);
-
-        svgString += `<line class='svg-line' x1="${x1}" y1="${chartWidth - y1}" x2="${x2}" y2="${chartWidth - y2}" stroke="black" stroke-width='6' onclick='testAdd(data[${i}], momArray[${index}][0].children[${j}])'/>`
+        let valId = value[i].image;
+        let valSpouse = value[i].spouse;
+  
+        let line = `<line class='svg-line' x1="${xPos}" y1="${chartWidth - yPos}" x2="${spouseXPos}" y2="${chartWidth - spouseYPos}" stroke="blue" stroke-width='6' onclick='testAdd(getNode(${valId}), getNode(${valSpouse}))'/>`
+  
+        //if statement so that two spouse lines aren't drawn between spouses
+        if (spouseXPos > xPos) {
+          svgString += line
+        }
       }
     }
-
-    //Creates Spouse Lines
-    if (data[i].spouse != null) {
-
-      let spouseElement = $(`#${data[i].spouse}`);
-      let spouseXPos = parseAttribute('x', spouseElement[0].style.cssText);
-      let spouseYPos = parseAttribute('y', spouseElement[0].style.cssText);
-
-      let line = `<line class='svg-line' x1="${xPos}" y1="${chartWidth - yPos}" x2="${spouseXPos}" y2="${chartWidth - spouseYPos}" stroke="blue" stroke-width='6' onclick='testAdd(data[${i}], data[getDataIndex(data[${i}].spouse)])'/>`
-
-      //if statement so that two spouse lines aren't drawn between spouses
-      if (spouseXPos > xPos) {
-        svgString += line
-      }
-    }
+  
+    svgString += "</svg>"
+    $('#chart').html($('#chart').html() + svgString);
   }
-
-  svgString += "</svg>"
-  $('#chart').html($('#chart').html() + svgString);
 }
 
 
@@ -572,7 +526,6 @@ function removeRelationship(id1, id2) {
 
 
     //Testing for multi tree changes
-    
     //FIXME: Think about and change these if statements, what if one of the nodes got put in the nodeBoxContainer, etc. Look at fringe cases
     //Note: Spouse is already removed
     if (node1.mother == null && !inNodeBox(node1.image)) {
@@ -593,9 +546,9 @@ function removeRelationship(id1, id2) {
   //Removes Mother/Child Relationship
   if (node1.mother == id2) {
     for (let i = 0; i < momArray.length; ++i) {
-      if (momArray[i][0].data.image == id2) {
-        for (let j = 0; j < momArray[i][0].children.length; ++j) {
-          if (momArray[i][0].children[j].image == id1) {
+      if (momArray[i].data.image == id2) {
+        for (let j = 0; j < momArray[i].children.length; ++j) {
+          if (momArray[i].children[j].image == id1) {
             isRelated = true;
 
             node1.mother = null;
@@ -629,9 +582,9 @@ function removeRelationship(id1, id2) {
 
   else if (node2.mother == id1) {
     for (let i = 0; i < momArray.length; ++i) {
-      if (momArray[i][0].data.image == id1) {
-        for (let j = 0; j < momArray[i][0].children.length; ++j) {
-          if (momArray[i][0].children[j].image == id2) {
+      if (momArray[i].data.image == id1) {
+        for (let j = 0; j < momArray[i].children.length; ++j) {
+          if (momArray[i].children[j].image == id2) {
             isRelated = true;
 
             node2.mother = null;
@@ -777,6 +730,7 @@ function addToNodeContainer(id) {
   container.appendChild(button);
 }
 
+//REFACTORED
 function removeFromNodeContainer(id) {
   let container = document.getElementById('nodeContainer');
 
@@ -785,6 +739,7 @@ function removeFromNodeContainer(id) {
   container.removeChild(child);
 }
 
+//REFACTORED
 function removeAllChildNodes(parent) {
   while (parent.firstChild) {
       parent.removeChild(parent.firstChild);
@@ -817,6 +772,7 @@ function hoverMenu(nodeId) {
   `
 }
 
+
 function closeHoverMenu() {
   let menu = document.getElementById('hover-menu');
     menu.innerHTML = '';
@@ -836,7 +792,6 @@ function closeMenu() {
 
 
 //Spacing
-
 
 /**
  * Currently calls:
@@ -958,6 +913,7 @@ function fixOverlap(node, leftOverlap, rightOverlap) {
   //shiftChart();
 }
 
+/*
 function shiftNodesByMargin(xBuffer) {
   
   //Get the leftmost XPos on tree
@@ -981,29 +937,45 @@ function shiftNodesByMargin(xBuffer) {
     node.setAttribute('style', `--y: ${originalY}px; --x: ${originalX + margin}px`);
   }
 }
+*/
 
-//Not currently being used
-// function adjustSpouseXPos(node, fixedSpouses) {
-//   let spouseElement = document.getElementById(`${node.spouse}`);
-//   let spouseId = node.spouse;
-//   let spouseNode = getNode(spouseId);
-//   let spouseXPos = getX(spouseId);
+//TODO: REFACTOR
+function shiftNodesByMargin(xBuffer) {
+  //Get the leftmost XPos on tree
+  //let xPos = getX(data[0].image)
+  let xPos;
 
-//   let currNodeElement = document.getElementById(`${node.image}`);
-//   let currNodeXPos = getX(node.image);
+  //Gets initial val
+  for (let values of dataMap.values()) {
+    for (let i = 0; i < values.length; ++i) {
+      xPos = getX(values[0].image);
+      break;
+    }
+    break;
+  }
 
-//   let spacing = 100;
-//   let originalY = parseAttribute('y', spouseElement.style.cssText);
+  for (let values of dataMap.values()) {
+    for (let i = 0; i < values.length; ++i) {
+      let checkXPos = getX(values[i].image);
+      if (checkXPos < xPos) {
+        xPos = checkXPos;
+      }
+    }
+  }
 
-//   if (hasChildren(spouseNode)) {
-//     currNodeElement.setAttribute('style', `--y: ${originalY}px; --x: ${spouseXPos - spacing}px`);
-//   } else {
-//     spouseElement.setAttribute('style', `--y: ${originalY}px; --x: ${currNodeXPos + spacing}px`);
-//   }
+  let margin = Math.abs(xPos - xBuffer);
 
-//   fixedSpouses.push(spouseId);
-//   fixedSpouses.push(node.image);
-// }
+  //shift the xPos of every node by the margin
+  for (let values of dataMap.values()) {
+    for (let i = 0; i < values.length; ++i) {
+      let node = document.getElementById(values[i].image);
+      let originalY = parseAttribute('y', node.style.cssText);
+      let originalX = parseAttribute('x', node.style.cssText);
+      node.setAttribute('style', `--y: ${originalY}px; --x: ${originalX + margin}px`);
+    }
+  }
+}
+
 
 function adjustHigherGenNodes(nodeMother, currentMomNodeXPos, isOverlap) {
   //debugger
@@ -1235,9 +1207,9 @@ function getTree(node) {
 }
 
 
-function getX(node) {
-  if (node != null) {
-    let thisNode = document.getElementById(node);
+function getX(nodeId) {
+  if (nodeId != null) {
+    let thisNode = document.getElementById(nodeId);
     let nodeXPos = parseAttribute('x', thisNode.style.cssText);
     return nodeXPos;
   }
@@ -1348,7 +1320,6 @@ function getMother(node) {
 }
 
 //FIXME: instead of iterating through all the data, could we pass in a tree to iterate through?
-
 function getDataIndex(id) {
   for (let i = 0; i < data.length; ++i) {
     if (id === data[i].image) {
@@ -1378,14 +1349,14 @@ function getNodeBoxDataIndex(id) {
   return null;
 }
 
+//REFACTORED
 function getMomArrayIndex(array, id) {
   for (let i = 0; i < array.length; ++i) {
-    if (array[i][0].data.image == id) {
+    if (array[i].data.image == id) {
       return i;
     }
   }
 }
-
 
 
 function isOnTree(node) {
@@ -1595,13 +1566,14 @@ function checkForOverlapToLeft(node)
   return false;
 }
 
+//REFACTORED
 function getGenerationCount(node, count) {
   if (node?.mother == null) {
     if (node?.spouse != null) {
-      let spouseIndex = getDataIndex(node.spouse);
-      if (data[spouseIndex].mother != null) {
-        let motherIndex = getDataIndex(data[spouseIndex].mother);
-        return count += getGenerationCount(data[motherIndex], count);
+      let spouse = getNode(node.spouse);
+      if (spouse.mother != null) {
+        let mother = getNode(spouse.mother);
+        return count += getGenerationCount(mother, count);
       }
       else {
         return count;
@@ -1712,21 +1684,22 @@ function getRootNode(node) {
   }
 }
 
+//REFACTORED
 function getLeftmostChild(momNode) {
   let childElementXPos;
   let leftmostChild;
 
   for (let i = 0; i < momArray.length; ++i) {
 
-    if (momArray[i][0].data.image == momNode.image) {
+    if (momArray[i].data.image == momNode.image) {
 
       //Initial comparing value
-      let tmpChild = document.getElementById(`${momArray[i][0].children[0].image}`);
+      let tmpChild = document.getElementById(`${momArray[i].children[0].image}`);
       childElementXPos = parseAttribute('x', tmpChild.style.cssText)
       leftmostChild = tmpChild.id
 
-      for (let j = 0; j < momArray[i][0].children.length; ++j) {
-        let child = document.getElementById(`${momArray[i][0].children[j].image}`);
+      for (let j = 0; j < momArray[i].children.length; ++j) {
+        let child = document.getElementById(`${momArray[i].children[j].image}`);
 
         let childXPos = parseAttribute('x', child.style.cssText);
 
@@ -1741,20 +1714,21 @@ function getLeftmostChild(momNode) {
   return data[getDataIndex(parseInt(leftmostChild))];
 }
 
+//REFACTORED
 function getRightmostChild(momNode) {
   let childElementXPos;
   let rightmostChild;
 
   for (let i = 0; i < momArray.length; ++i) {
-    if (momArray[i][0].data.image == momNode.image) {
+    if (momArray[i].data.image == momNode.image) {
 
       //Initial comparing value
-      let tmpChild = document.getElementById(`${momArray[i][0].children[0].image}`);
+      let tmpChild = document.getElementById(`${momArray[i].children[0].image}`);
       childElementXPos = parseAttribute('x', tmpChild.style.cssText)
       rightmostChild = tmpChild.id
 
-      for (let j = 0; j < momArray[i][0].children.length; ++j) {
-        let child = document.getElementById(`${momArray[i][0].children[j].image}`);
+      for (let j = 0; j < momArray[i].children.length; ++j) {
+        let child = document.getElementById(`${momArray[i].children[j].image}`);
 
         let childXPos = parseAttribute('x', child.style.cssText);
 
@@ -1768,7 +1742,6 @@ function getRightmostChild(momNode) {
   }
   return data[getDataIndex(parseInt(rightmostChild))]
 }
-
 
 function inNodeBox(image) {
   if (getNodeBoxDataIndex(image) != null) {
