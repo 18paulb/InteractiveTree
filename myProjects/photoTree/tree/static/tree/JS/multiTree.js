@@ -266,7 +266,7 @@ function createDataPoints(chart) {
     }
   }
   //center the chart
-  shiftChart();
+  //shiftChart();
 }
 
 //REFACTORED
@@ -311,7 +311,7 @@ function testAdd(node1, node2) {
 
 //REFACTORED
 function testRemoveFromConfirmBox(id1, id2) {
-  if (inNodeBox(id1)) {
+  if (inNodeBox(getNode(id1))) {
     testAdd(getNode(id1), getNode(id2));
   }
 }
@@ -380,44 +380,43 @@ function createLines() {
 
 
 function addSpouseRelationship(id1, id2) {
-  //debugger
-  let node1 = getNode(id1);
-  let node2 = getNode(id2);
-
   //For Spouse -> Spouse
-  let spouse1 = node1;
-  let spouse2 = node2;
+  let spouse1 = getNode(id1);
+  let spouse2 = getNode(id2);
   
   //checks nodeBox
   let currTree;
   let spouse1Index;
   let spouse2Index;
 
-  if (getNodeBoxDataIndex(spouse1.image) != null) {
-    spouse1Index = getNodeBoxDataIndex(spouse1.image);
-    
+  //If spouse1 is in nodeBox and spouse2 is on tree
+  if (inNodeBox(spouse1) != null && isOnTree(spouse2)) {
     currTree = getTree(spouse2);
-    currTree.push(nodeBoxData[spouse1Index]);
+    currTree.push(spouse1);
+    spouse1Index = getNodeBoxDataIndex(spouse1.image);
     nodeBoxData.splice(spouse1Index, 1);
   }
 
-  if (getNodeBoxDataIndex(spouse2.image) != null) {
-    spouse2Index = getNodeBoxDataIndex(spouse2.image);
-    
+  //If spouse2 is in nodeBox and spouse1 is on tree
+  if (inNodeBox(spouse2) != null && isOnTree(spouse1)) {
     currTree = getTree(spouse1);
-    currTree.push(nodeBoxData[spouse2Index]);
+    currTree.push(spouse2);
+    spouse2Index = getNodeBoxDataIndex(spouse2.image);
     nodeBoxData.splice(spouse2Index, 1);
+  }
+
+  //TODO: Account for if both are in nodeBox
+  if (inNodeBox(spouse1) && inNodeBox(spouse2)) {
+    //Do something
   }
 
   //assigns each node their new spouse
   if (getDataIndex(spouse1.image) != null) {
-    spouse1Index = getDataIndex(spouse1.image);
-    data[spouse1Index].spouse = spouse2.image;
+    spouse1.spouse = spouse2.image;
   }
 
   if (getDataIndex(spouse2.image) != null) {
-    spouse2Index = getDataIndex(spouse2.image);
-    data[spouse2Index].spouse = spouse1.image;
+    spouse2.spouse = spouse1.image
   }
 
   createChart(chartList);
@@ -428,64 +427,63 @@ function addSpouseRelationship(id1, id2) {
 }
 
 //TODO fix issues
+//TODO: FINISH REFACTORING
 function addMotherRelationship(id1, id2) {
   //SOLVE:
-  //4. Impossible to do with current data but if male, you can't make it mother
   //5. If moved from nodeBoxData into confirmBox and error occurs (ie more than 2 nodes) and confirmBox is cleared, the data from nodeBoxData is lost forever
-  
-  let id1Node;
-  let id2Node;
 
-  for (let i = 0; i < data.length; ++i) {
-    if (data[i].image == id1) {
-      id1Node = data[i];
-    }
-    if (data[i].image == id2) {
-      id2Node = data[i];
-    }
-  }
-
-  for (let i = 0; i < nodeBoxData.length; ++i) {
-    if (nodeBoxData[i].image == id1) {
-      id1Node = nodeBoxData[i];
-    }
-    if (nodeBoxData[i].image == id2) {
-      id2Node = nodeBoxData[i];
-    }
-  }
+  let node1 = getNode(id1);
+  let node2 = getNode(id2);
 
   let mother;
   let child;
 
-  if (id1Node.birthyear > id2Node.birthyear) {
-    mother = id2Node;
-    child = id1Node;
+  if (node1.birthyear > node2.birthyear) {
+    mother = node2;
+    child = node1;
   } else {
-    mother = id1Node;
-    child = id2Node;
+    mother = node1;
+    child = node2;
   }
 
-  let childIndex;
-  let momIndex
+  child.mother = mother.image;
 
+  //If child is in nodeBox and mother in tree
+  if (inNodeBox(child) && isOnTree(mother)) {
+    let currTree = getTree(mother);
+    currTree.push(child);
+    let childIndex = getNodeBoxDataIndex(child.image);
+    nodeBoxData.splice(childIndex, 1);
+  }
 
-  if (getNodeBoxDataIndex(child.image) != null) {
-    childIndex = getNodeBoxDataIndex(child.image);
-    data.push(nodeBoxData[childIndex]);
+  //If child is on tree and mother in nodeBox
+  if (isOnTree(child) && inNodeBox(mother)) {
+    let children = [child];
 
+    //Removes child from old tree
+    let currTree = getTree(child);
+    let childIndex = getDataIndex(child.image);
+    currTree.splice(childIndex, 1);
 
-    nodeBoxData.splice(childIndex, 1)
-  } 
-  //What if mom is in nodeBoxData
-  if (getNodeBoxDataIndex(mother.image) != null) {
-    momIndex = getNodeBoxDataIndex(mother.image);
-    data.push(nodeBoxData[momIndex]);
+    //Removes mom from nodeBoxData
+    let momIndex = getNodeBoxDataIndex(mother.image);
     nodeBoxData.splice(momIndex, 1)
+
+    //creates new tree
+    dataMap.set(mother.image, children);
   }
 
-  if (getDataIndex(child.image) != null) {
-    childIndex = getDataIndex(child.image);
-    data[childIndex].mother = mother.image;
+  //if both are in nodeBox
+  if (inNodeBox(child) && inNodeBox(mother)) {
+    let children = [child]
+
+    //creates new tree
+    dataMap.set(mother.image, children);
+    
+    let childIndex = getNodeBoxDataIndex(child.image);
+    nodeBoxData.splice(childIndex, 1);
+    let momIndex = getNodeBoxDataIndex(mother.image);
+    nodeBoxData.splice(momIndex, 1);
   }
 
   momArray = makeMomArray()
@@ -495,7 +493,6 @@ function addMotherRelationship(id1, id2) {
   document.getElementById('confirmBox').innerHTML = ''
 
   closeMenu();
-
 }
 
 //REFACTORED
@@ -539,11 +536,11 @@ function removeRelationship(id1, id2) {
     //Testing for multi tree changes
     //FIXME: Think about and change these if statements, what if one of the nodes got put in the nodeBoxContainer, etc. Look at fringe cases
     //Note: Spouse is already removed
-    if (node1.mother == null && !inNodeBox(node1.image)) {
+    if (node1.mother == null && !inNodeBox(node1)) {
       newTree = getTreeLine(node1, newTree);
       addToTreeMap(newTree, dataMap.get(oldRoot.image));
     }
-    else if (node2.mother == null && !inNodeBox(node2.image)) {
+    else if (node2.mother == null && !inNodeBox(node2)) {
       newTree = getTreeLine(node2, newTree);
       addToTreeMap(newTree, dataMap.get(oldRoot.image));
     }
@@ -581,7 +578,7 @@ function removeRelationship(id1, id2) {
             
             //TODO: Test, will probably break
             //If it is it's own root node
-            if ((getRootNode(node1)?.image == node1.image || getRootNode(node1)?.image == node1.spouse) && !inNodeBox(node1.image)) {
+            if ((getRootNode(node1)?.image == node1.image || getRootNode(node1)?.image == node1.spouse) && !inNodeBox(node1)) {
               newTree = getTreeLine(node1, newTree);
               oldRoot = getRootNode(node2);
               addToTreeMap(newTree, dataMap.get(oldRoot.image));
@@ -616,7 +613,7 @@ function removeRelationship(id1, id2) {
 
             //TODO: Test, will probably break
             //If it is it's own root node AKA its own tree
-            if ((getRootNode(node2)?.image == node2.image || getRootNode(node2)?.image == node2.spouse) && !inNodeBox(node2.image)) {
+            if ((getRootNode(node2)?.image == node2.image || getRootNode(node2)?.image == node2.spouse) && !inNodeBox(node2)) {
               newTree = getTreeLine(node2, newTree);
               oldRoot = getRootNode(node1);
               addToTreeMap(newTree, dataMap.get(oldRoot.image));
@@ -976,7 +973,7 @@ function adjustHigherGenNodes(nodeMother, currentMomNodeXPos, isOverlap) {
   for (let value of dataMap.values()) {
     for (let i = 0; i < value.length; ++i) {
       for (let i = 0; i < childNodeArray.length; ++i) {
-        if (childNodeArray[i].image == value[i].image && isOnTree(value[i])) {
+        if ((childNodeArray[i].image == value[i].image) && isOnTree(value[i])) {
           nodesToAdjust.push(value[i]);
         }
       }
@@ -1360,7 +1357,7 @@ function removeNodeFromTree(node) {
 //REFACTORED
 function getNodeBoxDataIndex(id) {
   for (let i = 0; i < nodeBoxData.length; ++i) {
-    if (id === nodeBoxData[i].image) {
+    if (id == nodeBoxData[i].image) {
       return i;
     }
   }
@@ -1774,11 +1771,10 @@ function getRightmostChild(momNode) {
     }
   }
   return getNode(parseInt(rightmostChild));
-  //return data[getDataIndex(parseInt(rightmostChild))]
 }
 
-function inNodeBox(image) {
-  if (getNodeBoxDataIndex(image) != null) {
+function inNodeBox(node) {
+  if (getNodeBoxDataIndex(node.image) != null) {
     return true;
   } else {
     return false;
