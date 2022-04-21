@@ -167,8 +167,10 @@ function makeMomArray() {
   }
 
   for (let i = 0; i < tmpArray.length; ++i) {
-    let spouse = getNode(tmpArray[i].data.spouse);
-    tmpArray[i].spouse = spouse.image;
+    if (tmpArray[i].spouse != null) {
+      let spouse = getNode(tmpArray[i].data.spouse);
+      tmpArray[i].spouse = spouse.image;
+    }
   }
 
   return tmpArray;
@@ -203,6 +205,8 @@ function createChart(chart) {
   createDataPoints(chart);
 
   createLines();
+
+  console.log("Number of Trees", dataMap.size);
 
 }
 
@@ -553,7 +557,6 @@ function removeRelationship(id1, id2) {
     return;
   }
 
-  //debugger
   //Removes Mother/Child Relationship
   if (node1.mother == id2) {
     for (let i = 0; i < momArray.length; ++i) {
@@ -920,34 +923,8 @@ function fixOverlap(node, leftOverlap, rightOverlap) {
   }
 
   // (should fix root node and spacing between rest of 2nd gen)
-  //shiftChart();
+  shiftChart();
 }
-
-/*
-function shiftNodesByMargin(xBuffer) {
-  
-  //Get the leftmost XPos on tree
-  let xPos = getX(data[0].image);
-  let checkXPos;
-  
-  for (let i = 1; i < data.length; i++) {
-    checkXPos = getX(data[i].image);
-    if (checkXPos < xPos) {
-      xPos = checkXPos;
-    }
-  }
-
-  //shift the xPos of every node by the margin
-  let margin = Math.abs(xPos - xBuffer);
-  
-  for (let i = 0; i < data.length; i++) {
-    let node = document.getElementById(data[i].image);
-    let originalY = parseAttribute('y', node.style.cssText);
-    let originalX = parseAttribute('x', node.style.cssText);
-    node.setAttribute('style', `--y: ${originalY}px; --x: ${originalX + margin}px`);
-  }
-}
-*/
 
 //TODO: REFACTOR
 function shiftNodesByMargin(xBuffer) {
@@ -996,15 +973,8 @@ function adjustHigherGenNodes(nodeMother, currentMomNodeXPos, isOverlap) {
   let nodesToAdjust = []
 
   //1. Get the xPositions of all nodes besides the mom and her children
-  //debugger
-
   for (let value of dataMap.values()) {
     for (let i = 0; i < value.length; ++i) {
-      /*
-      if (!childNodeArray.some(element => element == value[i] && isOnTree(value[i]))) {
-        nodesToAdjust.push(value[i]);
-      }
-      */
       for (let i = 0; i < childNodeArray.length; ++i) {
         if (childNodeArray[i].image == value[i].image && isOnTree(value[i])) {
           nodesToAdjust.push(value[i]);
@@ -1012,8 +982,6 @@ function adjustHigherGenNodes(nodeMother, currentMomNodeXPos, isOverlap) {
       }
     }
   }
-
-  //debugger
 
   let nodesXPositions = []
   for (let i = 0; i < nodesToAdjust.length; i++) {
@@ -1237,9 +1205,8 @@ function getTree(node) {
   }
 }
 
-
+//REFACTORED
 function getX(nodeId) {
-  
   if (nodeId != null) {
     let thisNode = document.getElementById(nodeId);
     let nodeXPos = parseAttribute('x', thisNode.style.cssText);
@@ -1247,24 +1214,13 @@ function getX(nodeId) {
   }
 }
 
+//REFACTORED
 function getY(height, generation) {
   let genCount = getLongestGenChain();
   return (chartWidth + 225) - (chartWidth/genCount + 1) * generation;
   //added a little to chartWidth to center it, can change later
 }
 
-/*
-function getLongestGenChain() {
-  let genCount = 0;
-  for (let j = 0; j < data.length; ++j) {
-    let tmp = getGenerationCount(data[j], 1);
-    if (tmp > genCount) {
-      genCount = tmp;
-    }
-  }
-  return genCount;
-}
-*/
 //REFACTORED
 function getLongestGenChain() {
   let genCount = 0; 
@@ -1280,6 +1236,7 @@ function getLongestGenChain() {
   return genCount;
 }
 
+//REFACTORED
 function getPlaceInGeneration(node, generation) {
   let nodeArray = [];
   nodeArray = getNodesInGeneration(generation);
@@ -1293,6 +1250,7 @@ function getPlaceInGeneration(node, generation) {
   return placeInGen;
 }
 
+//REFACTORED
 function getPlaceInFamily(node) {
   let nodeArray = [];
   nodeArray = getFamilyArray(node);
@@ -1305,18 +1263,8 @@ function getPlaceInFamily(node) {
   }
   return placeInFamily + 1;
 }
-/*
-function getNumChildrenInFamily(node) {
-  
-  let nodesInFamily = [];
-  for (let i = 0; i < data.length; ++i) {
-    if (data[i].mother == node.mother) {
-      nodesInFamily.push(data[i]);
-    }
-  }
-  return nodesInFamily.length;
-}*/
-//REFACTOREDs
+
+//REFACTORED
 function getNumChildrenInFamily(node) {
   let nodesInFamily = [];
   for (let value of dataMap.values()) {
@@ -1328,18 +1276,7 @@ function getNumChildrenInFamily(node) {
   }
   return nodesInFamily.length
 }
-/*
-function getFamilyArray(node) {
-  
-  let nodesInFamily = [];
-  for (let i = 0; i < data.length; ++i) {
-    if (data[i].mother == node.mother) {
-      nodesInFamily.push(data[i]);
-    }
-  }
-  return nodesInFamily;
-}
-*/
+
 //REFACTORED
 function getFamilyArray(node) {
   let nodesInFamily = [];
@@ -1369,27 +1306,6 @@ function getWidthOfFamily(node) {
   return width;
 }
 
-/*
-function getMomsInGen(generation) {
-  theMomArray = [];
-  //gets all motherId's in data
-  for (let i = 0; i < data.length; i++) {
-    if(data[i].mother != null) {
-      if (theMomArray.every(element => element != data[i].mother)) {
-        theMomArray.push(data[i].mother); //push the motherIds
-      }
-    }
-  }
-  //gets array of motherId's in generation
-  newMomArray = []
-  for (let i = 0; i < theMomArray.length; i++) {
-    if (getGeneration(theMomArray[i]) == generation)) {
-      newMomArray.push(theMomArray[i]);
-    }
-  }
-  return newMomArray;
-}
-*/
 //REFACTORED
 function getMomsInGen(generation) {
   theMomArray = [];
@@ -1413,21 +1329,11 @@ function getMomsInGen(generation) {
   return newMomArray;
 }
 
+//REFACTORED
 function getMother(node) {
   return getNode(node.mother);
 }
 
-//FIXME: instead of iterating through all the data, could we pass in a tree to iterate through?
-/*
-function getDataIndex(id) {
-  for (let i = 0; i < data.length; ++i) {
-    if (id === data[i].image) {
-      return i;
-    }
-  }
-  return null;
-}
-*/
 //REFACTORED
 function getDataIndex(id) {
   for (let value of dataMap.values()) {
@@ -1683,7 +1589,7 @@ function checkForOverlapToLeft(node)
   return false;
 }
 
-//TODO: REFACTORED
+//REFACTORED
 function getGenerationCount(node, count) {
   if (node?.mother == null) {
     if (node?.spouse != null) {
@@ -1701,11 +1607,9 @@ function getGenerationCount(node, count) {
     }
   }
 
-  //let motherIndex = getDataIndex(node.mother);
   let motherNode = getNode(node.mother);
 
   if (node.mother != null) {
-    //return count += getGenerationCount(data[motherIndex], count);
     return count += getGenerationCount(motherNode, count);
   }
 }
@@ -1718,6 +1622,7 @@ function getGeneration(node) {
   return count;
 }
 
+//REFACTORED
 function getMotherPlaceInGen(nodeMother, node) {
   let motherNodeChildren = getChildren(nodeMother);
   let motherPlaceInGen;
@@ -1731,18 +1636,8 @@ function getMotherPlaceInGen(nodeMother, node) {
   }
   return motherPlaceInGen;
 }
-/*
-function getNumInGeneration(generation) {
-  let numInGen = 0;
-  for (let i = 0; i < data.length; ++i) {
-    if (getGeneration(data[i]) == generation) {
-      numInGen++;
-    }
-  }
-  return numInGen;
-}
-*/
-//FUNCTION
+
+//REFACTORED
 function getNumInGeneration(generation) {
   let numInGen = 0;
   for (let value of dataMap.values()) {
@@ -1754,17 +1649,6 @@ function getNumInGeneration(generation) {
   }
   return numInGen;
 }
-/*
-function getNodesInGeneration(generation) {
-  let nodeGeneration = [];
-  for (let i = 0; i < data.length; ++i) {
-    if (getGeneration(data[i]) == generation) {
-      nodeGeneration.push(data[i]);
-    }
-  }
-  return nodeGeneration;
-}
-*/
 
 //REFACTORED
 function getNodesInGeneration(generation) {
@@ -1902,7 +1786,6 @@ function inNodeBox(image) {
 }
 
 //FOR MULTITREE TESTING
-//FIXME: Could possibly exceed call stack
 function getTreeLine(node, tree) {
 
   //If node is Mother gets children
