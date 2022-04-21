@@ -528,9 +528,6 @@ function removeRelationship(id1, id2) {
     //Testing for multi tree changes
     //FIXME: Think about and change these if statements, what if one of the nodes got put in the nodeBoxContainer, etc. Look at fringe cases
     //Note: Spouse is already removed
-
-    //debugger
-
     if (node1.mother == null && !inNodeBox(node1.image)) {
       newTree = getTreeLine(node1, newTree);
       addToTreeMap(newTree, dataMap.get(oldRoot.image));
@@ -549,7 +546,7 @@ function removeRelationship(id1, id2) {
     return;
   }
 
-  debugger
+  //debugger
   //Removes Mother/Child Relationship
   if (node1.mother == id2) {
     for (let i = 0; i < momArray.length; ++i) {
@@ -606,7 +603,6 @@ function removeRelationship(id1, id2) {
               addToNodeContainer(node1.image);
               removeNodeFromTree(node1);
             }
-
 
             //TODO: Test, will probably break
             //If it is it's own root node AKA its own tree
@@ -1215,9 +1211,7 @@ function getTree(node) {
 
 
 function getX(nodeId) {
-
-  //debugger
-
+  
   if (nodeId != null) {
     let thisNode = document.getElementById(nodeId);
     let nodeXPos = parseAttribute('x', thisNode.style.cssText);
@@ -1231,6 +1225,7 @@ function getY(height, generation) {
   //added a little to chartWidth to center it, can change later
 }
 
+/*
 function getLongestGenChain() {
   let genCount = 0;
   for (let j = 0; j < data.length; ++j) {
@@ -1239,6 +1234,21 @@ function getLongestGenChain() {
       genCount = tmp;
     }
   }
+  return genCount;
+}
+*/
+//REFACTORED
+function getLongestGenChain() {
+  let genCount = 0; 
+  for (let value of dataMap.values()) {
+    for (let i = 0; i < value.length; ++i) {
+      let tmp = getGenerationCount(value[i], 1);
+      if (tmp > genCount) {
+        genCount = tmp;
+      }
+    }
+  }
+
   return genCount;
 }
 
@@ -1267,7 +1277,7 @@ function getPlaceInFamily(node) {
   }
   return placeInFamily + 1;
 }
-
+/*
 function getNumChildrenInFamily(node) {
   
   let nodesInFamily = [];
@@ -1277,8 +1287,20 @@ function getNumChildrenInFamily(node) {
     }
   }
   return nodesInFamily.length;
+}*/
+//REFACTOREDs
+function getNumChildrenInFamily(node) {
+  let nodesInFamily = [];
+  for (let value of dataMap.values()) {
+    for (let i = 0; i < value.length; ++i) {
+      if (value[i].mother == node.mother) {
+        nodesInFamily.push(value[i]);
+      }
+    }
+  }
+  return nodesInFamily.length
 }
-
+/*
 function getFamilyArray(node) {
   
   let nodesInFamily = [];
@@ -1289,7 +1311,21 @@ function getFamilyArray(node) {
   }
   return nodesInFamily;
 }
+*/
+//REFACTORED
+function getFamilyArray(node) {
+  let nodesInFamily = [];
+  for (let value of dataMap.values()) {
+    for (let i = 0; i < value.length; ++i) {
+      if (value[i].mother == node.mother) {
+        nodesInFamily.push(value[i]);
+      }
+    }
+  }
+  return nodesInFamily;
+}
 
+//FIXME: This function probably should be changed
 function getWidthOfFamily(node) {
   let width;
   let nodeGen = getGeneration(node);
@@ -1305,6 +1341,7 @@ function getWidthOfFamily(node) {
   return width;
 }
 
+/*
 function getMomsInGen(generation) {
   theMomArray = [];
   //gets all motherId's in data
@@ -1318,7 +1355,30 @@ function getMomsInGen(generation) {
   //gets array of motherId's in generation
   newMomArray = []
   for (let i = 0; i < theMomArray.length; i++) {
-    if (getGeneration(theMomArray[i]) == generation) {
+    if (getGeneration(theMomArray[i]) == generation)) {
+      newMomArray.push(theMomArray[i]);
+    }
+  }
+  return newMomArray;
+}
+*/
+//REFACTORED
+function getMomsInGen(generation) {
+  theMomArray = [];
+  //gets all motherId's in data
+  for (let value of dataMap.values()) {
+    for (let i = 0; i < value.length; ++i) {
+      if (value[i].mother != null) {
+        if (theMomArray.every(element => element != value[i].mother)) {
+          theMomArray.push(value[i].mother); //push the motherIds
+        }
+      }
+    }
+  }
+  //gets array of motherId's in generation
+  newMomArray = [];
+  for (let i = 0; i < theMomArray.length; i++) {
+    if (getGeneration(theMomArray[i] == generation)) {
       newMomArray.push(theMomArray[i]);
     }
   }
@@ -1330,6 +1390,7 @@ function getMother(node) {
 }
 
 //FIXME: instead of iterating through all the data, could we pass in a tree to iterate through?
+/*
 function getDataIndex(id) {
   for (let i = 0; i < data.length; ++i) {
     if (id === data[i].image) {
@@ -1338,7 +1399,20 @@ function getDataIndex(id) {
   }
   return null;
 }
+*/
+//REFACTORED
+function getDataIndex(id) {
+  for (let value of dataMap.values()) {
+    for (let i = 0; i < value.length; ++i) {
+      if (id == value[i].image) {
+        return i;
+      }
+    }
+  }
+  return null;
+}
 
+//REFACTORED
 function removeNodeFromTree(node) {
   for (let value of dataMap.values()) {
     for (let i = 0; i < value.length; ++i) {
@@ -1349,7 +1423,7 @@ function removeNodeFromTree(node) {
   }
 }
 
-
+//REFACTORED
 function getNodeBoxDataIndex(id) {
   for (let i = 0; i < nodeBoxData.length; ++i) {
     if (id === nodeBoxData[i].image) {
@@ -1368,22 +1442,27 @@ function getMomArrayIndex(array, id) {
   }
 }
 
-
+//REFACTORED
 function isOnTree(node) {
   let thisNode = document.getElementById(node.image);
-  let checkNode = false;
-  if (thisNode != null) {
-    checkNode = true;
+
+  if (thisNode == null) {
+    return false;
   }
-  return checkNode;
+  else {
+    return true;
+  }
 }
 
+//REFACTORED
 function getHypotenuse(datapoint1, datapoint2, left1, left2) {
   triSide = datapoint1 - datapoint2;
   tmpSpacing = left1 - left2;
   hypotenuse = Math.sqrt((triSide * triSide) + (tmpSpacing * tmpSpacing));
   return hypotenuse;
 }
+
+//REFACTORED
 function getAngle(opposite, hypotenuse) {
   let sine = Math.asin(opposite / hypotenuse);
   //Convert from radians to degrees
@@ -1392,6 +1471,7 @@ function getAngle(opposite, hypotenuse) {
   return sine;
 }
 
+//REFACTORED
 function parseAttribute(lookFor, attribute) {
   let numString = '';
   if (lookFor == 'y') {
@@ -1402,7 +1482,6 @@ function parseAttribute(lookFor, attribute) {
           numString += attribute[j];
           j++;
         }
-
       }
     }
   }
@@ -1421,21 +1500,19 @@ function parseAttribute(lookFor, attribute) {
   return parseInt(numString);
 }
 
+//REFACTORED
 function hasRelationship(node) {
-
   if (node.spouse != null || node.mother != null) {
     return true;
   }
-
   else if (hasChildren(node)) {
     return true;
   }
-
   return false
-
 }
 
 //function for checking for any overlapping nodes
+//REFACTORED
 function checkOverlaps(rootNodeChildren) {
   for (let i = 0; i < rootNodeChildren.length; i++) 
   {
@@ -1481,6 +1558,7 @@ function checkOverlaps(rootNodeChildren) {
 /**
  * checks for any overlap of any children to the right
  */
+//REFACTORED
 function checkForOverlapToRight(node) 
 {
   //get the rightmost child
@@ -1530,6 +1608,7 @@ function checkForOverlapToRight(node)
 /**
  * checks for any overlap of any children to the left
  */
+//REFACTORED
 function checkForOverlapToLeft(node) 
 {
   //get the leftmost child
@@ -1576,7 +1655,7 @@ function checkForOverlapToLeft(node)
   return false;
 }
 
-//REFACTORED
+//TODO: REFACTORED
 function getGenerationCount(node, count) {
   if (node?.mother == null) {
     if (node?.spouse != null) {
@@ -1594,10 +1673,12 @@ function getGenerationCount(node, count) {
     }
   }
 
-  let motherIndex = getDataIndex(node.mother);
+  //let motherIndex = getDataIndex(node.mother);
+  let motherNode = getNode(node.mother);
 
   if (node.mother != null) {
-    return count += getGenerationCount(data[motherIndex], count);
+    //return count += getGenerationCount(data[motherIndex], count);
+    return count += getGenerationCount(motherNode, count);
   }
 }
 
@@ -1622,7 +1703,7 @@ function getMotherPlaceInGen(nodeMother, node) {
   }
   return motherPlaceInGen;
 }
-
+/*
 function getNumInGeneration(generation) {
   let numInGen = 0;
   for (let i = 0; i < data.length; ++i) {
@@ -1632,7 +1713,20 @@ function getNumInGeneration(generation) {
   }
   return numInGen;
 }
-
+*/
+//FUNCTION
+function getNumInGeneration(generation) {
+  let numInGen = 0;
+  for (let value of dataMap.values()) {
+    for (let i = 0; i < value.length; ++i) {
+      if (getGeneration(value[i]) == generation) {
+        numInGen++;
+      }
+    }
+  }
+  return numInGen;
+}
+/*
 function getNodesInGeneration(generation) {
   let nodeGeneration = [];
   for (let i = 0; i < data.length; ++i) {
@@ -1640,7 +1734,20 @@ function getNodesInGeneration(generation) {
       nodeGeneration.push(data[i]);
     }
   }
+  return nodeGeneration;
+}
+*/
 
+//REFACTORED
+function getNodesInGeneration(generation) {
+  let nodeGeneration = [];
+  for (let value of dataMap.values()) {
+    for (let i = 0; i < value.length; ++i) {
+      if (getGeneration(value[i]) == generation) {
+        nodeGeneration.push(value[i]);
+      }
+    }
+  }
   return nodeGeneration;
 }
 
@@ -1671,6 +1778,7 @@ function hasChildren(node) {
   return false;
 }
 
+//FIXME:
 function getRootNode(node) {
   //check if node is the root node
   if (node.mother == null && getNode(node.spouse)?.mother == null) {
@@ -1723,7 +1831,8 @@ function getLeftmostChild(momNode) {
       break;
     }
   }
-  return data[getDataIndex(parseInt(leftmostChild))];
+  return getNode(parseInt(leftmostChild));
+  //return data[getDataIndex(parseInt(leftmostChild))];
 }
 
 //REFACTORED
@@ -1752,7 +1861,8 @@ function getRightmostChild(momNode) {
       break;
     }
   }
-  return data[getDataIndex(parseInt(rightmostChild))]
+  return getNode(parseInt(rightmostChild));
+  //return data[getDataIndex(parseInt(rightmostChild))]
 }
 
 function inNodeBox(image) {
@@ -1762,8 +1872,6 @@ function inNodeBox(image) {
     return false;
   }
 }
-
-
 
 //FOR MULTITREE TESTING
 //FIXME: Could possibly exceed call stack
