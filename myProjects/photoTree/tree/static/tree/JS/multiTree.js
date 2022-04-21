@@ -218,49 +218,53 @@ function createDataPoints(chart) {
   for (let j = 0; j < genCount; ++j) {
     generationMap.set(j+1, 1);
   }
-  
+
+  //debugger
+
+  //rewrite
   for (let genIndex = 0; genIndex < (genCount + 1); genIndex++) { //creates data points now from oldest to youngest gen
-    for (let i = 0; i < data.length; ++i) { //iterates through the entire data set to check if gen matches up
-      let gen = getGeneration(data[i]);
-      if (gen == genIndex) {
+    for (let value of dataMap.values()) {
+      for (let i = 0; i < value.length; ++i) {
+        let gen = getGeneration(value[i]);
+        if (gen == genIndex) {
 
-      //Getting X and Y Positions
-      let li = document.createElement('li');
-      let dividedHeight = chartWidth / genCount;
-      let yPos = getY(dividedHeight, gen);
+          //Getting X and Y Positions
+          let li = document.createElement('li');
+          let dividedHeight = chartWidth / genCount;
+          let yPos = getY(dividedHeight, gen);
 
-      
-      let placeInGen = getPlaceInGeneration(data[i], gen);
-      if (placeInGen == undefined) {
-        placeInGen = 0;
-      }
-      
+          let placeInGen = getPlaceInGeneration(value[i], gen);
+          if (placeInGen == undefined) {
+            placeInGen = 0;
+          }
 
-      li.setAttribute('id', data[i].image);
-      let xPos;
-      
-      if (gen < 3) {
-        //If it is a first or second gen node
-        xPos = setHighGenX(data[i], generationMap, chartWidth, placeInGen);
-      }
-      else {
-        //If it is a third gen or greater node
-        let widthOfFamily = getWidthOfFamily(data[i]);
-        let firstRun = true;
-        xPos = setChildX(data[i], widthOfFamily, firstRun);
-      }
+          li.setAttribute('id', value[i].image);
+          let xPos;
+          
+          if (gen < 3) {
+            //If it is a first or second gen node
+            xPos = setHighGenX(value[i], generationMap, chartWidth, placeInGen);
+          }
+          else {
+            //If it is a third gen or greater node
+            let widthOfFamily = getWidthOfFamily(value[i]);
+            let firstRun = true;
+            xPos = setChildX(value[i], widthOfFamily, firstRun);
+          }
 
+          li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`);
 
-      li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`);
-
-      li.innerHTML += `<div id='button${data[i].image}' onclick='addToConfirmBox(${data[i].image})'>
-      <img class="data-point data-button" src="../../static/tree/images/pictures/Kennedy/${data[i].image}.PNG" onmouseenter='hoverMenu(${data[i].image})' onmouseleave='closeHoverMenu()'>
-      </div>`
-      
-      chart.appendChild(li);
-      }
+          li.innerHTML += `<div id='button${value[i].image}' onclick='addToConfirmBox(${value[i].image})'>
+          <img class="data-point data-button" src="../../static/tree/images/pictures/Kennedy/${value[i].image}.PNG" onmouseenter='hoverMenu(${value[i].image})' onmouseleave='closeHoverMenu()'>
+          </div>`
+          
+          chart.appendChild(li);
+        }
+      } 
     }
   }
+  //
+  
   //center the chart
   shiftChart();
 }
@@ -312,6 +316,7 @@ function testRemoveFromConfirmBox(id1, id2) {
   }
 }
 
+//REFACTORED
 function createLines() {
 
   //FIXME: SVG has to be wider than chartwidth, however find better way of doing this, don't use magic number
@@ -775,13 +780,13 @@ function hoverMenu(nodeId) {
   `
 }
 
-
+//REFACTORED
 function closeHoverMenu() {
   let menu = document.getElementById('hover-menu');
     menu.innerHTML = '';
 }
 
-
+//REFACTORED
 function closeMenu() {
   let menu = document.getElementById('center-menu') 
 
@@ -811,7 +816,7 @@ function closeMenu() {
   shiftNodesByMargin(xBuffer);
   
   //3. Adjust spacing between children of the 2nd gen (and their children) so they are all equally spaced
-  fixSecondGenNodeSpacing();
+  //fixSecondGenNodeSpacing();
   
   //4. Center Root Node between her leftmost and rightmost child
   //FIXED: adjust root node (just got rid of the loop, don't know why I was iterating through all the data haha)
@@ -979,34 +984,51 @@ function shiftNodesByMargin(xBuffer) {
   }
 }
 
-
+//REFACTORED
+//FIXME: Not working
 function adjustHigherGenNodes(nodeMother, currentMomNodeXPos, isOverlap) {
   //debugger
-  let motherId = getDataIndex(nodeMother);
-  let mother = data[motherId];
+  let mother = getNode(nodeMother)
   
   //Get an array of the children nodes
   let childNodeArray = getChildren(mother);
   let nodesToAdjust = []
 
   //1. Get the xPositions of all nodes besides the mom and her children
-  for (let i = 0; i < data.length; i++) {
-    if (!childNodeArray.some(element => element == data[i]) && isOnTree(data[i])) {
-      nodesToAdjust.push(data[i]);
+  //debugger
+
+  for (let value of dataMap.values()) {
+    for (let i = 0; i < value.length; ++i) {
+      /*
+      if (!childNodeArray.some(element => element == value[i] && isOnTree(value[i]))) {
+        nodesToAdjust.push(value[i]);
+      }
+      */
+      for (let i = 0; i < childNodeArray.length; ++i) {
+        if (childNodeArray[i].image == value[i].image && isOnTree(value[i])) {
+          nodesToAdjust.push(value[i]);
+        }
+      }
     }
   }
+
+  //debugger
+
   let nodesXPositions = []
   for (let i = 0; i < nodesToAdjust.length; i++) {
+    //FIXME: Breaking here, nodes don't exist and it tries to grab the id
     nodesXPositions.push(getX(nodesToAdjust[i].image));
   }
 
   //2. Adjust the xPositions of elements in the momXPositions array
   let adjustX;
+  /*
   if (!isOverlap) {
     adjustX = 15;
   } else {
     adjustX = 75
   }
+  */
   for (let i = 0; i < nodesXPositions.length; i++) {
     if (nodesXPositions[i] > currentMomNodeXPos) {
       nodesXPositions[i] += adjustX;
@@ -1024,7 +1046,8 @@ function adjustHigherGenNodes(nodeMother, currentMomNodeXPos, isOverlap) {
   }
 }
 
-//FIXME: What's the purpose of this? This function could be too specific for a certain case
+
+//FIXME: What's the purpose of this? This function could be too specific for a certain case, also we're gonna have to change this for multiTree
 function fixSecondGenNodeSpacing() {
   
   let rootNode = getRootNode(data[0]);
@@ -1057,6 +1080,7 @@ function fixSecondGenNodeSpacing() {
   checkOverlaps(rootNodeChildren);
 }
 
+//REFACTORED
 function updateXPos(node, newXPos, isFirstChild) {
   
   if (!isFirstChild) {
@@ -1100,6 +1124,7 @@ function updateXPos(node, newXPos, isFirstChild) {
  * and root spouse at the central position of those two nodes.
 **/
 //FIXED: Issue was with getting the leftmost and rightmost nodes
+//FIXME: We're gonna have to change this for multitree
 function adjustRootNode() {
 
   let leftmostChild = getLeftmostChild(getRootNode(data[0]));
@@ -1133,6 +1158,8 @@ function setHighGenX(node, map, width, placeInGen) {
 }
 
 //setX for gen3 and above nodes
+
+//FIXME: This breaks during bottom gen
 function setChildX(node, widthOfFamily, firstRun) {
   
   let numChildren = getNumChildrenInFamily(node);
