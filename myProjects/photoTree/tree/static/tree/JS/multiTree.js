@@ -116,7 +116,7 @@ let data = [
 //For multi Trees
 let dataMap = new Map();
 //Hard Coding Root Node for starting tree
-dataMap.set(data[1].image, data);
+dataMap.set(data[1].image, Array.from(data));
 
 let nodeBoxData = [];
 
@@ -207,7 +207,7 @@ function createChart(chart) {
 }
 
 //Creates Data Points
-//FIXME: Compare this to function in refactor and make changes
+//REFACTORED
 function createDataPoints(chart) {
   //In case you have to redraw chart
   removeAllChildNodes(chart);
@@ -218,8 +218,6 @@ function createDataPoints(chart) {
   for (let j = 0; j < genCount; ++j) {
     generationMap.set(j+1, 1);
   }
-
-  //debugger
 
   //rewrite
   for (let genIndex = 0; genIndex < (genCount + 1); genIndex++) { //creates data points now from oldest to youngest gen
@@ -263,8 +261,6 @@ function createDataPoints(chart) {
       } 
     }
   }
-  //
-  
   //center the chart
   shiftChart();
 }
@@ -319,11 +315,15 @@ function testRemoveFromConfirmBox(id1, id2) {
 //REFACTORED
 function createLines() {
 
-  //FIXME: SVG has to be wider than chartwidth, however find better way of doing this, don't use magic number
+  //FIXME: SVG has to be wider than chartwidth, however find better way of doing this don't use magic number
+  /*
   let svgString = `<svg id='lines' height="${chartWidth}" width="${chartWidth+1000}" xmlns="http://www.w3.org/2000/svg" style='z-index:-1;'>`;
+  */
+ let svgString = '';
 
   for (let value of dataMap.values()) {
     for (let i = 0; i < value.length; ++i) {
+
       let li = $(`#${value[i].image}`);
       let yPos = parseAttribute('y', li[0].style.cssText);
       let xPos = parseAttribute('x', li[0].style.cssText);
@@ -367,9 +367,11 @@ function createLines() {
       }
     }
   
-    svgString += "</svg>"
-    $('#chart').html($('#chart').html() + svgString);
   }
+
+  svgString += "</svg>"
+  //$('#chart').html($('#chart').html() + svgString);
+  $('#lines').html(svgString);
 }
 
 
@@ -950,7 +952,6 @@ function shiftNodesByMargin(xBuffer) {
 //TODO: REFACTOR
 function shiftNodesByMargin(xBuffer) {
   //Get the leftmost XPos on tree
-  //let xPos = getX(data[0].image)
   let xPos;
 
   //Gets initial val
@@ -1797,7 +1798,7 @@ function getChildren(motherNode) {
 function hasChildren(node) {
   for (let value of dataMap.values()) {
     for (let i = 0; i < value.length; ++i) {
-      if (data[i]?.mother == node?.image) {
+      if (value[i]?.mother == node?.image) {
         return true;
       }
     }
