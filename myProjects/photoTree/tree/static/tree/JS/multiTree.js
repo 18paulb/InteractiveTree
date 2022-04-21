@@ -528,21 +528,28 @@ function removeRelationship(id1, id2) {
     //Testing for multi tree changes
     //FIXME: Think about and change these if statements, what if one of the nodes got put in the nodeBoxContainer, etc. Look at fringe cases
     //Note: Spouse is already removed
+
+    //debugger
+
     if (node1.mother == null && !inNodeBox(node1.image)) {
       newTree = getTreeLine(node1, newTree);
+      addToTreeMap(newTree, dataMap.get(oldRoot.image));
     }
     else if (node2.mother == null && !inNodeBox(node2.image)) {
       newTree = getTreeLine(node2, newTree);
+      addToTreeMap(newTree, dataMap.get(oldRoot.image));
     }
     else {
       //Something
     }
 
-    addToTreeMap(newTree, dataMap.get(oldRoot.image));
+    //TODO: Add case for if there is no new tree made
+    //addToTreeMap(newTree, dataMap.get(oldRoot.image));
 
     return;
   }
 
+  debugger
   //Removes Mother/Child Relationship
   if (node1.mother == id2) {
     for (let i = 0; i < momArray.length; ++i) {
@@ -565,7 +572,6 @@ function removeRelationship(id1, id2) {
               removeNodeFromTree(node2);
             }
             
-            //debugger
             //TODO: Test, will probably break
             //If it is it's own root node
             if ((getRootNode(node1)?.image == node1.image || getRootNode(node1)?.image == node1.spouse) && !inNodeBox(node1.image)) {
@@ -600,6 +606,7 @@ function removeRelationship(id1, id2) {
               addToNodeContainer(node1.image);
               removeNodeFromTree(node1);
             }
+
 
             //TODO: Test, will probably break
             //If it is it's own root node AKA its own tree
@@ -1208,6 +1215,9 @@ function getTree(node) {
 
 
 function getX(nodeId) {
+
+  //debugger
+
   if (nodeId != null) {
     let thisNode = document.getElementById(nodeId);
     let nodeXPos = parseAttribute('x', thisNode.style.cssText);
@@ -1664,7 +1674,9 @@ function hasChildren(node) {
 function getRootNode(node) {
   //check if node is the root node
   if (node.mother == null && getNode(node.spouse)?.mother == null) {
-    if (!hasChildren(node)) {
+    //if (!hasChildren(node)) {
+    if (!hasChildren(node) && node.spouse != null) {
+      //FIXME: Spouse can be null in some cases
       return getNode(node.spouse);
     } 
     else {
