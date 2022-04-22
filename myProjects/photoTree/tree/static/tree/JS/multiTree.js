@@ -121,11 +121,7 @@ dataMap.set(data[1].image, Array.from(data));
 let nodeBoxData = [];
 
 //Change this and HTML in order to change graph size
-//let chartWidth = screen.width;
 let chartWidth = 1200;
-
-//Used to connect children to moms
-let momArray = [];
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Defines class to be used for the objects of the values in momMap
@@ -176,27 +172,37 @@ function makeMomArray() {
   return tmpArray;
 }
 
-momArray = makeMomArray();
+//Used to connect children to moms
+let momArray = makeMomArray();
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-//FOR PRESENTATION
-function startEmpty() {
-  while (data.length != 0) {
-    data[0].mother = null;
-    data[0].spouse = null;
-    addToNodeContainer(data[0].image);
-    data.splice(0,1);
-  }
-
-  momArray = [];
-  createChart(chartList)
-}
-
+//TODO: Only will have to change right here for multi UL in html
 let chartList = document.getElementById('chart');
-
 createChart(chartList);
 
+
+/*
+//TODO: Test adding <ul>
+/////////////////////////////////////////////////////
+let treeChart = document.getElementById('treeChart');
+for (let key of dataMap.keys()) {
+
+  let ul = document.createElement('ul');
+  ul.setAttribute('id', `${key}`);
+  ul.setAttribute('class', 'line-chart');
+
+  treeChart.appendChild(ul);
+
+  //$('#treeChart').append(`<ul id='${key}' class='line-chart></ul>`)
+}
+
+for (let key of dataMap.keys()) {
+  debugger
+  let chartList = document.getElementById(`${key}`);
+  createChart(chartList);
+}
+/////////////////////////////////////////////////////
+*/
 
 //All functions for chart creation and functionality
 
@@ -207,6 +213,9 @@ function createChart(chart) {
   createLines();
 
   console.log("Number of Trees", dataMap.size);
+  for (let key of dataMap.keys()) {
+    console.log("Tree ", key)
+  }
 
 }
 
@@ -269,6 +278,62 @@ function createDataPoints(chart) {
   //shiftChart();
 }
 
+function createLines() {
+  //FIXME: SVG has to be wider than chartwidth, however find better way of doing this don't use magic number
+ let svgString = '';
+
+  for (let value of dataMap.values()) {
+    for (let i = 0; i < value.length; ++i) {
+
+      let li = $(`#${value[i].image}`);
+      let yPos = parseAttribute('y', li[0].style.cssText);
+      let xPos = parseAttribute('x', li[0].style.cssText);
+  
+      //Creates Child Lines
+      if (hasChildren(value[i])) {   
+  
+        let index = getMomArrayIndex(momArray, value[i].image);
+  
+        for (let j = 0; j < momArray[index].children.length; ++j) {
+  
+          let childElement = $(`#${momArray[index].children[j].image}`)
+  
+          let x1 = xPos;
+          let x2 = parseAttribute('x', childElement[0].style.cssText);
+          let y1 = yPos;
+          let y2 = parseAttribute('y', childElement[0].style.cssText);  
+
+          let valId = value[i].image;
+
+          svgString += `<line class='svg-line' x1="${x1}" y1="${chartWidth - y1}" x2="${x2}" y2="${chartWidth - y2}" stroke="black" stroke-width='6' onclick='testAdd(getNode(${valId}), momArray[${index}].children[${j}])'/>`
+        }
+      }
+  
+      //Creates Spouse Lines
+      if (value[i].spouse != null) {
+
+        let spouseElement = $(`#${value[i].spouse}`);
+        let spouseXPos = parseAttribute('x', spouseElement[0].style.cssText);
+        let spouseYPos = parseAttribute('y', spouseElement[0].style.cssText); 
+
+        let valId = value[i].image;
+        let valSpouse = value[i].spouse;
+  
+        let line = `<line class='svg-line' x1="${xPos}" y1="${chartWidth - yPos}" x2="${spouseXPos}" y2="${chartWidth - spouseYPos}" stroke="blue" stroke-width='6' onclick='testAdd(getNode(${valId}), getNode(${valSpouse}))'/>`
+  
+        //if statement so that two spouse lines aren't drawn between spouses
+        if (spouseXPos > xPos) {
+          svgString += line
+        }
+      }
+    }
+  
+  }
+
+  svgString += "</svg>"
+  $('#lines').html(svgString);
+}
+
 //REFACTORED
 function testAdd(node1, node2) {
 
@@ -317,68 +382,9 @@ function testRemoveFromConfirmBox(id1, id2) {
 }
 
 //REFACTORED
-function createLines() {
-
-  //FIXME: SVG has to be wider than chartwidth, however find better way of doing this don't use magic number
-  /*
-  let svgString = `<svg id='lines' height="${chartWidth}" width="${chartWidth+1000}" xmlns="http://www.w3.org/2000/svg" style='z-index:-1;'>`;
-  */
- let svgString = '';
-
-  for (let value of dataMap.values()) {
-    for (let i = 0; i < value.length; ++i) {
-
-      let li = $(`#${value[i].image}`);
-      let yPos = parseAttribute('y', li[0].style.cssText);
-      let xPos = parseAttribute('x', li[0].style.cssText);
-  
-      //Creates Child Lines
-      if (hasChildren(value[i])) {   
-  
-        let index = getMomArrayIndex(momArray, value[i].image);
-  
-        for (let j = 0; j < momArray[index].children.length; ++j) {
-  
-          let childElement = $(`#${momArray[index].children[j].image}`)
-  
-          let x1 = xPos;
-          let x2 = parseAttribute('x', childElement[0].style.cssText);
-          let y1 = yPos;
-          let y2 = parseAttribute('y', childElement[0].style.cssText);  
-
-          let valId = value[i].image;
-
-          svgString += `<line class='svg-line' x1="${x1}" y1="${chartWidth - y1}" x2="${x2}" y2="${chartWidth - y2}" stroke="black" stroke-width='6' onclick='testAdd(getNode(${valId}), momArray[${index}].children[${j}])'/>`
-        }
-      }
-  
-      //Creates Spouse Lines
-      if (value[i].spouse != null) {
-  
-        let spouseElement = $(`#${value[i].spouse}`);
-        let spouseXPos = parseAttribute('x', spouseElement[0].style.cssText);
-        let spouseYPos = parseAttribute('y', spouseElement[0].style.cssText); 
-
-        let valId = value[i].image;
-        let valSpouse = value[i].spouse;
-  
-        let line = `<line class='svg-line' x1="${xPos}" y1="${chartWidth - yPos}" x2="${spouseXPos}" y2="${chartWidth - spouseYPos}" stroke="blue" stroke-width='6' onclick='testAdd(getNode(${valId}), getNode(${valSpouse}))'/>`
-  
-        //if statement so that two spouse lines aren't drawn between spouses
-        if (spouseXPos > xPos) {
-          svgString += line
-        }
-      }
-    }
-  
-  }
-
-  svgString += "</svg>"
-  //$('#chart').html($('#chart').html() + svgString);
-  $('#lines').html(svgString);
-}
 
 
+//FIXME: Will need to test both ADD RELATIONSHIP
 function addSpouseRelationship(id1, id2) {
   //For Spouse -> Spouse
   let spouse1 = getNode(id1);
@@ -405,7 +411,7 @@ function addSpouseRelationship(id1, id2) {
     nodeBoxData.splice(spouse2Index, 1);
   }
 
-  //TODO: Account for if both are in nodeBox
+  //TODO: Account for if both are in nodeBox, problem is we have no way of identifying gender, so how do we know who the root node of tree should be???
   if (inNodeBox(spouse1) && inNodeBox(spouse2)) {
     //Do something
   }
@@ -1825,4 +1831,21 @@ function getTreeLine(node, tree) {
   tree = Array.from(tree);
 
   return tree;
+}
+
+//FOR PRESENTATION
+function startEmpty() {
+  for (let value of dataMap.values()) {
+    while (value.length != 0) {
+      value[0].mother = null;
+      value[0].spouse = null;
+      addToNodeContainer(value[0].image);
+      value.splice(0,1);
+    }
+  }
+
+  dataMap.clear();
+
+  momArray = [];
+  createChart(chartList)
 }
