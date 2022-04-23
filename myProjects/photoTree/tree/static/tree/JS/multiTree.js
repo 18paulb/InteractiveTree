@@ -185,20 +185,19 @@ createChart(chartList);
 //TODO: Test adding <ul>
 /////////////////////////////////////////////////////
 let treeChart = document.getElementById('treeChart');
+//Makes initial UL
 for (let key of dataMap.keys()) {
 
   let ul = document.createElement('ul');
-  ul.setAttribute('id', `${key}`);
+  ul.setAttribute('id', `tree${key}`);
   ul.setAttribute('class', 'line-chart');
 
   treeChart.appendChild(ul);
-
-  //$('#treeChart').append(`<ul id='${key}' class='line-chart></ul>`)
 }
 
+//This is the loop for creating the entire chart
 for (let key of dataMap.keys()) {
-  debugger
-  let chartList = document.getElementById(`${key}`);
+  let chartList = document.getElementById(`tree${key}`);
   createChart(chartList);
 }
 /////////////////////////////////////////////////////
@@ -582,12 +581,19 @@ function removeRelationship(id1, id2) {
               removeNodeFromTree(node2);
             }
             
-            //TODO: Test, will probably break
             //If it is it's own root node
             if ((getRootNode(node1)?.image == node1.image || getRootNode(node1)?.image == node1.spouse) && !inNodeBox(node1)) {
               newTree = getTreeLine(node1, newTree);
               oldRoot = getRootNode(node2);
               addToTreeMap(newTree, dataMap.get(oldRoot.image));
+
+              //TODO: TEST for making new ul's in html
+              /*
+              let ul = document.createElement('ul');
+              ul.setAttribute('id', `tree${getRootNode(newTree[0].image)}`);
+              ul.setAttribute('class', 'line-chart');
+              treeChart.appendChuld(ul);
+              */
             }
             break;
           }
@@ -617,12 +623,19 @@ function removeRelationship(id1, id2) {
               removeNodeFromTree(node1);
             }
 
-            //TODO: Test, will probably break
             //If it is it's own root node AKA its own tree
             if ((getRootNode(node2)?.image == node2.image || getRootNode(node2)?.image == node2.spouse) && !inNodeBox(node2)) {
               newTree = getTreeLine(node2, newTree);
               oldRoot = getRootNode(node1);
               addToTreeMap(newTree, dataMap.get(oldRoot.image));
+
+              /*
+              //TODO: TEST for making new ul's in html
+              let ul = document.createElement('ul');
+              ul.setAttribute('id', `tree${getRootNode(newTree[0].image)}`);
+              ul.setAttribute('class', 'line-chart');
+              treeChart.appendChuld(ul);
+              */
             }
 
             break;
