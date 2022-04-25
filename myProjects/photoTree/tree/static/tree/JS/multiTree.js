@@ -115,6 +115,7 @@ let data = [
 
 //For multi Trees
 let dataMap = new Map();
+
 //Hard Coding Root Node for starting tree
 dataMap.set(data[1].image, Array.from(data));
 
@@ -141,10 +142,10 @@ class mom {
 
 //REFACTORED
 function makeMomArray() {
-  
   let tmpArray = [];
 
 //FIXME: O(n^4) with functions called, make better
+
 //Initializes momObjects and pushes data to the object
   for (let value of dataMap.values()) {
     for (let i = 0; i < value.length; ++i) {
@@ -176,7 +177,6 @@ function makeMomArray() {
 let momArray = makeMomArray();
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//TODO: Only will have to change right here for multi UL in html
 let chartList = document.getElementById('chart');
 createChart(chartList);
 
@@ -185,8 +185,15 @@ createChart(chartList);
 //TODO: Test adding <ul>
 /////////////////////////////////////////////////////
 let treeChart = document.getElementById('treeChart');
-//Makes initial UL
+
+//TODO: Turn this into function
+//Makes UL's
 for (let key of dataMap.keys()) {
+
+  //To make sure there are no copies of ul's
+  if (document.getElementsById(`tree${key}`) == null) {
+    continue;
+  }
 
   let ul = document.createElement('ul');
   ul.setAttribute('id', `tree${key}`);
@@ -208,6 +215,9 @@ for (let key of dataMap.keys()) {
 function createChart(chart) {
 
   createDataPoints(chart);
+
+  //Makes sure mother is root node and not father (needed because of certain addRelationship conditions)
+  checkRootNode();
 
   createLines();
 
@@ -231,7 +241,7 @@ function createDataPoints(chart) {
     generationMap.set(j+1, 1);
   }
 
-  //rewrite
+  //rewrite FIXME: O(n^3), make better
   for (let genIndex = 0; genIndex < (genCount + 1); genIndex++) { //creates data points now from oldest to youngest gen
     for (let value of dataMap.values()) {
       for (let i = 0; i < value.length; ++i) {
@@ -326,7 +336,6 @@ function createLines() {
         }
       }
     }
-  
   }
 
   svgString += "</svg>"
@@ -367,22 +376,10 @@ function testAdd(node1, node2) {
       <button id='addSpouseButton' class='button-34' onclick='addSpouseRelationship(${id1}, ${id2})'>Add Spouse Relationship</button>
     </div>
   </div>`)
-
-  //FIXME: Causing DOM removal error, idk why not neccesay
-  //removeFromNodeContainer(id1)
-
 }
 
-//REFACTORED
-function testRemoveFromConfirmBox(id1, id2) {
-  if (inNodeBox(getNode(id1))) {
-    testAdd(getNode(id1), getNode(id2));
-  }
-}
 
 //REFACTORED
-
-
 //FIXME: Will need to test both ADD RELATIONSHIP
 function addSpouseRelationship(id1, id2) {
   //For Spouse -> Spouse
@@ -394,7 +391,7 @@ function addSpouseRelationship(id1, id2) {
   let spouse1Index;
   let spouse2Index;
 
-  //If spouse1 is in nodeBox and spouse2 is on tree
+  //If spouse1 is in nodeBox and spouse2 is on tree, push spouse1 onto tree
   if (inNodeBox(spouse1) != null && isOnTree(spouse2)) {
     currTree = getTree(spouse2);
     currTree.push(spouse1);
@@ -402,7 +399,7 @@ function addSpouseRelationship(id1, id2) {
     nodeBoxData.splice(spouse1Index, 1);
   }
 
-  //If spouse2 is in nodeBox and spouse1 is on tree
+  //If spouse2 is in nodeBox and spouse1 is on tree, push spouse2 onto tree
   if (inNodeBox(spouse2) != null && isOnTree(spouse1)) {
     currTree = getTree(spouse1);
     currTree.push(spouse2);
@@ -410,9 +407,17 @@ function addSpouseRelationship(id1, id2) {
     nodeBoxData.splice(spouse2Index, 1);
   }
 
-  //TODO: Account for if both are in nodeBox, problem is we have no way of identifying gender, so how do we know who the root node of tree should be???
+  //This statement can cause issue, might make the rootNode the father instead of mother, function adjustRootNodes fixes this problem
   if (inNodeBox(spouse1) && inNodeBox(spouse2)) {
-    //Do something
+    let tree = [spouse1, spouse2];
+
+    //creates new tree
+    dataMap.set(spouse1.image, tree);
+    
+    let spouse1Index = getNodeBoxDataIndex(spouse1.image);
+    nodeBoxData.splice(spouse1Index, 1);
+    let spouse2Index = getNodeBoxDataIndex(spouse2.image);
+    nodeBoxData.splice(spouse2Index, 1);
   }
 
   //assigns each node their new spouse
@@ -480,10 +485,10 @@ function addMotherRelationship(id1, id2) {
 
   //if both are in nodeBox
   if (inNodeBox(child) && inNodeBox(mother)) {
-    let children = [child]
+    let tree = [child, mother]
 
     //creates new tree
-    dataMap.set(mother.image, children);
+    dataMap.set(mother.image, tree);
     
     let childIndex = getNodeBoxDataIndex(child.image);
     nodeBoxData.splice(childIndex, 1);
@@ -675,14 +680,16 @@ function addToTreeMap(newTree, oldTree) {
   dataMap.set(root.image, newTree)
 }
 
+//TODO: Test, also find out where this is used
+//Takes an entire tree and pushes it to another tree
 function removeFromTreeMap(originalTree, treeToBeAdded) {
+  let rootKey = getRootNode(treeToBeAdded);
 
-  let root = getRootNode(newTree[0])
-
-  for (let j = 0; j < treeToBeAdded.length; ++j) {
+  for (let i = 0; i < treeToBeAdded.length; ++i) {
     originalTree.push(treeToBeAdded[i]);
-    originalTree.splice(i, 1);
   }
+
+  dataMap.delete(rootKey.image);
 }
 
 //REFACTORED
@@ -1844,6 +1851,24 @@ function getTreeLine(node, tree) {
   tree = Array.from(tree);
 
   return tree;
+}
+
+//In case root nodes aren't the mother, addRelationship functions may cause this when both nodes are in nodeBox
+//Checks if root node or spouse has children, if yes, makes that node the rootNode, else, it doesn't matter who root node is
+function checkRootNode() {
+  for (let key of dataMap.keys()) {
+    let tmpNode = getNode(key);
+    let tmpSpouse = getNode(tmpNode.spouse)
+    //If has children do nothing
+    if (hasChildren(tmpNode)) {
+      continue;
+    }
+    if (tmpSpouse != null && hasChildren(tmpSpouse)) {
+      let tmpTree = dataMap.get(key);
+      dataMap.set(tmpSpouse.image, tmpTree)
+      dataMap.delete(key);
+    }
+  }
 }
 
 //FOR PRESENTATION
