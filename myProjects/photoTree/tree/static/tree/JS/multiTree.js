@@ -456,8 +456,6 @@ function addMotherRelationship(id1, id2) {
     child = node2;
   }
 
-  child.mother = mother.image;
-
   //If child is in nodeBox and mother in tree
   if (inNodeBox(child) && isOnTree(mother)) {
     let currTree = getTree(mother);
@@ -495,6 +493,20 @@ function addMotherRelationship(id1, id2) {
     let momIndex = getNodeBoxDataIndex(mother.image);
     nodeBoxData.splice(momIndex, 1);
   }
+
+  //if both are on the chart
+  //TODO: Test to see what happens if you try doing this and they are on the same tree
+  if (isOnTree(child) && isOnTree(mother)) {
+
+    let momTree = getTree(mother);
+    let childTree = getTree(child);
+
+    combineTrees(momTree, childTree)
+  }
+
+  debugger
+
+  child.mother = mother.image;
 
   momArray = makeMomArray()
   
@@ -534,15 +546,6 @@ function removeRelationship(id1, id2) {
       removeNodeFromTree(node2);
     }
 
-    closeMenu();
-
-    createChart(chartList);
-
-    let box = document.getElementById('confirmBox');
-    box.innerHTML = ''
-    box.style.border = ''
-
-
     //Testing for multi tree changes
     //FIXME: Think about and change these if statements, what if one of the nodes got put in the nodeBoxContainer, etc. Look at fringe cases
     //Note: Spouse is already removed
@@ -558,8 +561,13 @@ function removeRelationship(id1, id2) {
       //Something
     }
 
-    //TODO: Add case for if there is no new tree made
-    //addToTreeMap(newTree, dataMap.get(oldRoot.image));
+    closeMenu();
+
+    createChart(chartList);
+
+    let box = document.getElementById('confirmBox');
+    box.innerHTML = ''
+    box.style.border = ''
 
     return;
   }
@@ -667,6 +675,7 @@ function addToTreeMap(newTree, oldTree) {
 
   let root = getRootNode(newTree[0])
 
+  //Gets rid of nodes in the oldTree
   for (let i = 0; i < oldTree.length; ++i) {
     for (let j = 0; j < newTree.length; ++j) {
       if (newTree[j].image == oldTree[i].image) {
@@ -680,10 +689,17 @@ function addToTreeMap(newTree, oldTree) {
   dataMap.set(root.image, newTree)
 }
 
-//TODO: Test, also find out where this is used
 //Takes an entire tree and pushes it to another tree
-function removeFromTreeMap(originalTree, treeToBeAdded) {
-  let rootKey = getRootNode(treeToBeAdded);
+function combineTrees(originalTree, treeToBeAdded) {
+
+  let rootKey = getRootNode(treeToBeAdded[0]);
+  
+  let cmpRootKey = getRootNode(originalTree[0]);
+
+  //Case to make sure that tree isn't added to itself, if they both have the same root
+  if (rootKey.image == cmpRootKey.image) {
+    return;
+  }
 
   for (let i = 0; i < treeToBeAdded.length; ++i) {
     originalTree.push(treeToBeAdded[i]);
@@ -1688,6 +1704,7 @@ function getNodesInGeneration(generation) {
 
 //REFACTORED
 function getChildren(motherNode) {
+
   let children = [];
   if (hasChildren(motherNode)) {
     for (let value of dataMap.values()) {
@@ -1713,13 +1730,12 @@ function hasChildren(node) {
   return false;
 }
 
-//FIXME:
+//FIXME: Test, error still exist
 function getRootNode(node) {
   //check if node is the root node
   if (node.mother == null && getNode(node.spouse)?.mother == null) {
-    //if (!hasChildren(node)) {
-    if (!hasChildren(node) && node.spouse != null) {
-      //FIXME: Spouse can be null in some cases
+    //if (!hasChildren(node) && node.spouse != null) {
+      if (!hasChildren(node) && node.spouse != null && hasChildren(getNode(node.spouse))) {
       return getNode(node.spouse);
     } 
     else {
@@ -1767,7 +1783,6 @@ function getLeftmostChild(momNode) {
     }
   }
   return getNode(parseInt(leftmostChild));
-  //return data[getDataIndex(parseInt(leftmostChild))];
 }
 
 //REFACTORED
