@@ -141,24 +141,44 @@ class mom {
 }
 
 //REFACTORED
+//Big O isn't ideal but it will save costs in other parts of the program
 function makeMomArray() {
   let tmpArray = [];
 
-  //FIXME: O(n^4) with functions called, make better
   //Initializes momObjects and pushes data to the object
   for (let value of dataMap.values()) {
     for (let i = 0; i < value.length; ++i) {
-      if (hasChildren(value[i])) {
+      if (value[i].mother != null) {
         let tmpMom = new mom;
-        tmpMom.data = value[i];
+        tmpMom.data = getNode(value[i].mother);
         tmpArray.push(tmpMom);
+      }
+    }
+  }
+
+  //DELETES DUPLICATES
+  for (let i = 0; i < tmpArray.length; ++i) {
+    for (let j = 0; j < tmpArray.length; ++j) {
+      if (tmpArray[i].data.image == tmpArray[j].data.image) {
+        if (i == j) {
+          continue;
+        }
+        tmpArray.splice(j,1);
+        j--;
       }
     }
   }
 
   //Adds children to mom Object
   for (let i = 0; i < tmpArray.length; ++i) {
-    let tmpChildren = getChildren(tmpArray[i].data);
+    let tmpChildren = []
+    for (let value of dataMap.values()) {
+      for (let j = 0; j < value.length; ++j) {
+        if (value[j].mother == tmpArray[i].data.image) {
+          tmpChildren.push(value[j]);
+        }
+      }
+    }
     tmpArray[i].children = tmpChildren;
   }
 
@@ -179,8 +199,7 @@ let momArray = makeMomArray();
 let chartList = document.getElementById('chart');
 createChart(chartList);
 
-
-
+/*
 //TODO: Test adding <ul>
 /////////////////////////////////////////////////////
 let treeChart = document.getElementById('treeChart');
@@ -207,7 +226,7 @@ for (let key of dataMap.keys()) {
   createChart(chartList);
 }
 /////////////////////////////////////////////////////
-
+*/
 
 //All functions for chart creation and functionality
 
@@ -1706,6 +1725,7 @@ function getNodesInGeneration(generation) {
   return nodeGeneration;
 }
 
+
 //REFACTORED
 function getChildren(motherNode) {
 
@@ -1733,6 +1753,35 @@ function hasChildren(node) {
   }
   return false;
 }
+
+/*
+//TEST
+function getChildren(motherNode) {
+
+  if (hasChildren(motherNode)) {
+    for (let i = 0; i < momArray.length; ++i) {
+      if (motherNode.image == momArray[i].data.image) {
+        return momArray[i].children;
+      }
+    }
+  }
+  return [];
+}
+*/
+//Test
+//Checks if in momArray, more Efficient
+/*
+function hasChildren(node) {
+  //debugger
+  for (let i = 0; i < momArray.length; ++i) {
+    if (momArray[i].data.image == node.image) {
+      return true;
+    }
+  }
+  return false;
+}
+*/
+
 
 //FIXME: Test, error still exist
 function getRootNode(node) {
