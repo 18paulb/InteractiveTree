@@ -306,7 +306,6 @@ function createDataPoints(chart) {
 }
 
 function createLines() {
-  //FIXME: SVG has to be wider than chartwidth, however find better way of doing this don't use magic number
   let svgString = '';
 
   for (let value of dataMap.values()) {
@@ -574,7 +573,7 @@ function removeRelationship(id1, id2) {
       removeNodeFromTree(node2);
     }
 
-    //Testing for multi tree changes
+    //multi tree changes
     //Note: Spouse is already removed
     if (node1.mother == null && !inNodeBox(node1)) {
       newTree = getTreeLine(node1, newTree);
@@ -1150,7 +1149,6 @@ function updateXPos(node, newXPos, isFirstChild) {
  * and root spouse at the central position of those two nodes.
 **/
 //FIXED: Issue was with getting the leftmost and rightmost nodes
-//FIXME: We're gonna have to change this for multitree
 function adjustRootNode() {
 
   let leftmostChild = getLeftmostChild(getRootNode(data[0]));
@@ -1168,7 +1166,6 @@ function adjustRootNode() {
     rootNodeSpouse.setAttribute('style', `--y: ${originalY}px; --x: ${newXPos + 100}px`);
   }
 }
-
 
 //TODO: Finish Refactoring
 /*
@@ -1191,6 +1188,7 @@ function adjustRootNode(tree) {
   }
 }
 */
+
 function setX(node, newXPos) {
   let nodeElement = document.getElementById(node.image);
   let originalY = parseAttribute('y', nodeElement.style.cssText);
