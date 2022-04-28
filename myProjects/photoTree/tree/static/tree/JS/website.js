@@ -442,6 +442,8 @@ function shiftNodesByMargin(xBuffer) {
   }
 }
 
+//TODO: Might not be needed
+/*
 function fixSpouseXPos() {
   let fixedSpouses = []
   for (let i = 0; i < data.length; ++i) {
@@ -452,6 +454,7 @@ function fixSpouseXPos() {
     }
   }
 }
+*/
 
 function adjustSpouseXPos(node, fixedSpouses) {
   let spouseElement = document.getElementById(`${node.spouse}`);
