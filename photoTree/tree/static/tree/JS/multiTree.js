@@ -233,7 +233,7 @@ for (let key of dataMap.keys()) {
 
 function createChart(chart) {
 
-  debugger
+  //debugger
 
   for (let value of dataMap.values()) {
     //Passes in tree
@@ -258,15 +258,15 @@ function removeTreeFromChart(tree) {
       tmpElement.remove();
     }
   }
-  
+
   for (let i = 0; i < nodeBoxData.length; ++i) {
-    let tmpElement = document.getElementById(nodeBoxData[i].image);
+    let tmpElement = document.getElementById(`button${nodeBoxData[i].image}`);
 
     let tree = document.getElementById('chart');
 
     for (let i = 0; i < tree.children.length; ++i) {
-      if (tmpElement.id == tree.children[i].id) {
-        tmpElement.remove();
+      if (tmpElement.id == `button${tree.children[i].id}`) {
+        tree.children[i].remove();
       }
     }
   }
@@ -700,7 +700,6 @@ function removeRelationship(id1, id2) {
               treeChart.appendChild(ul);
               */
             }
-
             break;
           }
         }
