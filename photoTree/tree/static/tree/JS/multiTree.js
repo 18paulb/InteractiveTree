@@ -987,27 +987,33 @@ function shiftTree(xBuffer, tree) {
 //FIXME: Order is important, it will go to the right if the right order of tree evaluation isn't done properly
 //Possibilty: Just go in order of the map
 function getXBuffer(tree) {
-
+  debugger
+  let xBuffer = 200;
   let furthestRightXPos = 0;
-  for (let value of dataMap.values()) {
-    for (let i = 0; i < value.length; ++i) {
-      if (getRootNode(value[0]) == getRootNode(tree[0])) {
-        break;
-      }
-      let tmp = document.getElementById(value[i].image);
 
-      if (tmp != null) {
-        let tmpX = getX(value[i].image);
-        if (tmpX > furthestRightXPos) {
-          furthestRightXPos = tmpX;
+  if (dataMap.size == 1) {
+    return xBuffer;
+  } 
+  else {
+    for (let value of dataMap.values()) {
+      
+      if (value == tree) {
+        for (let i = 0; i < value.length; i++) {
+          let tmp = document.getElementById(value[i].image);
+          
+          if (tmp != null) {
+            let tmpX = getX(value[i].image);
+            
+            if (tmpX > furthestRightXPos) {
+              furthestRightXPos = tmpX;
+            }
+          }
         }
       }
     }
+    return furthestRightXPos + 200;
   }
-
-  return furthestRightXPos + 100;
 }
-
 
 //REFACTORED
 //FIXME: Not working
