@@ -986,33 +986,34 @@ function shiftTree(xBuffer, tree) {
 
 //FIXME: Order is important, it will go to the right if the right order of tree evaluation isn't done properly
 //Possibilty: Just go in order of the map
-function getXBuffer(tree) {
-  debugger
-  let xBuffer = 200;
-  let furthestRightXPos = 0;
+//Possibilty: Make function that gets furthest right xPos of a tree, then on whatver n tree you're on, that call that function on tree n-1 to get pos
+//TEST
+function getFurthestXOfTree(tree) {
+  let xPos = 0;
+  for (let i = 0; i < tree.length; ++i) {
+    let compareX = getX(tree[i].image)
+    if (compareX > xPos) {
+      xPos = compareX;
+    }
+  }
+  return xPos;
+}
 
-  if (dataMap.size == 1) {
-    return xBuffer;
-  } 
-  else {
-    for (let value of dataMap.values()) {
-      
-      if (value == tree) {
-        for (let i = 0; i < value.length; i++) {
-          let tmp = document.getElementById(value[i].image);
-          
-          if (tmp != null) {
-            let tmpX = getX(value[i].image);
-            
-            if (tmpX > furthestRightXPos) {
-              furthestRightXPos = tmpX;
-            }
-          }
-        }
+function getXBuffer(tree) {
+
+  let previousVal = null;
+
+  //Since this function is being iterated over, the position of the tree in dataMap is important, every tree before it has already been placed
+  //This function only needs to get the furthest right xPos of the tree that was placed before it, ignoring all others. This loop checks for that using previousVal
+  for (let value of dataMap.values()) {
+    if (value[0].image == tree[0].image) {
+      if (previousVal != null) {
+        return getFurthestXOfTree(previousVal) + 100;
       }
     }
-    return furthestRightXPos + 200;
+    previousVal = value;
   }
+  return 0;
 }
 
 //REFACTORED
@@ -1838,8 +1839,6 @@ function hasChildren(node) {
 }
 */
 
-
-//FIXME: Test, error still exist
 function getRootNode(node) {
   //check if node is the root node
   if (node.mother == null && getNode(node.spouse)?.mother == null) {
