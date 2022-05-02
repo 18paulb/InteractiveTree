@@ -491,6 +491,8 @@ function addSpouseRelationship(id1, id2) {
 //TODO: FINISH REFACTORING, testing for case
 function addMotherRelationship(id1, id2) {
 
+  debugger
+
   let node1 = getNode(id1);
   let node2 = getNode(id2);
 
@@ -513,6 +515,7 @@ function addMotherRelationship(id1, id2) {
     nodeBoxData.splice(childIndex, 1);
   }
 
+  //FIXME: Logic errors exist here, what happens if spouse has mother and other spouse gets mother from this condition? we don't want to remove from the old tree
   //If child is on tree and mother in nodeBox
   if (isOnTree(child) && inNodeBox(mother)) {
     let children = [child];
@@ -610,8 +613,6 @@ function removeRelationship(id1, id2) {
     }
 
     closeMenu();
-
-    debugger
 
     createChart(chartList);
 
@@ -890,8 +891,6 @@ function closeMenu() {
   confirmBox.innerHTML = '';
 }
 
-
-
 //Spacing
 
 /**
@@ -905,7 +904,7 @@ function closeMenu() {
 function shiftChart(tree) {
   //1. Shift all nodes to the left to better align on the screen
   //XBuffer: A specified X value to shift all of the nodes to the left by
-  let xBuffer = 100;
+  let xBuffer = 150;
   //TODO: Change
   shiftNodesByMargin(xBuffer, tree);
 
@@ -984,7 +983,7 @@ function shiftTree(xBuffer, tree) {
   }
 }
 
-//FIXME: Order is important, it will go to the right if the right order of tree evaluation isn't done properly
+//FIXME: Order is important, it will go to the right if the order of tree evaluation isn't done properly
 //Possibilty: Just go in order of the map
 //Possibilty: Make function that gets furthest right xPos of a tree, then on whatver n tree you're on, that call that function on tree n-1 to get pos
 //TEST
@@ -1017,8 +1016,9 @@ function getXBuffer(tree) {
 }
 
 //REFACTORED
-//FIXME: Not working
+//FIXME: not efficient enough
 function adjustHigherGenNodes(nodeMother, currentMomNodeXPos) {
+
   let mother = getNode(nodeMother)
 
   //Get an array of the children nodes
@@ -1028,8 +1028,8 @@ function adjustHigherGenNodes(nodeMother, currentMomNodeXPos) {
   //1. Get the xPositions of all nodes besides the mom and her children
   for (let value of dataMap.values()) {
     for (let i = 0; i < value.length; ++i) {
-      for (let i = 0; i < childNodeArray.length; ++i) {
-        if ((childNodeArray[i].image == value[i].image) && isOnTree(value[i])) {
+      for (let j = 0; j < childNodeArray.length; ++j) {
+        if ((childNodeArray[j].image == value[i].image) && isOnTree(value[i])) {
           nodesToAdjust.push(value[i]);
         }
       }
@@ -1038,7 +1038,6 @@ function adjustHigherGenNodes(nodeMother, currentMomNodeXPos) {
 
   let nodesXPositions = []
   for (let i = 0; i < nodesToAdjust.length; i++) {
-    //FIXME: Breaking here, nodes don't exist and it tries to grab the id
     nodesXPositions.push(getX(nodesToAdjust[i].image));
   }
 
@@ -1147,6 +1146,12 @@ function updateXPos(node, newXPos, isFirstChild) {
 //TODO: Finish Refactoring
 function adjustRootNode(tree) {
 
+  //In case this tree has no children yet is still root node ie just a spouse tree (2 nodes)
+  let rootNode = getRootNode(tree[0]);
+  if (!hasChildren(rootNode)) {
+    return
+  }
+
   let leftmostChild = getLeftmostChild(getRootNode(tree[0]));
   let rightmostChild = getRightmostChild(getRootNode(tree[0]));
   let leftChildX = getX(leftmostChild.image);
@@ -1179,7 +1184,6 @@ function setHighGenX(node, width, placeInGen) {
 }
 
 //setX for gen3 and above nodes
-//FIXME: This breaks during bottom gen
 function setChildX(node, widthOfFamily, firstRun) {
 
   let numChildren = getNumChildrenInFamily(node);
