@@ -1029,8 +1029,11 @@ function adjustHigherGenNodes(nodeMother, currentMomNodeXPos) {
 }
 
 
-//FIXME: What's the purpose of this? This function could be too specific for a certain case, also we're gonna have to change this for multiTree
+//FIXME: Function is too specific, should not just focus on 2nd Generation
 //TODO: Finish refactoring
+//FIXME: Change, if there is overlap, widen the space between the generation above, that way it works for any generation number
+//basically check if there is overlap, if there is, then find which gen is the overlap, call fixNGenNodeSpacing on the generation above to fix overlap. Call check from the bottom generation and
+//work your way up each generation, fixing any overlap caused by any previous spacing changes
 function fixSecondGenNodeSpacing(tree) {
   
   let rootNode = getRootNode(tree[0]);
@@ -1067,9 +1070,84 @@ function fixSecondGenNodeSpacing(tree) {
   }
 
   //fix overlaps
+  //FIXME: Pretty sure that this does nothing because by the time it gets here, all the xPos's have already been updated
+  //I have never seen any of the error console.log() that are printed from this function
   checkOverlaps(rootNodeChildren);
 }
 
+/*
+//TODO: Finish
+function testCheckOverlap(focusNodeChildren) {
+  for (let i = 0; i < focusNodeChildren.length; ++i) {
+    if (hasChildren(focusNodeChildren[i])) {
+      if (checkForOverlapToRight(focusNodeChildren[i])) {
+        return true;
+      }
+      if  (checkForOverlapToLeft(focusNodeChildren[i])) {
+        return true;
+      }
+    }
+    else if (focusNodeChildren[i].spouse != null && hasChildren(getNode(focusNodeChildren[i].spouse))) {
+      if (checkForOverlapToRight(getNode(rootNodeChildren[i].spouaw))) {
+        return true;
+      }
+      if (checkForOverlapToLeft(getNode(focusNodeChildren[i].spouse))) {
+        return true;
+      }
+    } 
+  }
+  
+  return false;
+}
+
+function fixGenerationSpacing(tree) {
+  
+  let rootNode = getRootNode(tree[0]);
+
+  for (let i = 0; i < tree.length; ++i) {
+    if (getGeneration(tree[i]) == 1) {
+      //get All the Nodes in Gen
+    }
+  }
+
+  //check for overlap in the bottom generation
+  //if none go up one gen and so on
+
+
+  //find the max difference in x position between each child in the second gen
+  let maxDiff = 0;
+  let childrenXPos = []
+  for (let i = 0; i < rootNodeChildren.length; i++) {
+    let currChildXPos = getX(rootNodeChildren[i].image);
+    childrenXPos.push(currChildXPos);
+    if (i != 0) {
+      let currDiff = childrenXPos[i] - childrenXPos[i - 1];
+      if (currDiff > maxDiff) {
+        maxDiff = currDiff;
+      }
+    }
+  }
+  
+  //if the maxDiff is too small, then set it to 200 to prevent overlapping nodes
+  if (maxDiff < 200) {
+    maxDiff = 200;
+  }
+
+  //update all node's x positions by the maxXDiff
+  for (let i = 0; i < rootNodeChildren.length; i++) {
+    if (i == 0) {
+      let isFirstChild = true;
+      updateXPos(rootNodeChildren[i], getX(rootNodeChildren[i].image), isFirstChild);
+    } else {
+      updateXPos(rootNodeChildren[i], getX(rootNodeChildren[i - 1].image) + maxDiff);
+    }
+  }
+
+  //fix overlaps
+  //FIXME: Pretty sure that this does nothing because by the time it gets here, all the xPos's have already been updated
+  //I have never seen any of the error console.log() that are printed from this function
+}
+*/
 
 //REFACTORED
 //FIXME: Not all calls of this function passes in third parameter
