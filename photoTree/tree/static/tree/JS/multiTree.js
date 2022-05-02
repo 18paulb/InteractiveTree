@@ -211,35 +211,6 @@ let momArray = makeMomArray();
 let chartList = document.getElementById('chart');
 createChart(chartList);
 
-/*
-//TODO: Test adding <ul>
-/////////////////////////////////////////////////////
-let treeChart = document.getElementById('treeChart');
-
-//TODO: Turn this into function
-//Makes UL's
-for (let key of dataMap.keys()) {
-
-  //To make sure there are no copies of ul's
-  if (document.getElementById(`tree${key}`) != null) {
-    continue;
-  }
-
-  let ul = document.createElement('ul');
-  ul.setAttribute('id', `tree${key}`);
-  ul.setAttribute('class', 'line-chart');
-
-  treeChart.appendChild(ul);
-}
-
-//This is the loop for creating the entire chart
-for (let key of dataMap.keys()) {
-  let chartList = document.getElementById(`tree${key}`);
-  createChart(chartList);
-}
-/////////////////////////////////////////////////////
-*/
-
 //All functions for chart creation and functionality
 
 function createChart(chart) {
@@ -306,9 +277,6 @@ function createDataPoints(chart, treeValue) {
         let yPos = getY(dividedHeight, gen);
 
         let placeInGen = getPlaceInGeneration(treeValue[i], gen);
-        if (placeInGen == undefined) {
-          placeInGen = 0;
-        }
 
         li.setAttribute('id', treeValue[i].image);
         let xPos;
@@ -318,9 +286,11 @@ function createDataPoints(chart, treeValue) {
           xPos = setHighGenX(treeValue[i], chartWidth, placeInGen);
         }
         else {
+          //FIXME: I Think this assumes that that third gen is the most bottom, and that each node has a mother
           //If it is a third gen or greater node
           let widthOfFamily = getWidthOfFamily(treeValue[i]);
           let firstRun = true;
+          
           xPos = setChildX(treeValue[i], widthOfFamily, firstRun);
         }
 
@@ -565,6 +535,8 @@ function addMotherRelationship(id1, id2) {
     let childTree = getTree(child);
 
     combineTrees(momTree, childTree)
+
+    debugger
   }
 
   child.mother = mother.image;
@@ -659,14 +631,6 @@ function removeRelationship(id1, id2) {
               newTree = getTreeLine(node1, newTree);
               oldRoot = getRootNode(node2);
               addToTreeMap(newTree, dataMap.get(oldRoot.image));
-
-              //TODO: TEST for making new ul's in html
-              /*
-              let ul = document.createElement('ul');
-              ul.setAttribute('id', `tree${getRootNode(newTree[0].image)}`);
-              ul.setAttribute('class', 'line-chart');
-              treeChart.appendChild(ul);
-              */
             }
             break;
           }
@@ -701,14 +665,6 @@ function removeRelationship(id1, id2) {
               newTree = getTreeLine(node2, newTree);
               oldRoot = getRootNode(node1);
               addToTreeMap(newTree, dataMap.get(oldRoot.image));
-
-              /*
-              //TODO: TEST for making new ul's in html
-              let ul = document.createElement('ul');
-              ul.setAttribute('id', `tree${getRootNode(newTree[0].image)}`);
-              ul.setAttribute('class', 'line-chart');
-              treeChart.appendChild(ul);
-              */
             }
             break;
           }
@@ -912,10 +868,7 @@ function closeMenu() {
 //FIXME: some Values exist in dataMap but aren't in html
 function shiftChart(tree) {
   //1. Shift all nodes to the left to better align on the screen
-  //XBuffer: A specified X value to shift all of the nodes to the left by
-  let xBuffer = 150;
-  //TODO: Change
-  shiftNodesByMargin(xBuffer, tree);
+  shiftNodesByMargin(tree);
 
   let treeSpace = getXBuffer(tree);
   if (dataMap.size > 1) {shiftTree(treeSpace, tree)};
@@ -929,20 +882,11 @@ function shiftChart(tree) {
 }
 
 //Shift all nodes over for better centering
-function shiftNodesByMargin(xBuffer, tree) {
-  //Get the leftmost XPos on tree
-  let xPos;
-  let treeRoot = getRootNode(tree);
-
+function shiftNodesByMargin(tree) {
   //Gets initial val
-  for (let values of dataMap.values()) {
-    for (let i = 0; i < values.length; ++i) {
-      xPos = getX(values[0].image);
-      break;
-    }
-    break;
-  }
+  let xPos = getX(tree[0].image);
 
+  //Get the leftmost XPos on entire tree
   for (let values of dataMap.values()) {
     for (let i = 0; i < values.length; ++i) {
       let checkXPos = getX(values[i].image);
@@ -952,14 +896,30 @@ function shiftNodesByMargin(xBuffer, tree) {
     }
   }
 
-  let margin = Math.abs(xPos - xBuffer);
-  //shift the xPos of every node by the margin
-  for (let values of dataMap.values()) {
-    for (let i = 0; i < values.length; ++i) {
-      let node = document.getElementById(values[i].image);
-      let originalY = parseAttribute('y', node.style.cssText);
-      let originalX = parseAttribute('x', node.style.cssText);
-      node.setAttribute('style', `--y: ${originalY}px; --x: ${originalX + margin}px`);
+  let shiftMargin;
+
+  if (xPos > 100) {
+    shiftMargin = xPos - 100;
+    //shift the xPos of every node by the margin to the left so that furthest left node is 100px from left edge
+    for (let values of dataMap.values()) {
+      for (let i = 0; i < values.length; ++i) {
+        let node = document.getElementById(values[i].image);
+        let originalY = parseAttribute('y', node.style.cssText);
+        let originalX = parseAttribute('x', node.style.cssText);
+        node.setAttribute('style', `--y: ${originalY}px; --x: ${originalX - shiftMargin}px`);
+      }
+    }
+  } 
+  else {
+    //shift the xPos of every node by the margin to the right so that furthest left node is 100px from left edge
+    shiftMargin = 100;
+    for (let values of dataMap.values()) {
+      for (let i = 0; i < values.length; ++i) {
+        let node = document.getElementById(values[i].image);
+        let originalY = parseAttribute('y', node.style.cssText);
+        let originalX = parseAttribute('x', node.style.cssText);
+        node.setAttribute('style', `--y: ${originalY}px; --x: ${originalX + shiftMargin}px`);
+      }
     }
   }
 }
@@ -994,7 +954,6 @@ function shiftTree(xBuffer, tree) {
 //FIXME: Order is important, it will go to the right if the order of tree evaluation isn't done properly
 //Possibilty: Just go in order of the map
 //Possibilty: Make function that gets furthest right xPos of a tree, then on whatver n tree you're on, that call that function on tree n-1 to get pos
-//TEST
 function getFurthestXOfTree(tree) {
   let xPos = 0;
   for (let i = 0; i < tree.length; ++i) {
@@ -1091,9 +1050,10 @@ function fixSecondGenNodeSpacing(tree) {
       }
     }
   }
-  //if the maxDiff is too small, then set it to 300 to prevent overlapping nodes
-  if (maxDiff < 300) {
-    maxDiff = 300;
+  
+  //if the maxDiff is too small, then set it to 200 to prevent overlapping nodes
+  if (maxDiff < 200) {
+    maxDiff = 200;
   }
 
   //update all node's x positions by the maxXDiff
@@ -1192,7 +1152,7 @@ function setX(node, newXPos) {
 function setHighGenX(node, width, placeInGen) {
   let keyGen = getGeneration(node);
 
-  let xPos = (width / (getNumInGeneration(keyGen) + 1)) * (placeInGen + 1);
+  let xPos = (width / (getNumInGeneration(keyGen) + 1)) * placeInGen;
   return xPos;
 }
 
@@ -1396,13 +1356,13 @@ function getPlaceInGeneration(node, generation) {
   let nodeArray = [];
   nodeArray = getNodesInGeneration(generation);
 
-  let placeInGen;
+  let placeInGen = 0;
   for (let i = 0; i < nodeArray.length; i++) {
     if (nodeArray[i] == node) {
       placeInGen = i;
     }
   }
-  return placeInGen;
+  return placeInGen + 1;
 }
 
 //REFACTORED
