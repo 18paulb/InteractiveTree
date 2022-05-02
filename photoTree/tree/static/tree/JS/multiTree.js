@@ -144,18 +144,28 @@ class mom {
 //Big O isn't ideal but it will save costs in other parts of the program
 function makeMomArray() {
   let tmpArray = [];
-
   //Initializes momObjects and pushes data to the object
   for (let value of dataMap.values()) {
     for (let i = 0; i < value.length; ++i) {
+      
       if (value[i].mother != null) {
         let tmpMom = new mom;
         tmpMom.data = getNode(value[i].mother);
-        tmpArray.push(tmpMom);
+        
+        //checks for duplicates
+        let isDuplicate = false;
+        for (let j = 0; j < tmpArray.length; j++) {
+          if (value[i].mother == tmpArray[j].data.image) {
+            isDuplicate = true;
+          }
+        }
+        if (!isDuplicate) {
+          tmpArray.push(tmpMom);
+        }
       }
     }
   }
-
+  /*
   //DELETES DUPLICATES
   for (let i = 0; i < tmpArray.length; ++i) {
     for (let j = 0; j < tmpArray.length; ++j) {
@@ -168,6 +178,7 @@ function makeMomArray() {
       }
     }
   }
+  */
 
   //Adds children to mom Object
   for (let i = 0; i < tmpArray.length; ++i) {
@@ -232,9 +243,7 @@ for (let key of dataMap.keys()) {
 //All functions for chart creation and functionality
 
 function createChart(chart) {
-
-  //debugger
-
+  
   for (let value of dataMap.values()) {
     //Passes in tree
     
@@ -275,7 +284,7 @@ function removeTreeFromChart(tree) {
 //REFACTORED
 function createDataPoints(chart, treeValue) {
   //In case you have to redraw chart
-
+  
   //removeAllChildNodes(chart);
   removeTreeFromChart(treeValue);
 
@@ -320,7 +329,7 @@ function createDataPoints(chart, treeValue) {
         li.innerHTML += `<div id='button${treeValue[i].image}' onclick='addToConfirmBox(${treeValue[i].image})'>
         <img class="data-point data-button" src="../../static/tree/images/pictures/Kennedy/${treeValue[i].image}.PNG" onmouseenter='hoverMenu(${treeValue[i].image})' onmouseleave='closeHoverMenu()'>
         </div>`
-
+        
         chart.appendChild(li);
       }
     }
@@ -491,7 +500,7 @@ function addSpouseRelationship(id1, id2) {
 //TODO: FINISH REFACTORING, testing for case
 function addMotherRelationship(id1, id2) {
 
-  debugger
+  //debugger
 
   let node1 = getNode(id1);
   let node2 = getNode(id2);
@@ -518,7 +527,7 @@ function addMotherRelationship(id1, id2) {
   //FIXME: Logic errors exist here, what happens if spouse has mother and other spouse gets mother from this condition? we don't want to remove from the old tree
   //If child is on tree and mother in nodeBox
   if (isOnTree(child) && inNodeBox(mother)) {
-    let children = [child];
+    let tree = [child, mother];
 
     //Removes child from old tree
     let currTree = getTree(child);
@@ -530,7 +539,7 @@ function addMotherRelationship(id1, id2) {
     nodeBoxData.splice(momIndex, 1)
 
     //creates new tree
-    dataMap.set(mother.image, children);
+    dataMap.set(mother.image, tree);
   }
 
   //if both are in nodeBox
@@ -909,7 +918,7 @@ function shiftChart(tree) {
   shiftNodesByMargin(xBuffer, tree);
 
   let treeSpace = getXBuffer(tree);
-  shiftTree(treeSpace, tree)
+  if (dataMap.size > 1) {shiftTree(treeSpace, tree)};
 
   //3. Adjust spacing between children of the 2nd gen (and their children) so they are all equally spaced
   fixSecondGenNodeSpacing(tree);
@@ -923,7 +932,6 @@ function shiftChart(tree) {
 function shiftNodesByMargin(xBuffer, tree) {
   //Get the leftmost XPos on tree
   let xPos;
-
   let treeRoot = getRootNode(tree);
 
   //Gets initial val
@@ -945,7 +953,6 @@ function shiftNodesByMargin(xBuffer, tree) {
   }
 
   let margin = Math.abs(xPos - xBuffer);
-
   //shift the xPos of every node by the margin
   for (let values of dataMap.values()) {
     for (let i = 0; i < values.length; ++i) {
@@ -957,7 +964,9 @@ function shiftNodesByMargin(xBuffer, tree) {
   }
 }
 
+//FIXME: shifts all nodes over even if it doesn't need to
 function shiftTree(xBuffer, tree) {
+  
   //Get the leftmost XPos on tree
   let xPos;
 
@@ -973,7 +982,6 @@ function shiftTree(xBuffer, tree) {
   }
 
   let margin = Math.abs(xPos - xBuffer);
-
   //shift the xPos of every node by the margin
   for (let i = 0; i < tree.length; ++i) {
     let node = document.getElementById(tree[i].image);
@@ -1065,7 +1073,7 @@ function adjustHigherGenNodes(nodeMother, currentMomNodeXPos) {
 //FIXME: What's the purpose of this? This function could be too specific for a certain case, also we're gonna have to change this for multiTree
 //TODO: Finish refactoring
 function fixSecondGenNodeSpacing(tree) {
-
+  
   let rootNode = getRootNode(tree[0]);
 
   let rootNodeChildren = getChildren(rootNode);
@@ -1083,6 +1091,11 @@ function fixSecondGenNodeSpacing(tree) {
       }
     }
   }
+  //if the maxDiff is too small, then set it to 300 to prevent overlapping nodes
+  if (maxDiff < 300) {
+    maxDiff = 300;
+  }
+
   //update all node's x positions by the maxXDiff
   for (let i = 0; i < rootNodeChildren.length; i++) {
     if (i == 0) {
@@ -1101,7 +1114,7 @@ function fixSecondGenNodeSpacing(tree) {
 //REFACTORED
 //FIXME: Not all calls of this function passes in third parameter
 function updateXPos(node, newXPos, isFirstChild) {
-
+  //debugger
   if (!isFirstChild) {
     setX(node, newXPos);
   }
@@ -1446,11 +1459,11 @@ function getWidthOfFamily(node) {
   let nodeGen = getGeneration(node);
 
   if (nodeGen <= 2) {
-    width = 1000;
-  } else if (nodeGen == 3) {
     width = 800;
-  } else { // if Gen is greater than 3
+  } else if (nodeGen == 3) {
     width = 600;
+  } else { // if Gen is greater than 3
+    width = 400;
   }
 
   return width;
