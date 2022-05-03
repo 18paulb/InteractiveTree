@@ -125,7 +125,7 @@ let nodeBoxData = [];
 let chartWidth = 1200;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//Defines class to be used for the objects of the values in momMap
+//Defines class to be used for the objects of the values in momArray
 class mom {
   children = [];
   spouse = null;
@@ -140,7 +140,6 @@ class mom {
   }
 }
 
-//REFACTORED
 //Big O isn't ideal but it will save costs in other parts of the program
 function makeMomArray() {
   let tmpArray = [];
@@ -165,20 +164,6 @@ function makeMomArray() {
       }
     }
   }
-  /*
-  //DELETES DUPLICATES
-  for (let i = 0; i < tmpArray.length; ++i) {
-    for (let j = 0; j < tmpArray.length; ++j) {
-      if (tmpArray[i].data.image == tmpArray[j].data.image) {
-        if (i == j) {
-          continue;
-        }
-        tmpArray.splice(j, 1);
-        j--;
-      }
-    }
-  }
-  */
 
   //Adds children to mom Object
   for (let i = 0; i < tmpArray.length; ++i) {
@@ -230,7 +215,6 @@ function createChart(chart) {
   createLines();
 }
 
-//Test
 function removeTreeFromChart(tree) {
   for (let i = 0; i < tree.length; ++i) {
     let tmpElement = document.getElementById(tree[i].image);
@@ -252,7 +236,6 @@ function removeTreeFromChart(tree) {
   }
 }
 
-//REFACTORED
 function createDataPoints(chart, treeValue) {
   //In case you have to redraw chart
   
@@ -360,7 +343,6 @@ function createLines() {
   $('#lines').html(svgString);
 }
 
-//REFACTORED
 function testAdd(node1, node2) {
 
   let id1 = node1.image;
@@ -396,8 +378,6 @@ function testAdd(node1, node2) {
   </div>`)
 }
 
-
-//REFACTORED
 function addSpouseRelationship(id1, id2) {
   //For Spouse -> Spouse
   let spouse1 = getNode(id1);
@@ -470,8 +450,6 @@ function addSpouseRelationship(id1, id2) {
 //TODO: FINISH REFACTORING, testing for case
 function addMotherRelationship(id1, id2) {
 
-  //debugger
-
   let node1 = getNode(id1);
   let node2 = getNode(id2);
 
@@ -535,8 +513,6 @@ function addMotherRelationship(id1, id2) {
     let childTree = getTree(child);
 
     combineTrees(momTree, childTree)
-
-    debugger
   }
 
   child.mother = mother.image;
@@ -550,7 +526,6 @@ function addMotherRelationship(id1, id2) {
   closeMenu();
 }
 
-//REFACTORED
 function removeRelationship(id1, id2) {
 
   node1 = getNode(id1);
@@ -723,7 +698,6 @@ function combineTrees(originalTree, treeToBeAdded) {
   dataMap.delete(rootKey.image);
 }
 
-//REFACTORED
 function addToConfirmBox(id) {
   let box = document.getElementById("confirmBox");
 
@@ -775,7 +749,6 @@ function addToConfirmBox(id) {
   }
 }
 
-//REFACTORED
 function addToNodeContainer(id) {
   nodeBoxData.push(getNode(id))
 
@@ -797,7 +770,6 @@ function addToNodeContainer(id) {
   container.appendChild(button);
 }
 
-//REFACTORED
 function removeFromNodeContainer(id) {
   let container = document.getElementById('nodeContainer');
 
@@ -806,14 +778,12 @@ function removeFromNodeContainer(id) {
   container.removeChild(child);
 }
 
-//REFACTORED
 function removeAllChildNodes(parent) {
   while (parent.firstChild) {
     parent.removeChild(parent.firstChild);
   }
 }
 
-//REFACTORED
 function hoverMenu(nodeId) {
 
   let hMenu = document.getElementById('hover-menu');
@@ -839,13 +809,11 @@ function hoverMenu(nodeId) {
   `
 }
 
-//REFACTORED
 function closeHoverMenu() {
   let menu = document.getElementById('hover-menu');
   menu.innerHTML = '';
 }
 
-//REFACTORED
 function closeMenu() {
   let menu = document.getElementById('center-menu')
 
@@ -1034,6 +1002,7 @@ function adjustHigherGenNodes(nodeMother, currentMomNodeXPos) {
 //FIXME: Change, if there is overlap, widen the space between the generation above, that way it works for any generation number
 //basically check if there is overlap, if there is, then find which gen is the overlap, call fixNGenNodeSpacing on the generation above to fix overlap. Call check from the bottom generation and
 //work your way up each generation, fixing any overlap caused by any previous spacing changes
+/*
 function fixSecondGenNodeSpacing(tree) {
   
   let rootNode = getRootNode(tree[0]);
@@ -1074,8 +1043,8 @@ function fixSecondGenNodeSpacing(tree) {
   //I have never seen any of the error console.log() that are printed from this function
   checkOverlaps(rootNodeChildren);
 }
+*/
 
-/*
 //TODO: Finish
 function testCheckOverlap(focusNodeChildren) {
   for (let i = 0; i < focusNodeChildren.length; ++i) {
@@ -1100,6 +1069,36 @@ function testCheckOverlap(focusNodeChildren) {
   return false;
 }
 
+//Finds the first node that all nodes in gen nodes have in common, the node in common should be 2 generations up and work for fixGenerationSpacing() - works if there is more than one mother to the specific generation
+//If there is only one mother, this function should just return the mother, and there shouldn't be any overlap anyways
+/**
+ * You shoud only have to check at most 2 generations up from starting nodes
+ * @param {tree nodes in generation} nodes 
+ */
+function findCommonRootNode(nodes) {
+  //FIXME: this loop only works if there is 2 or less families in the generation
+  //Find number of famillies in this generaion, that's how many nodeMoms you need, then you only need to check one child of each family and not all of them to find 1st common ancestor
+  
+  //This gets how many different mothers there are in gen, thus how many different families there are
+  let motherIds = [];
+  for (let i = 0; i < nodes.length; ++i) {
+    motherIds.push(nodes[i].mother);
+  }
+  //Gets rid of duplicates
+  motherIds = new Set(motherIds);
+  motherIds = Array.from(motherIds);
+  
+  //Should be how many different families there are in generation, important in next part
+  let numberFamilies = motherIds.length
+
+  //Need to get one node from each family as a initial comparison
+  let familyNode = new map();
+
+  for (let i = 0; i < nodes.length; ++i) {
+
+  }
+}
+
 function fixGenerationSpacing(tree) {
   
   let rootNode = getRootNode(tree[0]);
@@ -1112,7 +1111,6 @@ function fixGenerationSpacing(tree) {
 
   //check for overlap in the bottom generation
   //if none go up one gen and so on
-
 
   //find the max difference in x position between each child in the second gen
   let maxDiff = 0;
@@ -1147,9 +1145,7 @@ function fixGenerationSpacing(tree) {
   //FIXME: Pretty sure that this does nothing because by the time it gets here, all the xPos's have already been updated
   //I have never seen any of the error console.log() that are printed from this function
 }
-*/
 
-//REFACTORED
 //FIXME: Not all calls of this function passes in third parameter
 function updateXPos(node, newXPos, isFirstChild) {
   //debugger
@@ -1344,8 +1340,6 @@ function fixOverlap(node, leftOverlap, rightOverlap) {
   }
 
   // (should fix root node and spacing between rest of 2nd gen)
-  //shiftChart();
-  //TEST
   let tree = getTree(node);
   shiftChart(tree);
 }
@@ -1398,7 +1392,6 @@ function getTree(node) {
   }
 }
 
-//REFACTORED
 function getX(nodeId) {
   if (nodeId != null) {
     let thisNode = document.getElementById(nodeId);
@@ -1407,14 +1400,12 @@ function getX(nodeId) {
   }
 }
 
-//REFACTORED
 function getY(height, generation) {
   let genCount = getLongestGenChain();
   return (chartWidth + 225) - (chartWidth / genCount + 1) * generation;
   //added a little to chartWidth to center it, can change later
 }
 
-//REFACTORED
 function getLongestGenChain() {
   let genCount = 0;
   for (let value of dataMap.values()) {
@@ -1429,7 +1420,6 @@ function getLongestGenChain() {
   return genCount;
 }
 
-//REFACTORED
 function getPlaceInGeneration(node, generation) {
   let nodeArray = [];
   nodeArray = getNodesInGeneration(generation);
@@ -1443,7 +1433,6 @@ function getPlaceInGeneration(node, generation) {
   return placeInGen + 1;
 }
 
-//REFACTORED
 function getPlaceInFamily(node) {
   let nodeArray = [];
   nodeArray = getFamilyArray(node);
@@ -1457,7 +1446,6 @@ function getPlaceInFamily(node) {
   return placeInFamily + 1;
 }
 
-//REFACTORED
 function getNumChildrenInFamily(node) {
 
   //FIXME: What if mother is null?
@@ -1507,7 +1495,6 @@ function getWidthOfFamily(node) {
   return width;
 }
 
-//REFACTORED
 function getMomsInGen(generation) {
   theMomArray = [];
   //gets all motherId's in data
@@ -1530,12 +1517,10 @@ function getMomsInGen(generation) {
   return newMomArray;
 }
 
-//REFACTORED
 function getMother(node) {
   return getNode(node.mother);
 }
 
-//REFACTORED
 function getDataIndex(id) {
   for (let value of dataMap.values()) {
     for (let i = 0; i < value.length; ++i) {
@@ -1547,7 +1532,6 @@ function getDataIndex(id) {
   return null;
 }
 
-//REFACTORED
 function removeNodeFromTree(node) {
   for (let value of dataMap.values()) {
     for (let i = 0; i < value.length; ++i) {
@@ -1558,7 +1542,6 @@ function removeNodeFromTree(node) {
   }
 }
 
-//REFACTORED
 function getNodeBoxDataIndex(id) {
   for (let i = 0; i < nodeBoxData.length; ++i) {
     if (id == nodeBoxData[i].image) {
@@ -1568,7 +1551,6 @@ function getNodeBoxDataIndex(id) {
   return null;
 }
 
-//REFACTORED
 function getMomArrayIndex(array, id) {
   for (let i = 0; i < array.length; ++i) {
     if (array[i].data.image == id) {
@@ -1577,7 +1559,6 @@ function getMomArrayIndex(array, id) {
   }
 }
 
-//REFACTORED
 function isOnTree(node) {
   let thisNode = document.getElementById(node.image);
 
@@ -1589,7 +1570,6 @@ function isOnTree(node) {
   }
 }
 
-//REFACTORED
 function getHypotenuse(datapoint1, datapoint2, left1, left2) {
   triSide = datapoint1 - datapoint2;
   tmpSpacing = left1 - left2;
@@ -1597,7 +1577,6 @@ function getHypotenuse(datapoint1, datapoint2, left1, left2) {
   return hypotenuse;
 }
 
-//REFACTORED
 function getAngle(opposite, hypotenuse) {
   let sine = Math.asin(opposite / hypotenuse);
   //Convert from radians to degrees
@@ -1606,7 +1585,6 @@ function getAngle(opposite, hypotenuse) {
   return sine;
 }
 
-//REFACTORED
 function parseAttribute(lookFor, attribute) {
   let numString = '';
   if (lookFor == 'y') {
@@ -1635,7 +1613,6 @@ function parseAttribute(lookFor, attribute) {
   return parseInt(numString);
 }
 
-//REFACTORED
 function hasRelationship(node) {
   if (node.spouse != null || node.mother != null) {
     return true;
@@ -1647,7 +1624,6 @@ function hasRelationship(node) {
 }
 
 //function for checking for any overlapping nodes
-//REFACTORED
 function checkOverlaps(rootNodeChildren) {
   for (let i = 0; i < rootNodeChildren.length; i++) {
     let rightOverlap = false;
@@ -1685,7 +1661,6 @@ function checkOverlaps(rootNodeChildren) {
 /**
  * checks for any overlap of any children to the right
  */
-//REFACTORED
 function checkForOverlapToRight(node) {
   //get the rightmost child
   let rightmostChild = getRightmostChild(node);
@@ -1727,7 +1702,6 @@ function checkForOverlapToRight(node) {
 /**
  * checks for any overlap of any children to the left
  */
-//REFACTORED
 function checkForOverlapToLeft(node) {
   //get the leftmost child
   let leftmostChild = getLeftmostChild(node);
@@ -1766,7 +1740,6 @@ function checkForOverlapToLeft(node) {
   return false;
 }
 
-//REFACTORED
 function getGenerationCount(node, count) {
   if (node?.mother == null) {
     if (node?.spouse != null) {
@@ -1799,7 +1772,6 @@ function getGeneration(node) {
   return count;
 }
 
-//REFACTORED
 function getMotherPlaceInGen(nodeMother, node) {
   let motherNodeChildren = getChildren(nodeMother);
   let motherPlaceInGen;
@@ -1812,7 +1784,6 @@ function getMotherPlaceInGen(nodeMother, node) {
   return motherPlaceInGen;
 }
 
-//REFACTORED
 function getNumInGeneration(generation) {
   let numInGen = 0;
   for (let value of dataMap.values()) {
@@ -1825,7 +1796,6 @@ function getNumInGeneration(generation) {
   return numInGen;
 }
 
-//REFACTORED
 function getNodesInGeneration(generation) {
   let nodeGeneration = [];
   for (let value of dataMap.values()) {
@@ -1838,7 +1808,6 @@ function getNodesInGeneration(generation) {
   return nodeGeneration;
 }
 
-//REFACTORED
 function getChildren(motherNode) {
 
   let children = [];
@@ -1854,7 +1823,6 @@ function getChildren(motherNode) {
   return children;
 }
 
-//REFACTORED
 function hasChildren(node) {
   for (let value of dataMap.values()) {
     for (let i = 0; i < value.length; ++i) {
@@ -1918,7 +1886,6 @@ function getRootNode(node) {
   }
 }
 
-//REFACTORED
 function getLeftmostChild(momNode) {
   let childElementXPos;
   let leftmostChild;
@@ -1948,7 +1915,6 @@ function getLeftmostChild(momNode) {
   return getNode(parseInt(leftmostChild));
 }
 
-//REFACTORED
 function getRightmostChild(momNode) {
   let childElementXPos;
   let rightmostChild;
