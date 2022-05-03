@@ -838,11 +838,12 @@ function shiftChart(tree) {
   //1. Shift all nodes to the left to better align on the screen
   shiftNodesByMargin(tree);
 
+  //If there are multiple trees, then shift those trees to the right accordingly
   let treeSpace = getXBuffer(tree);
   if (dataMap.size > 1) {shiftTree(treeSpace, tree)};
 
-  //3. Adjust spacing between children of the 2nd gen (and their children) so they are all equally spaced
-  fixSecondGenNodeSpacing(tree);
+  //3. Find the furthest down generation in the tree and adjust the spacing so there are no overlaps
+  fixGenerationSpacing(tree);
 
   //4. Center Root Node between her leftmost and rightmost child
   //FIXED: adjust root node (just got rid of the loop, don't know why I was iterating through all the data haha)
@@ -1057,7 +1058,7 @@ function testCheckOverlap(focusNodeChildren) {
       }
     }
     else if (focusNodeChildren[i].spouse != null && hasChildren(getNode(focusNodeChildren[i].spouse))) {
-      if (checkForOverlapToRight(getNode(rootNodeChildren[i].spouaw))) {
+      if (checkForOverlapToRight(getNode(rootNodeChildren[i].spouse))) {
         return true;
       }
       if (checkForOverlapToLeft(getNode(focusNodeChildren[i].spouse))) {
@@ -1069,12 +1070,14 @@ function testCheckOverlap(focusNodeChildren) {
   return false;
 }
 
+
 //Finds the first node that all nodes in gen nodes have in common, the node in common should be 2 generations up and work for fixGenerationSpacing() - works if there is more than one mother to the specific generation
 //If there is only one mother, this function should just return the mother, and there shouldn't be any overlap anyways
 /**
  * You shoud only have to check at most 2 generations up from starting nodes
  * @param {tree nodes in generation} nodes 
  */
+/*
 function findCommonRootNode(nodes) {
   //FIXME: this loop only works if there is 2 or less families in the generation
   //Find number of famillies in this generaion, that's how many nodeMoms you need, then you only need to check one child of each family and not all of them to find 1st common ancestor
@@ -1087,6 +1090,7 @@ function findCommonRootNode(nodes) {
   //Gets rid of duplicates
   motherIds = new Set(motherIds);
   motherIds = Array.from(motherIds);
+
   
   //Should be how many different families there are in generation, important in next part
   let numberFamilies = motherIds.length
@@ -1094,25 +1098,30 @@ function findCommonRootNode(nodes) {
   //Need to get one node from each family as a initial comparison
   let familyNode = new map();
 
-  for (let i = 0; i < nodes.length; ++i) {
-
+  for (let i = 0; i < motherIds.length; ++i) {
+    let motherNode = getNode(motherIds[i]);
+    let nodeToCompare = getLeftmostChild(motherNode);
+    familyNode.set(nodeToCompare, motherNode);
   }
 }
+*/
 
 function fixGenerationSpacing(tree) {
   
-  let rootNode = getRootNode(tree[0]);
+  let highestGen = getHighestGenInTree(1); //passing in a 1 to represent the "first gen"
 
+  //get all the nodes in highest gen on the tree
+  let nodesInGen = [];
   for (let i = 0; i < tree.length; ++i) {
-    if (getGeneration(tree[i]) == 1) {
-      //get All the Nodes in Gen
+    if (getGeneration(tree[i]) == highestGen) {
+      nodesInGen.push(tree[i]);
     }
   }
-
+  debugger 
   //check for overlap in the bottom generation
   //if none go up one gen and so on
 
-  //find the max difference in x position between each child in the second gen
+  //find the max difference in x position between each node in the gen higher
   let maxDiff = 0;
   let childrenXPos = []
   for (let i = 0; i < rootNodeChildren.length; i++) {
@@ -1782,6 +1791,14 @@ function getMotherPlaceInGen(nodeMother, node) {
     }
   }
   return motherPlaceInGen;
+}
+
+function getHighestGenInTree(gen) {
+  let nodesInGen = getNodesInGeneration(gen);
+  if (nodesInGen.length > 0) {
+    return getHighestGenInTree(gen + 1);
+  }
+  return gen - 1;
 }
 
 function getNumInGeneration(generation) {
