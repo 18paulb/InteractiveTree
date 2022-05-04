@@ -205,6 +205,7 @@ function createChart(chart) {
     
     createDataPoints(chart, value);
   }
+  debugger
   for (let value of dataMap.values()) {
     shiftChart(value);
   }
@@ -835,6 +836,8 @@ function closeMenu() {
 **/
 //FIXME: some Values exist in dataMap but aren't in html
 function shiftChart(tree) {
+  debugger
+  
   //1. Shift all nodes to the left to better align on the screen
   shiftNodesByMargin(tree);
 
@@ -843,7 +846,8 @@ function shiftChart(tree) {
   if (dataMap.size > 1) {shiftTree(treeSpace, tree)};
 
   //3. Find the furthest down generation in the tree and adjust the spacing so there are no overlaps
-  fixGenerationSpacing(tree);
+  let rootNode = getRootNode(tree[0]);
+  fixGenerationSpacing(tree, rootNode);
 
   //4. Center Root Node between her leftmost and rightmost child
   //FIXED: adjust root node (just got rid of the loop, don't know why I was iterating through all the data haha)
@@ -1106,51 +1110,93 @@ function findCommonRootNode(nodes) {
 }
 */
 
-function fixGenerationSpacing(tree) {
-  
+function fixGenerationSpacing(tree, rootNode) {
+  //find the highest gen in the tree
   let highestGen = getHighestGenInTree(1); //passing in a 1 to represent the "first gen"
 
-  //get all the nodes in highest gen on the tree
-  let nodesInGen = [];
-  for (let i = 0; i < tree.length; ++i) {
-    if (getGeneration(tree[i]) == highestGen) {
-      nodesInGen.push(tree[i]);
-    }
-  }
-  debugger 
-  //check for overlap in the bottom generation
-  //if none go up one gen and so on
+  //get generation of the rootNode passed in
+  let rootNodeGen = getGeneration(rootNode);
+  
+  //check to make sure the root node passed in is not in the highest gen
+  if (rootNodeGen < highestGen - 1) {
+    //get all the root node's children
+    let rootNodeChildren = getChildren(rootNode);
 
-  //find the max difference in x position between each node in the gen higher
-  let maxDiff = 0;
-  let childrenXPos = []
-  for (let i = 0; i < rootNodeChildren.length; i++) {
-    let currChildXPos = getX(rootNodeChildren[i].image);
-    childrenXPos.push(currChildXPos);
-    if (i != 0) {
-      let currDiff = childrenXPos[i] - childrenXPos[i - 1];
-      if (currDiff > maxDiff) {
-        maxDiff = currDiff;
+    debugger
+    let newXPos = new Map();
+    for (let i = 0; i < rootNodeChildren.length; i++) {
+      let currChild = rootNodeChildren[i];
+      let currChildXPos = getX(currChild.image);
+
+      if (i == 0) {
+        newXPos.set(currChild, currChildXPos);
+      } 
+      else {
+        let prevChild = rootNodeChildren[i - 1];
+        let prevChildSpouse = getNode(rootNodeChildren[i - 1].spouse);
+        let rightmostChild;
+        
+        if (hasSpouse(prevChild)) {
+          currChildXPos = getX(prevChildSpouse.image) + 200;
+
+          if (hasChildren(prevChildSpouse)) {
+            rightmostChild = getRightmostChild(prevChildSpouse);
+            currChildXPos = getX(rightmostChild.image) + 200;
+          }
+        
+          newXPos.set(currChild, currChildXPos);
+        }
+        
+        else if (hasChildren(prevChild)) {
+          rightmostChild = getRightmostChild(prevChild);
+          currChildXPos = getX(rightmostChild.image) + 200;
+          newXPos.set(currChild, currChildXPos);
+        }
+
+        else {
+          currChildXPos = getX(prevChild.image) + 200;
+          newXPos.set(currChild, currChildXPos);
+        }
       }
     }
-  }
-  
-  //if the maxDiff is too small, then set it to 200 to prevent overlapping nodes
-  if (maxDiff < 200) {
-    maxDiff = 200;
-  }
+    
+    debugger
+    //update x positions
+    for (let i = 0; i < rootNodeChildren.length; i++) {
+      updateXPos(rootNodeChildren[i], newXPos.get(rootNodeChildren[i]));
+    }
+    /*
+    //find the max difference in x position between each child of the root node
+    let maxDiff = 0;
+    let childrenXPos = []
+    for (let i = 0; i < rootNodeChildren.length; i++) {
+      let currChildXPos = getX(rootNodeChildren[i].image);
+      childrenXPos.push(currChildXPos);
+      if (i != 0) {
+        let currDiff = childrenXPos[i] - childrenXPos[i - 1];
+        if (currDiff > maxDiff) {
+          maxDiff = currDiff;
+        }
+      }
+    }
+    //if the maxDiff is too small, then set it to 200 to prevent overlapping nodes
+    if (maxDiff < 200) {
+      maxDiff = 200;
+    }
+    //update all node's x positions by the maxXDiff
+    for (let i = 0; i < rootNodeChildren.length; i++) {
+      if (i == 0) {
+        let isFirstChild = true;
+        updateXPos(rootNodeChildren[i], getX(rootNodeChildren[i].image), isFirstChild);
+      } else {
+        updateXPos(rootNodeChildren[i], getX(rootNodeChildren[i - 1].image) + maxDiff);
+      }
+    */
 
-  //update all node's x positions by the maxXDiff
-  for (let i = 0; i < rootNodeChildren.length; i++) {
-    if (i == 0) {
-      let isFirstChild = true;
-      updateXPos(rootNodeChildren[i], getX(rootNodeChildren[i].image), isFirstChild);
-    } else {
-      updateXPos(rootNodeChildren[i], getX(rootNodeChildren[i - 1].image) + maxDiff);
+    for (let i = 0; i < rootNodeChildren.length; i++) {
+      return fixGenerationSpacing(tree, rootNodeChildren[i]);
     }
   }
-
-  //fix overlaps
   //FIXME: Pretty sure that this does nothing because by the time it gets here, all the xPos's have already been updated
   //I have never seen any of the error console.log() that are printed from this function
 }
