@@ -843,7 +843,9 @@ function shiftChart(tree) {
   if (dataMap.size > 1) {shiftTree(treeSpace, tree)};
 
   //3. Find the furthest down generation in the tree and adjust the spacing so there are no overlaps
-  fixGenerationSpacing(tree);
+  //debugger
+  //fixGenerationSpacing(tree);
+  fixSecondGenNodeSpacing(tree)
 
   //4. Center Root Node between her leftmost and rightmost child
   //FIXED: adjust root node (just got rid of the loop, don't know why I was iterating through all the data haha)
@@ -893,7 +895,6 @@ function shiftNodesByMargin(tree) {
   }
 }
 
-//FIXME: shifts all nodes over even if it doesn't need to
 function shiftTree(xBuffer, tree) {
   
   //Get the leftmost XPos on tree
@@ -1003,7 +1004,7 @@ function adjustHigherGenNodes(nodeMother, currentMomNodeXPos) {
 //FIXME: Change, if there is overlap, widen the space between the generation above, that way it works for any generation number
 //basically check if there is overlap, if there is, then find which gen is the overlap, call fixNGenNodeSpacing on the generation above to fix overlap. Call check from the bottom generation and
 //work your way up each generation, fixing any overlap caused by any previous spacing changes
-/*
+
 function fixSecondGenNodeSpacing(tree) {
   
   let rootNode = getRootNode(tree[0]);
@@ -1044,7 +1045,6 @@ function fixSecondGenNodeSpacing(tree) {
   //I have never seen any of the error console.log() that are printed from this function
   checkOverlaps(rootNodeChildren);
 }
-*/
 
 //TODO: Finish
 function testCheckOverlap(focusNodeChildren) {
@@ -1077,12 +1077,48 @@ function testCheckOverlap(focusNodeChildren) {
  * You shoud only have to check at most 2 generations up from starting nodes
  * @param {tree nodes in generation} nodes 
  */
-/*
+
+function isDescendant(ancestor, ancestorMap) {
+  if (ancestorMap.has(ancestor.image)) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function getAncestors(node, ancestorMap) {
+  //Base Case
+  if (node.mother == null && node.spouse == null) {
+    return ancestorMap
+  }
+
+  if (node.mother != null) {
+    let mother = getNode(node.mother)
+    ancestorMap.set(node.mother, getGeneration(mother))
+    getAncestors(mother, ancestorMap);
+  }
+
+  let spouse = getNode(node.spouse)
+
+  if (node.mother == null & spouse != null) {
+    let spouseMother = getNode(spouse.mother)
+    ancestorMap.set(spouse.image, getGeneration(spouse))
+    if (spouseMother != null) {
+      ancestorMap.set(spouseMother.image, getGeneration(spouseMother))
+      getAncestors(spouseMother, ancestorMap)
+    }
+  }
+
+  return ancestorMap
+}
+
+
 function findCommonRootNode(nodes) {
+
   //FIXME: this loop only works if there is 2 or less families in the generation
   //Find number of famillies in this generaion, that's how many nodeMoms you need, then you only need to check one child of each family and not all of them to find 1st common ancestor
   
-  //This gets how many different mothers there are in gen, thus how many different families there are
+  //This gets how many different mothers there are to the gen, thus how many different families there are
   let motherIds = [];
   for (let i = 0; i < nodes.length; ++i) {
     motherIds.push(nodes[i].mother);
@@ -1091,21 +1127,51 @@ function findCommonRootNode(nodes) {
   motherIds = new Set(motherIds);
   motherIds = Array.from(motherIds);
 
-  
-  //Should be how many different families there are in generation, important in next part
-  let numberFamilies = motherIds.length
-
-  //Need to get one node from each family as a initial comparison
-  let familyNode = new map();
-
+  //This gets one node from each family to compare too
+  let compareChildren = []
   for (let i = 0; i < motherIds.length; ++i) {
-    let motherNode = getNode(motherIds[i]);
-    let nodeToCompare = getLeftmostChild(motherNode);
-    familyNode.set(nodeToCompare, motherNode);
+    let motherNode = getNode(motherIds[i])
+    let leftChild = getLeftmostChild(motherNode)
+    compareChildren.push(leftChild);
+  }
+
+  //If there is only one family to compare then it should jsut return the mother, input shouldn't allow this to happen but just in case
+  if (compareChildren.length == 1) {
+    return getNode(compareChildren[0].mother)
+  }
+
+  //Makes an array of maps that contain ancestors for each compareChildren elements
+  let ancestorList = []
+  for (let i = 0; i < compareChildren.length; ++i) {
+    let ancestors = getAncestors(compareChildren[i], new Map())
+    ancestorList.push(ancestors)
+  }
+
+  //Compares all the maps to find the commonRootNode
+  let sharedRootNode = null;
+  for (let i = 1; i < ancestorList.length; ++i) {
+    for (let key1 of ancestorList[i-1].keys()) {
+      for (let key2 of ancestorList[i].keys()) {
+        if (key1 == key2) {
+          sharedRootNode = getNode(key1)
+        }
+      }
+    }
+  }
+
+  if (sharedRootNode != null) {
+    //Just in case it grabs the husband and not wife
+    if (!hasChildren(sharedRootNode)) {
+      sharedRootNode = getNode(sharedRootNode.spouse)
+    }
+    return sharedRootNode;
+  } else {
+    console.log("No Root Node Shared")
   }
 }
-*/
 
+
+/*
 function fixGenerationSpacing(tree) {
   
   let highestGen = getHighestGenInTree(1); //passing in a 1 to represent the "first gen"
@@ -1154,6 +1220,7 @@ function fixGenerationSpacing(tree) {
   //FIXME: Pretty sure that this does nothing because by the time it gets here, all the xPos's have already been updated
   //I have never seen any of the error console.log() that are printed from this function
 }
+*/
 
 //FIXME: Not all calls of this function passes in third parameter
 function updateXPos(node, newXPos, isFirstChild) {
@@ -1259,11 +1326,13 @@ function setChildX(node, widthOfFamily, firstRun) {
   }
   
   //adjust positions of higher gen nodes
+  
   if (firstRun) {
     if (numChildren > 1) {
       adjustHigherGenNodes(nodeMother, momXPos);
     }
   }
+  
   
   return xPos;
 }
