@@ -4,8 +4,6 @@ from tree.views import (
     getNodes,
 )
 
-#from . views import DraggablePageView
-
 urlpatterns = [
     path('', views.index, name='index'),
     path('refactor/', views.refactor, name='refactor'),

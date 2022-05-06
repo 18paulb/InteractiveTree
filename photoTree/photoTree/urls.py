@@ -16,7 +16,6 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('tree.urls')),
@@ -24,8 +23,4 @@ urlpatterns = [
     path('tree/', include('tree.urls')),
     path('chart/', include('tree.urls')),
     path('delete/', include('tree.urls')),
-
-    #test
-    #path('getNodes/', include('tree.urls'))
-
 ]
