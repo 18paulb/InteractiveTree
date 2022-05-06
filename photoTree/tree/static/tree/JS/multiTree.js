@@ -844,8 +844,9 @@ function shiftChart(tree) {
 
   //3. Find the furthest down generation in the tree and adjust the spacing so there are no overlaps
   //debugger
-  //fixGenerationSpacing(tree);
-  fixSecondGenNodeSpacing(tree)
+  let rootNode = getRootNode(tree[0]);
+  fixGenerationSpacing(tree, rootNode);
+  //fixSecondGenNodeSpacing(tree)
   //testFixSpacing(tree)
 
   //4. Center Root Node between her leftmost and rightmost child
@@ -1234,63 +1235,57 @@ function testFixSpacing(tree) {
 }
 
 
-/*
-function fixGenerationSpacing(tree) {
+function fixGenerationSpacing(tree, rootNode) {
   
   let highestGen = getHighestGenInTree(1); //passing in a 1 to represent the "first gen"
+  let rootNodeGen = getGeneration(rootNode);
+  
+  if (rootNodeGen < highestGen - 1) {
+    
+    if (hasChildren(rootNode)) {
+      //get all the children of the rootNode
+      let rootNodeChildren = getChildren(rootNode);
+      
+      //debugger 
+      
+      let newXPositions = new Map();
+      for (let i = 1; i < rootNodeChildren.length; i++) {
+        let currChild = rootNodeChildren[i];
+        let prevChild = rootNodeChildren[i - 1];
+        let prevChildXPos = getX(prevChild.image);
 
-  //get all the nodes in highest gen on the tree
-  let nodesInGen = [];
-  for (let i = 0; i < tree.length; ++i) {
-    if (getGeneration(tree[i]) == highestGen) {
-      nodesInGen.push(tree[i]);
-    }
-  }
-  debugger 
-  //check for overlap in the bottom generation
-  //if none go up one gen and so on
+        //update the current node's xPos by the previous child's xPos plus a set amount
+        let updatedXPos = prevChildXPos + 200;
 
-  //find the max difference in x position between each node in the gen higher
-  let maxDiff = 0;
-  let childrenXPos = []
-  for (let i = 0; i < rootNodeChildren.length; i++) {
-    let currChildXPos = getX(rootNodeChildren[i].image);
-    childrenXPos.push(currChildXPos);
-    if (i != 0) {
-      let currDiff = childrenXPos[i] - childrenXPos[i - 1];
-      if (currDiff > maxDiff) {
-        maxDiff = currDiff;
+        //if prevChild has a spouse, then update currChild by prevChild spouse's XPos
+        if (hasSpouse(prevChild)) {
+          let prevChildSpouse = getNode(prevChild.spouse);
+          let prevChildSpouseXPos = getX(prevChildSpouse.image);
+
+          updatedXPos = prevChildSpouseXPos + 200;
+        }
+        
+        //add updated xPos to newXPositions
+        newXPositions.set(currChild, updatedXPos);
+
+        //debugger
+        //update all node's x positions with their new X positions
+        updateXPos(currChild, newXPositions.get(currChild));
+      }
+
+      //recursively go through the next gen's spacing
+      for (let i = 0; i < rootNodeChildren.length; i++) {
+        return fixGenerationSpacing(tree, rootNodeChildren[i]);
       }
     }
   }
-  
-  //if the maxDiff is too small, then set it to 200 to prevent overlapping nodes
-  if (maxDiff < 200) {
-    maxDiff = 200;
-  }
-
-  //update all node's x positions by the maxXDiff
-  for (let i = 0; i < rootNodeChildren.length; i++) {
-    if (i == 0) {
-      let isFirstChild = true;
-      updateXPos(rootNodeChildren[i], getX(rootNodeChildren[i].image), isFirstChild);
-    } else {
-      updateXPos(rootNodeChildren[i], getX(rootNodeChildren[i - 1].image) + maxDiff);
-    }
-  }
-
-  //fix overlaps
-  //FIXME: Pretty sure that this does nothing because by the time it gets here, all the xPos's have already been updated
-  //I have never seen any of the error console.log() that are printed from this function
 }
-*/
 
 //FIXME: Not all calls of this function passes in third parameter
-function updateXPos(node, newXPos, isFirstChild) {
+function updateXPos(node, newXPos) {
   //debugger
-  if (!isFirstChild) {
-    setX(node, newXPos);
-  }
+  
+  setX(node, newXPos);
 
   //if node has spouse
   if (node.spouse != null) {
