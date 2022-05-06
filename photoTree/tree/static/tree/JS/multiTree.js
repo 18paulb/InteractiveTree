@@ -846,6 +846,7 @@ function shiftChart(tree) {
   //debugger
   //fixGenerationSpacing(tree);
   fixSecondGenNodeSpacing(tree)
+  //testFixSpacing(tree)
 
   //4. Center Root Node between her leftmost and rightmost child
   //FIXED: adjust root node (just got rid of the loop, don't know why I was iterating through all the data haha)
@@ -1167,6 +1168,68 @@ function findCommonRootNode(nodes) {
     return sharedRootNode;
   } else {
     console.log("No Root Node Shared")
+  }
+}
+
+//FIXME: Bugs
+function testFixSpacing(tree) {
+  //check for overlap in the bottom generation
+  //if none go up one gen and so on
+
+  let highestGen = getHighestGenInTree(1)
+
+  let overlap = false;
+  let nodesWithOverlap = []
+
+  for (let i = highestGen; i > 0; --i) {
+    let genNodes = getNodesInGeneration(i)
+    if (testCheckOverlap(genNodes)) {
+      overlap = true
+      nodesWithOverlap = genNodes
+      break;
+    }
+  }
+
+  if (!overlap) { return }
+
+  let commonRoot = findCommonRootNode(nodesWithOverlap);
+
+
+  let allNodesToLeft = [];
+  let allNodesToRight = [];
+
+  let rootXPos = getX(commonRoot.image)
+
+  for (let i = 0; i < tree.length; ++i) {
+    let nodeXPos = getX(tree[i])
+    if (nodeXPos < rootXPos) {
+      allNodesToLeft.push(tree[i]);
+    }
+    if (nodeXPos > rootXPos) {
+      allNodesToRight.push(tree[i])
+    }
+  }
+
+  //While there is overlap, keep spacing each node out a certain number of pixels until no overlap
+  //Should make it so that all nodes will be spaced and no overlap will exist in tree
+  while (overlap) {
+    for (let i = 0; i < allNodesToLeft; ++i) {
+      let nodeXPos = getX(allNodesToLeft[i]);
+      setX(allNodesToLeft[i], nodeXPos - 25);
+    }
+
+    for (let i = 0; i < allNodesToRight; ++i) {
+      let nodeXPos = getX(allNodesToRight[i]);
+      setX(allNodesToRight[i], nodeXPos + 25);
+    }
+
+    for (let i = highestGen; i > 0; --i) {
+      let genNodes = getNodesInGeneration(i)
+      if (testCheckOverlap(genNodes)) {
+        overlap = false
+        break;
+      }
+    }
   }
 }
 
