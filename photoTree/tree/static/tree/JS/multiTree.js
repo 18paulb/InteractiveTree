@@ -843,7 +843,6 @@ function shiftChart(tree) {
   if (dataMap.size > 1) {shiftTree(treeSpace, tree)};
 
   //3. Find the furthest down generation in the tree and adjust the spacing so there are no overlaps
-  //debugger
   let rootNode = getRootNode(tree[0]);
   fixGenerationSpacing(tree, rootNode);
   //fixSecondGenNodeSpacing(tree)
@@ -1177,7 +1176,7 @@ function testFixSpacing(tree) {
   //check for overlap in the bottom generation
   //if none go up one gen and so on
 
-  let highestGen = getHighestGenInTree(1)
+  let highestGen = getHighestGenInTree(1, tree)
 
   let overlap = false;
   let nodesWithOverlap = []
@@ -1237,7 +1236,7 @@ function testFixSpacing(tree) {
 
 function fixGenerationSpacing(tree, rootNode) {
   
-  let highestGen = getHighestGenInTree(1); //passing in a 1 to represent the "first gen"
+  let highestGen = getHighestGenInTree(1, tree); //passing in a 1 to represent the "first gen"
   let rootNodeGen = getGeneration(rootNode);
   
   if (rootNodeGen < highestGen - 1) {
@@ -1246,14 +1245,13 @@ function fixGenerationSpacing(tree, rootNode) {
       //get all the children of the rootNode
       let rootNodeChildren = getChildren(rootNode);
       
-      //debugger 
-      
       let newXPositions = new Map();
       for (let i = 1; i < rootNodeChildren.length; i++) {
         let currChild = rootNodeChildren[i];
+        let currChildXPos = getX(currChild.image);
         let prevChild = rootNodeChildren[i - 1];
         let prevChildXPos = getX(prevChild.image);
-
+        
         //update the current node's xPos by the previous child's xPos plus a set amount
         let updatedXPos = prevChildXPos + 200;
 
@@ -1263,12 +1261,38 @@ function fixGenerationSpacing(tree, rootNode) {
           let prevChildSpouseXPos = getX(prevChildSpouse.image);
 
           updatedXPos = prevChildSpouseXPos + 200;
+          
+          //if prevChildSpouse has children, then update currChild's xPos by the rightmost child of the prevChildSpouse
+          let currChildSpouse = getNode(currChild.spouse);
+          if (hasChildren(prevChildSpouse) && (hasChildren(currChild) || hasChildren(currChildSpouse))) {
+            
+            //get the rightmostChild of the prevChild
+            let rightmostChild = getRightmostChild(prevChildSpouse);
+            let rightmostChildXPos = getX(rightmostChild.image);
+
+            
+            //get the leftmostChild of the currChild
+            let leftmostChild;
+            let leftmostChildXPos;
+            if (hasChildren(currChildSpouse)) {
+              leftmostChild = getLeftmostChild(currChildSpouse);
+              leftmostChildXPos = getX(leftmostChild.image);
+            }
+            if (hasChildren(currChild)) {
+              leftmostChild = getLeftmostChild(currChild);
+              leftmostChildXPos = getX(leftmostChild.image);
+            }
+            
+            //gets the difference in XPos between currChild and its leftmost child
+            let diff = currChildXPos - leftmostChildXPos;
+            
+            updatedXPos = rightmostChildXPos + 200 + diff;
+          }
         }
         
         //add updated xPos to newXPositions
         newXPositions.set(currChild, updatedXPos);
 
-        //debugger
         //update all node's x positions with their new X positions
         updateXPos(currChild, newXPositions.get(currChild));
       }
@@ -1281,10 +1305,13 @@ function fixGenerationSpacing(tree, rootNode) {
   }
 }
 
-//FIXME: Not all calls of this function passes in third parameter
+/**
+ * Updates the X position of a node, its spouse, and its children by a specified amount
+ * @param {the current node that's passed in} node 
+ * @param {the xPos to update the node with} newXPos 
+ */
 function updateXPos(node, newXPos) {
-  //debugger
-  
+  //updates xPos of the node
   setX(node, newXPos);
 
   //if node has spouse
@@ -1295,22 +1322,23 @@ function updateXPos(node, newXPos) {
     //if node's spouse has children
     if (hasChildren(getNode(node.spouse))) {
       let nodeChildren = getChildren(getNode(node.spouse));
+      
       for (let i = 0; i < nodeChildren.length; i++) {
-        let firstRun = false;
-        setX(nodeChildren[i], setChildX(nodeChildren[i], getWidthOfFamily(nodeChildren[i]), firstRun));
+        setX(nodeChildren[i], setChildX(nodeChildren[i], getWidthOfFamily(nodeChildren[i])));
+        
         if (hasChildren(nodeChildren[i])) {
           updateXPos(nodeChildren[i], setChildX(nodeChildren[i], getWidthOfFamily(nodeChildren[i])));
         }
       }
     }
   }
-
   //if node has children
   if (hasChildren(node)) {
     let nodeChildren = getChildren(node);
+    
     for (let i = 0; i < nodeChildren.length; i++) {
-      let firstRun = false;
-      setX(nodeChildren[i], setChildX(nodeChildren[i], getWidthOfFamily(nodeChildren[i]), firstRun));
+      setX(nodeChildren[i], setChildX(nodeChildren[i], getWidthOfFamily(nodeChildren[i])));
+      
       if (hasChildren(nodeChildren[i])) {
         updateXPos(nodeChildren[i], setChildX(nodeChildren[i], getWidthOfFamily(nodeChildren[i])));
       }
@@ -1920,10 +1948,17 @@ function getMotherPlaceInGen(nodeMother, node) {
   return motherPlaceInGen;
 }
 
-function getHighestGenInTree(gen) {
+function getHighestGenInTree(gen, tree) {
   let nodesInGen = getNodesInGeneration(gen);
-  if (nodesInGen.length > 0) {
-    return getHighestGenInTree(gen + 1);
+  let nodesInTree = [];
+
+  for (let i = 0; i < nodesInGen.length; i++) {
+    if (tree.includes(nodesInGen[i])) {
+      nodesInTree.push(nodesInGen[i]);
+    }
+  }
+  if (nodesInTree.length > 0) {
+    return getHighestGenInTree(gen + 1, tree);
   }
   return gen - 1;
 }
@@ -1968,6 +2003,7 @@ function getChildren(motherNode) {
 }
 
 function hasChildren(node) {
+  if (node == null) {return false;}
   for (let value of dataMap.values()) {
     for (let i = 0; i < value.length; ++i) {
       if (value[i]?.mother == node?.image) {
