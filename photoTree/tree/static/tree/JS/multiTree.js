@@ -271,6 +271,8 @@ function createDataPoints(chart, treeValue) {
         else {
           //FIXME: I Think this assumes that that third gen is the most bottom, and that each node has a mother
           //If it is a third gen or greater node
+          debugger
+
           let widthOfFamily = getWidthOfFamily(treeValue[i]);
           let firstRun = true;
           
@@ -922,7 +924,6 @@ function shiftTree(xBuffer, tree) {
   }
 }
 
-//FIXME: Order is important, it will go to the right if the order of tree evaluation isn't done properly
 //Possibilty: Just go in order of the map
 //Possibilty: Make function that gets furthest right xPos of a tree, then on whatver n tree you're on, that call that function on tree n-1 to get pos
 function getFurthestXOfTree(tree) {
@@ -953,8 +954,7 @@ function getXBuffer(tree) {
   return 0;
 }
 
-//REFACTORED
-//FIXME: not efficient enough
+
 function adjustHigherGenNodes(nodeMother, currentMomNodeXPos) {
 
   let mother = getNode(nodeMother)
@@ -964,6 +964,7 @@ function adjustHigherGenNodes(nodeMother, currentMomNodeXPos) {
   let nodesToAdjust = []
 
   //1. Get the xPositions of all nodes besides the mom and her children
+  //FIXME: Would you want to iterate through all values? or Just val of tree
   for (let value of dataMap.values()) {
     for (let i = 0; i < value.length; ++i) {
       for (let j = 0; j < childNodeArray.length; ++j) {
@@ -1399,6 +1400,7 @@ function setChildX(node, widthOfFamily, firstRun) {
   let placeInFam = getPlaceInFamily(node);
 
   let nodeMother = node.mother;
+  //FIXME: In some cases the nodeMother has not been placed yet
   let momXPos = getX(nodeMother);
 
   let famSpacing = widthOfFamily / (numChildren + 1);
@@ -1418,7 +1420,6 @@ function setChildX(node, widthOfFamily, firstRun) {
       adjustHigherGenNodes(nodeMother, momXPos);
     }
   }
-  
   
   return xPos;
 }
