@@ -241,14 +241,10 @@ function createDataPoints(chart, treeValue) {
   
   //removeAllChildNodes(chart);
   removeTreeFromChart(treeValue);
-
-  let generationMap = new Map();
+  
   let genCount = getLongestGenChain();
 
-  for (let j = 0; j < genCount; ++j) {
-    generationMap.set(j + 1, 1);
-  }
-
+  //FIXME: Maybe just consider doing getNodesInGeneration so you don't have to do as many checks or nested loops
   for (let genIndex = 1; genIndex < (genCount + 1); genIndex++) { //creates data points now from oldest to youngest gen
     for (let i = 0; i < treeValue.length; ++i) {
       let gen = getGeneration(treeValue[i]);
@@ -264,6 +260,7 @@ function createDataPoints(chart, treeValue) {
         li.setAttribute('id', treeValue[i].image);
         let xPos;
 
+        //FIXME: Too hardcoded, what if there are a LOT of generations
         if (gen < 3) {
           //If it is a first or second gen node
           xPos = setHighGenX(treeValue[i], chartWidth, placeInGen);
