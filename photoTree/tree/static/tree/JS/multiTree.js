@@ -192,18 +192,15 @@ function makeMomArray() {
 //Used to connect children to moms
 let momArray = makeMomArray();
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+//GLOBAL VARIABLE for the chart
 let chartList = document.getElementById('chart');
-createChart(chartList);
+createChart();
 
-//All functions for chart creation and functionality
+function createChart() {
 
-function createChart(chart) {
-  
-  for (let value of dataMap.values()) {
+  for (let tree of dataMap.values()) {
     //Passes in tree
-    
-    createDataPoints(chart, value);
+    createDataPoints(tree);
   }
   for (let value of dataMap.values()) {
     shiftChart(value);
@@ -236,54 +233,56 @@ function removeTreeFromChart(tree) {
   }
 }
 
-function createDataPoints(chart, treeValue) {
-  //In case you have to redraw chart
-  
-  //removeAllChildNodes(chart);
+/**
+ * Creates HTML elements for each node and sets their initial X and Y positions
+ * @param {the current tree that's passed in} treeValue 
+ */
+function createDataPoints(treeValue) {
+  //erase all the nodes in the current tree
   removeTreeFromChart(treeValue);
   
+  //get highest gen in current tree
   let genCount = getLongestGenChain();
+  
+  //iterate through all of the gens in current tree
+  for (let genIndex = 1; genIndex <= genCount; genIndex++) {
+    
+    //get all the nodes in the current gen
+    let nodesInGen = getNodesInGeneration(genIndex);
+    let nodesInTree = [];
+    
+    //iterate through all nodes in current gen
+    for (let node = 0; node < nodesInGen.length; node++) {
 
-  //FIXME: Maybe just consider doing getNodesInGeneration so you don't have to do as many checks or nested loops
-  for (let genIndex = 1; genIndex < (genCount + 1); genIndex++) { //creates data points now from oldest to youngest gen
-    for (let i = 0; i < treeValue.length; ++i) {
-      let gen = getGeneration(treeValue[i]);
-      if (gen == genIndex) {
-
-        //Getting X and Y Positions
-        let li = document.createElement('li');
-        let dividedHeight = chartWidth / genCount;
-        let yPos = getY(dividedHeight, gen);
-
-        let placeInGen = getPlaceInGeneration(treeValue[i], gen);
-
-        li.setAttribute('id', treeValue[i].image);
-        let xPos;
-
-        //FIXME: Too hardcoded, what if there are a LOT of generations
-        if (gen < 3) {
-          //If it is a first or second gen node
-          xPos = setHighGenX(treeValue[i], chartWidth, placeInGen);
-        }
-        else {
-          //FIXME: I Think this assumes that that third gen is the most bottom, and that each node has a mother
-          //If it is a third gen or greater node
-          debugger
-
-          let widthOfFamily = getWidthOfFamily(treeValue[i]);
-          let firstRun = true;
-          
-          xPos = setChildX(treeValue[i], widthOfFamily, firstRun);
-        }
-
-        li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`);
-
-        li.innerHTML += `<div id='button${treeValue[i].image}' onclick='addToConfirmBox(${treeValue[i].image})'>
-        <img class="data-point data-button" src="../../static/tree/images/pictures/Kennedy/${treeValue[i].image}.PNG" onmouseenter='hoverMenu(${treeValue[i].image})' onmouseleave='closeHoverMenu()'>
-        </div>`
-        
-        chart.appendChild(li);
+      //get all nodes in the current tree
+      if (treeValue.includes(nodesInGen[node])) {
+        nodesInTree.push(nodesInGen[node]);
       }
+    }
+    debugger
+    //iterate through all the nodes in current tree and create an element for them
+    for (let nodeIndex = 0; nodeIndex < nodesInTree.length; nodeIndex++) {
+      let currNode = nodesInTree[nodeIndex];
+
+      //create an element for each node
+      let li = document.createElement('li');
+      li.setAttribute('id', currNode.image);
+
+      //define the Ypos of each element
+      let yPos = setY(genIndex, genCount);
+
+      //define the XPos of each element
+      let xPos = setInitialX(genIndex, (nodeIndex + 1));
+      
+      //set the X and Y positions for each element
+      li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`);
+
+      //append each element to the tree
+      li.innerHTML += `<div id='button${currNode.image}' onclick='addToConfirmBox(${currNode.image})'>
+      <img class="data-point data-button" src="../../static/tree/images/pictures/Kennedy/${currNode.image}.PNG" onmouseenter='hoverMenu(${currNode.image})' onmouseleave='closeHoverMenu()'>
+      </div>`
+    
+      chartList.appendChild(li);
     }
   }
 }
@@ -439,7 +438,7 @@ function addSpouseRelationship(id1, id2) {
     spouse2.spouse = spouse1.image
   }
 
-  createChart(chartList);
+  createChart();
 
   document.getElementById('confirmBox').innerHTML = '';
 
@@ -516,11 +515,11 @@ function addMotherRelationship(id1, id2) {
 
   child.mother = mother.image;
 
-  momArray = makeMomArray()
+  momArray = makeMomArray();
 
-  createChart(chartList)
+  createChart();
 
-  document.getElementById('confirmBox').innerHTML = ''
+  document.getElementById('confirmBox').innerHTML = '';
 
   closeMenu();
 }
@@ -569,7 +568,7 @@ function removeRelationship(id1, id2) {
 
     closeMenu();
 
-    createChart(chartList);
+    createChart();
 
     let box = document.getElementById('confirmBox');
     box.innerHTML = ''
@@ -651,7 +650,7 @@ function removeRelationship(id1, id2) {
     alert("Error, No Direct Relationship");
   }
 
-  createChart(chartList)
+  createChart();
 
   let box = document.getElementById('confirmBox');
   box.innerHTML = ''
@@ -1237,7 +1236,7 @@ function fixGenerationSpacing(tree, rootNode) {
   let highestGen = getHighestGenInTree(1, tree); //passing in a 1 to represent the "first gen"
   let rootNodeGen = getGeneration(rootNode);
   
-  if (rootNodeGen < highestGen - 1) {
+  if (rootNodeGen < highestGen) {
     
     if (hasChildren(rootNode)) {
       //get all the children of the rootNode
@@ -1297,7 +1296,7 @@ function fixGenerationSpacing(tree, rootNode) {
 
       //recursively go through the next gen's spacing
       for (let i = 0; i < rootNodeChildren.length; i++) {
-        return fixGenerationSpacing(tree, rootNodeChildren[i]);
+        fixGenerationSpacing(tree, rootNodeChildren[i]);
       }
     }
   }
@@ -1382,17 +1381,22 @@ function setX(node, newXPos) {
   nodeElement.setAttribute('style', `--y: ${originalY}px; --x: ${newXPos}px`);
 }
 
-//NEW getX Function (for gen1 and gen2 nodes)
-function setHighGenX(node, width, placeInGen) {
-  let keyGen = getGeneration(node);
-
-  let xPos = (width / (getNumInGeneration(keyGen) + 1)) * placeInGen;
+/**
+ * Sets the initial xPos of a node in createDataPoints
+ * @param {the node that's passed in} node 
+ * @param {the generation of that node } gen 
+ * @returns the initial xPos of that node
+ */
+function setInitialX(currGen, placeInGen) {
+  let xPos = (chartWidth / (getNumInGeneration(currGen) + 1)) * placeInGen;
   return xPos;
 }
 
 //setX for gen3 and above nodes
 function setChildX(node, widthOfFamily, firstRun) {
 
+  debugger
+  
   let numChildren = getNumChildrenInFamily(node);
   let placeInFam = getPlaceInFamily(node);
 
@@ -1562,10 +1566,8 @@ function getX(nodeId) {
   }
 }
 
-function getY(height, generation) {
-  let genCount = getLongestGenChain();
+function setY(generation, genCount) {
   return (chartWidth + 225) - (chartWidth / genCount + 1) * generation;
-  //added a little to chartWidth to center it, can change later
 }
 
 function getLongestGenChain() {
@@ -2224,5 +2226,5 @@ function startEmpty() {
   dataMap.clear();
 
   momArray = [];
-  createChart(chartList)
+  createChart();
 }
