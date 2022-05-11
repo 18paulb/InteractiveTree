@@ -300,6 +300,32 @@ function createDataPoints(treeValue) {
 function createLines() {
   let svgString = '';
 
+  //Test to increase size of SVG dynamically
+  //Height might still not be perfectly scaled
+  let svgelem = document.getElementById("lines")
+  let svgWidth = svgelem.getBBox().width
+  let svgHeight = svgelem.getBBox().height
+
+  for (let value of dataMap.values()) {
+    for (let i = 0; i < value.length; ++i) {
+      let nodeXPos = getX(value[i].image);
+      let nodeYPos = getY(value[i].image)
+      if (nodeXPos > svgWidth) {
+        svgWidth = nodeXPos + 50;
+      }
+      if (nodeYPos > svgHeight) {
+        svgHeight = nodeYPos + 100
+      }
+  
+    }
+  }
+
+  svgelem.setAttribute("width", svgWidth)
+  svgelem.setAttribute("height", svgHeight)
+
+
+
+
   let id = 1;
   for (let value of dataMap.values()) {
 
@@ -565,8 +591,6 @@ function removeRelationship(id1, id2) {
 
   let oldRoot = getRootNode(node1);
   let newTree = []
-
-  debugger
 
   //Removes Spouse Relationship
   if (node1.spouse == id2) {
@@ -853,7 +877,7 @@ function hoverMenu(nodeId) {
   //Make this class a datapoint technically and make XY pos's from there, just get X,Y from node and then adjust slightly for it to be near node
   hMenu.innerHTML = `
   <div id='hover-menu' class='hover-menu hover-point' style='--y: ${nodeY + 100}px; --x: ${nodeX - 25}px'>
-    <div>Gen: ${getGeneration(dataNode)} <br> Node: ${dataNode.image}</b><br>Spouse: ${dataNode.spouse}<br>x: ${nodeX}</div>
+    <div>Gen: ${getGeneration(dataNode)} <br> Node: ${dataNode.image}</b><br>Spouse: ${dataNode.spouse}<br>x: ${nodeX} y: ${getY(nodeId)}</div>
       <img class='menu-pic' src='../../static/tree/images/pictures/Kennedy/${nodeId}.PNG'/>
       <div id ='node-${nodeId}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column;'>
         <div><b>${nodeIdName}</br></div>
@@ -991,8 +1015,6 @@ function getFurthestXOfTree(tree) {
 function getXBuffer(tree) {
 
   let previousVal = null;
-
-  debugger
 
   //Since this function is being iterated over, the position of the tree in dataMap is important, every tree before it has already been placed
   //This function only needs to get the furthest right xPos of the tree that was placed before it, ignoring all others. This loop checks for that using previousVal
@@ -1244,8 +1266,6 @@ function setInitialX(currGen, placeInGen) {
 //setX for gen3 and above nodes
 //TODO: Replace all instances of this function
 function setChildX(node, widthOfFamily, firstRun) {
-
-  debugger
   
   let numChildren = getNumChildrenInFamily(node);
   let placeInFam = getPlaceInFamily(node);
@@ -1412,6 +1432,14 @@ function getX(nodeId) {
   if (nodeId != null) {
     let thisNode = document.getElementById(nodeId);
     let nodeXPos = parseAttribute('x', thisNode.style.cssText);
+    return nodeXPos;
+  }
+}
+
+function getY(nodeId) {
+  if (nodeId != null) {
+    let thisNode = document.getElementById(nodeId);
+    let nodeXPos = parseAttribute('y', thisNode.style.cssText);
     return nodeXPos;
   }
 }
