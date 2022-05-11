@@ -321,7 +321,7 @@ function createLines() {
   }
 
   svgelem.setAttribute("width", svgWidth)
-  svgelem.setAttribute("height", svgHeight)
+  //svgelem.setAttribute("height", svgHeight)
 
 
 
@@ -1104,44 +1104,72 @@ function testCheckOverlap(focusNodeChildren) {
 //TODO: Need to account for moving spouse as well 
 function fixGenerationSpacing(tree, rootNode) {
   
-  let highestGen = getHighestGenInTree(1, tree); //passing in a 1 to represent the "first gen"
+  let highestGen = getHighestGenInTree(1, tree);
   let rootNodeGen = getGeneration(rootNode);
   
+  //BASE CASE: continue calling fixGenSpacing until the highest gen of the tree is reached
   if (rootNodeGen < highestGen) {
     
     if (hasChildren(rootNode)) {
+
       //get all the children of the rootNode
       let rootNodeChildren = getChildren(rootNode);
       
       let newXPositions = new Map();
-      for (let i = 1; i < rootNodeChildren.length; i++) {
+      
+      //iterate through all the children of the root node
+      for (let i = 0; i < rootNodeChildren.length; i++) {
+        
+        //define the current node and its XPos
         let currChild = rootNodeChildren[i];
         let currChildXPos = getX(currChild.image);
-        let prevChild = rootNodeChildren[i - 1];
-        let prevChildXPos = getX(prevChild.image);
+        let updatedXPos;
         
-        //update the current node's xPos by the previous child's xPos plus a set amount
-        let updatedXPos = prevChildXPos + 200;
+        //need to update the xPos initially to make sure the child nodes are in the right location
+        updateXPos(currChild, currChildXPos);
 
-        //if prevChild has a spouse, then update currChild by prevChild spouse's XPos
-        if (hasSpouse(prevChild)) {
-          let prevChildSpouse = getNode(prevChild.spouse);
-          let prevChildSpouseXPos = getX(prevChildSpouse.image);
-
-          updatedXPos = prevChildSpouseXPos + 200;
+        if (i > 0) {
+          //define the previous rootNodeChild and its XPos
+          let prevChild = rootNodeChildren[i - 1];
+          let prevChildXPos = getX(prevChild.image);
           
-          //if prevChildSpouse has children, then update currChild's xPos by the rightmost child of the prevChildSpouse
-          let currChildSpouse = getNode(currChild.spouse);
-          if (hasChildren(prevChildSpouse) && (hasChildren(currChild) || hasChildren(currChildSpouse))) {
-            
-            //get the rightmostChild of the prevChild
-            let rightmostChild = getRightmostChild(prevChildSpouse);
-            let rightmostChildXPos = getX(rightmostChild.image);
+          //update the current node's xPos by the previous child's xPos plus a set amount
+          updatedXPos = prevChildXPos + 200;
 
+          //if prevChild has a spouse, then update currChild by prevChild spouse's XPos
+          let currChildSpouse = getNode(currChild.spouse);
+          let rightmostChild;
+          let rightmostChildXPos;
+          let leftmostChild;
+          let leftmostChildXPos;
+          let childOverlap = false;
+
+          if (hasSpouse(prevChild)) { 
+            let prevChildSpouse = getNode(prevChild.spouse);
+            let prevChildSpouseXPos = getX(prevChildSpouse.image);
+
+            updatedXPos = prevChildSpouseXPos + 200;
             
+            //if prevChildSpouse has children, then update currChild's xPos by the rightmost child of the prevChildSpouse
+            
+            if (hasChildren(prevChildSpouse) && (hasChildren(currChild) || hasChildren(currChildSpouse))) {
+              
+              //get the rightmostChild of the prevChildSpouse
+              rightmostChild = getRightmostChild(prevChildSpouse);
+              rightmostChildXPos = getX(rightmostChild.image);
+              childOverlap = true;
+            }
+          }
+          else if (hasChildren(prevChild) && ((hasChildren(currChild) || hasChildren(currChildSpouse)))) {
+
+            //get the rightmostChild of the prevChild
+            rightmostChild = getRightmostChild(prevChild);
+            rightmostChildXPos = getX(rightmostChild.image);
+            childOverlap = true;
+          }
+
+          if (childOverlap) {
             //get the leftmostChild of the currChild
-            let leftmostChild;
-            let leftmostChildXPos;
             if (hasChildren(currChildSpouse)) {
               leftmostChild = getLeftmostChild(currChildSpouse);
               leftmostChildXPos = getX(leftmostChild.image);
@@ -1150,24 +1178,26 @@ function fixGenerationSpacing(tree, rootNode) {
               leftmostChild = getLeftmostChild(currChild);
               leftmostChildXPos = getX(leftmostChild.image);
             }
-            
+
             //gets the difference in XPos between currChild and its leftmost child
             let diff = currChildXPos - leftmostChildXPos;
-            
+              
             updatedXPos = rightmostChildXPos + 200 + diff;
           }
-        }
-        
+
         //add updated xPos to newXPositions
         newXPositions.set(currChild, updatedXPos);
 
         //update all node's x positions with their new X positions
         updateXPos(currChild, newXPositions.get(currChild));
-      }
-
-      //recursively go through the next gen's spacing
-      for (let i = 0; i < rootNodeChildren.length; i++) {
-        fixGenerationSpacing(tree, rootNodeChildren[i]);
+        
+        //recursively go through the next gen's spacing
+        /*
+        for (let i = 0; i < rootNodeChildren.length; i++) {
+          fixGenerationSpacing(tree, rootNodeChildren[i]);
+        }
+        */
+        }
       }
     }
   }
@@ -1445,7 +1475,7 @@ function getY(nodeId) {
 }
 
 function setY(generation, genCount) {
-  return (chartWidth + 225) - (chartWidth / genCount + 1) * generation;
+  return (chartWidth + 250) - (chartWidth / genCount + 1) * generation;
 }
 
 function getLongestGenChain() {
