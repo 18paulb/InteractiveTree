@@ -323,9 +323,6 @@ function createLines() {
   svgelem.setAttribute("width", svgWidth)
   //svgelem.setAttribute("height", svgHeight)
 
-
-
-
   let id = 1;
   for (let value of dataMap.values()) {
 
@@ -645,6 +642,8 @@ function removeRelationship(id1, id2) {
 
     return;
   }
+
+  //FIXME: Can't you just figure out who the mother is before and then do this part? It can save on one of the if statements
 
   //Removes Mother/Child Relationship
   if (node1.mother == id2) {
