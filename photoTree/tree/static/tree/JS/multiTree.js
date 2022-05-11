@@ -505,7 +505,6 @@ function addSpouseRelationship(id1, id2) {
   closeMenu();
 }
 
-//TODO: FINISH REFACTORING, testing for case
 function addMotherRelationship(id1, id2) {
 
   let node1 = getNode(id1);
@@ -910,8 +909,6 @@ function closeMenu() {
  * 3. adjustRootNode
 **/
 function shiftChart(tree) {
-  //1. Shift all nodes to the left to better align on the screen
-  //shiftNodesByMargin(tree);
 
   //If there are multiple trees, then shift those trees to the right accordingly
   let treeSpace = getXBuffer(tree);
@@ -920,13 +917,11 @@ function shiftChart(tree) {
   //3. Find the furthest down generation in the tree and adjust the spacing so there are no overlaps
   let rootNode = getRootNode(tree[0]);
   fixGenerationSpacing(tree, rootNode);
-  //testFixSpacing(tree)
 
   //4. Center Root Node between her leftmost and rightmost child
-  //FIXED: adjust root node (just got rid of the loop, don't know why I was iterating through all the data haha)
   adjustRootNode(tree);
 
-  //Test to see if being called twice fixes
+  //1. Shift all nodes to the left to better align on the screen
   shiftNodesByMargin(tree)
 }
 
@@ -1075,29 +1070,7 @@ function adjustHigherGenNodes(nodeMother, currentMomNodeXPos) {
   }
 }
 
-//TODO: Finish
-function testCheckOverlap(focusNodeChildren) {
-  for (let i = 0; i < focusNodeChildren.length; ++i) {
-    if (hasChildren(focusNodeChildren[i])) {
-      if (checkForOverlapToRight(focusNodeChildren[i])) {
-        return true;
-      }
-      if  (checkForOverlapToLeft(focusNodeChildren[i])) {
-        return true;
-      }
-    }
-    else if (focusNodeChildren[i].spouse != null && hasChildren(getNode(focusNodeChildren[i].spouse))) {
-      if (checkForOverlapToRight(getNode(rootNodeChildren[i].spouse))) {
-        return true;
-      }
-      if (checkForOverlapToLeft(getNode(focusNodeChildren[i].spouse))) {
-        return true;
-      }
-    } 
-  }
-  
-  return false;
-}
+
 
 
 
@@ -1334,90 +1307,6 @@ function setChildX(node, widthOfFamily, firstRun) {
   return xPos;
 }
 
-function fixOverlap(node, leftOverlap, rightOverlap) {
-
-  //figure out who the "grandmother" node is (so you can find all her children)
-  let nodeMother = getMother(node);
-  if (nodeMother == null) {
-    nodeMother = getMother(getNode(node.spouse));
-  }
-
-  //get mother's place in gen (to compare the other mother's children to)
-  let motherNodeChildren = getChildren(nodeMother);
-  let motherPlaceInGen = getMotherPlaceInGen(nodeMother, node);
-
-  //2. If overlap is to the right:
-  if (rightOverlap) {
-    //get the rightmost child of node
-    let rightmostChild;
-    if (hasChildren(node)) {
-      rightmostChild = getRightmostChild(node);
-    } else if (hasChildren(getNode(node.spouse))) {
-      rightmostChild = getRightmostChild(getNode(node.spouse));
-    }
-
-    //get the next mother to the right
-    let motherToRight = motherNodeChildren[motherPlaceInGen + 1];
-
-    //get the leftmost child of mother to the right
-    let rightMotherOverlapChild;
-    if (hasChildren(motherToRight)) {
-      rightMotherOverlapChild = getLeftmostChild(motherToRight);
-    } else if (hasChildren(getNode(motherToRight.spouse))) {
-      rightMotherOverlapChild = getLeftmostChild(getNode(motherToRight.spouse));
-    }
-
-    //set an x value to adjust all nodes to the right by (based on the overlap)
-    let xDiff = 151 - (getX(rightMotherOverlapChild.image) - getX(rightmostChild.image));
-
-    //adjust the x positions of all nodes to the right
-    for (let motherIndex = motherPlaceInGen + 1; motherIndex < motherNodeChildren.length; motherIndex++) {
-      let currMother = motherNodeChildren[motherIndex];
-      let newXPos;
-
-      newXPos = getX(currMother.image) + xDiff;
-      updateXPos(currMother, newXPos);
-    }
-  }
-
-  //If overlap is to the left:
-  if (leftOverlap) {
-    //get the leftmost child of node
-    let leftmostChild;
-    if (hasChildren(node)) {
-      leftmostChild = getLeftmostChild(node);
-    } else if (hasChildren(getNode(node.spouse))) {
-      leftmostChild = getLeftmostChild(getNode(node.spouse));
-    }
-
-    //get the next mother to the left
-    let motherToLeft = motherNodeChildren[motherPlaceInGen - 1];
-
-    //get the rightmost child of mother to the left
-    let leftMotherOverlapChild;
-    if (hasChildren(motherToLeft)) {
-      leftMotherOverlapChild = getRightmostChild(motherToLeft);
-    } else if (hasChildren(getNode(motherToLeft.spouse))) {
-      leftMotherOverlapChild = getRightmostChild(getNode(motherToLeft.spouse));
-    }
-
-    //set an x value to adjust all nodes to the left by (based on the overlap)
-    let xDiff = 151 - (getX(leftmostChild.image) - getX(leftMotherOverlapChild.image));
-
-    //adjust the x positions of all nodes to the left
-    for (let motherIndex = motherPlaceInGen - 1; motherIndex >= 0; motherIndex--) {
-      let currMother = motherNodeChildren[motherIndex];
-      let newXPos;
-
-      newXPos = getX(currMother.image) - xDiff;
-      updateXPos(currMother, newXPos);
-    }
-  }
-
-  // (should fix root node and spacing between rest of 2nd gen)
-  let tree = getTree(node);
-  shiftChart(tree);
-}
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1528,13 +1417,6 @@ function getPlaceInFamily(node) {
 }
 
 function getNumChildrenInFamily(node) {
-
-  //FIXME: What if mother is null?
-  /*
-  if (node.mother == null) {
-    return 1;
-  }
-  */
 
   let counter = 0;
   for (let value of dataMap.values()) {
@@ -1704,123 +1586,6 @@ function hasRelationship(node) {
   return false
 }
 
-//function for checking for any overlapping nodes
-function checkOverlaps(rootNodeChildren) {
-  for (let i = 0; i < rootNodeChildren.length; i++) {
-    let rightOverlap = false;
-    let leftOverlap = false;
-
-    if (hasChildren(rootNodeChildren[i])) {
-      if (checkForOverlapToRight(rootNodeChildren[i])) {
-        console.log("Found overlap to right")
-        rightOverlap = true;
-        fixOverlap(rootNodeChildren[i], leftOverlap, rightOverlap);
-      }
-      if (checkForOverlapToLeft(rootNodeChildren[i])) {
-        console.log("Found overlap to left")
-        leftOverlap = true;
-        fixOverlap(rootNodeChildren[i], leftOverlap, rightOverlap);
-      }
-    }
-    else if (rootNodeChildren[i].spouse != null) {
-      if (hasChildren(getNode(rootNodeChildren[i].spouse))) {
-        if (checkForOverlapToRight(getNode(rootNodeChildren[i].spouse))) {
-          console.log("Found overlap to right")
-          rightOverlap = true;
-          fixOverlap(getNode(rootNodeChildren[i].spouse), leftOverlap, rightOverlap);
-        }
-        if (checkForOverlapToLeft(getNode(rootNodeChildren[i].spouse))) {
-          console.log("Found overlap to left")
-          leftOverlap = true;
-          fixOverlap(getNode(rootNodeChildren[i].spouse), leftOverlap, rightOverlap);
-        }
-      }
-    }
-  }
-}
-
-/**
- * checks for any overlap of any children to the right
- */
-function checkForOverlapToRight(node) {
-  //get the rightmost child
-  let rightmostChild = getRightmostChild(node);
-
-  //figure out who the "grandmother" node is (so you can find all her children)
-  let nodeMother = getMother(node);
-  if (nodeMother == null) {
-    nodeMother = getMother(getNode(node.spouse));
-  }
-
-  //get mother's place in gen (to compare the other mother's children to)
-  let motherNodeChildren = getChildren(nodeMother);
-  let motherPlaceInGen = getMotherPlaceInGen(nodeMother, node);
-
-  //if the size of mom's gen is greater than 1 and it is not the farthest right child in gen (otherwise, there wouldn't be overlap)
-  if (motherNodeChildren.length > 1 && (motherPlaceInGen != motherNodeChildren.length - 1)) {
-    //checks the child that could potentially be overlapping (mother to right's leftmost child)
-    let motherToRight = motherNodeChildren[motherPlaceInGen + 1];
-    let rightMotherOverlapChild;
-    if (hasChildren(motherToRight)) {
-      rightMotherOverlapChild = getLeftmostChild(motherToRight);
-      if (getX(rightMotherOverlapChild.image) - getX(rightmostChild.image) < 150) {
-        return true;
-      }
-    }
-    else if (hasSpouse(motherToRight)) {
-      let motherToRightSpouse = getNode(motherToRight.spouse);
-      if (hasChildren(motherToRightSpouse)) {
-        rightMotherOverlapChild = getLeftmostChild(motherToRightSpouse);
-        if (getX(rightMotherOverlapChild.image) - getX(rightmostChild.image) < 150) {
-          return true;
-        }
-      }
-    }
-  }
-  return false;
-}
-
-/**
- * checks for any overlap of any children to the left
- */
-function checkForOverlapToLeft(node) {
-  //get the leftmost child
-  let leftmostChild = getLeftmostChild(node);
-
-  //figure out who the "grandmother" node is (so you can find all her children)
-  let nodeMother = getMother(node);
-  if (nodeMother == null) {
-    nodeMother = getMother(getNode(node.spouse));
-  }
-
-  //get mother's place in gen (to compare the other mother's children to)
-  let motherNodeChildren = getChildren(nodeMother);
-  let motherPlaceInGen = getMotherPlaceInGen(nodeMother, node);
-
-  //if the size of mom's gen is greater than 1 and it is not the farthest left child in gen (otherwise, there wouldn't be overlap)
-  if (motherNodeChildren.length > 1 && (motherPlaceInGen != 0)) {
-    //checks the child that could potentially be overlapping (mother to left's rightmost child)
-    let motherToLeft = motherNodeChildren[motherPlaceInGen - 1];
-    let leftMotherOverlapChild;
-    if (hasChildren(motherToLeft)) {
-      leftMotherOverlapChild = getRightmostChild(motherToLeft);
-      if (getX(leftmostChild.image) - getX(leftMotherOverlapChild.image) < 150) {
-        return true;
-      }
-    }
-    else if (hasSpouse(motherToLeft)) {
-      let motherToLeftSpouse = getNode(motherToLeft.spouse);
-      if (hasChildren(motherToLeftSpouse)) {
-        leftMotherOverlapChild = getRightmostChild(motherToLeftSpouse);
-        if (getX(leftmostChild.image) - getX(leftMotherOverlapChild.image) < 150) {
-          return true;
-        }
-      }
-    }
-  }
-  return false;
-}
-
 function getGenerationCount(node, count) {
   if (node?.mother == null) {
     if (node?.spouse != null) {
@@ -1903,35 +1668,6 @@ function getNodesInGeneration(generation) {
   }
   return nodeGeneration;
 }
-
-/*
-function getChildren(motherNode) {
-
-  let children = [];
-  if (hasChildren(motherNode)) {
-    for (let value of dataMap.values()) {
-      for (let i = 0; i < value.length; ++i) {
-        if (value[i].mother == motherNode.image) {
-          children.push(value[i]);
-        }
-      }
-    }
-  }
-  return children;
-}
-
-function hasChildren(node) {
-  if (node == null) {return false;}
-  for (let value of dataMap.values()) {
-    for (let i = 0; i < value.length; ++i) {
-      if (value[i]?.mother == node?.image) {
-        return true;
-      }
-    }
-  }
-  return false;
-}
-*/
 
 function getChildren(motherNode) {
 
@@ -2166,11 +1902,6 @@ function startEmpty() {
 
 
 
-
-
-
-
-
 //Finds the first node that all nodes in gen nodes have in common, the node in common should be 2 generations up and work for fixGenerationSpacing() - works if there is more than one mother to the specific generation
 //If there is only one mother, this function should just return the mother, and there shouldn't be any overlap anyways
 /**
@@ -2267,66 +1998,5 @@ function findCommonRootNode(nodes) {
     return sharedRootNode;
   } else {
     console.log("No Root Node Shared")
-  }
-}
-
-//FIXME: Bugs
-function testFixSpacing(tree) {
-  //check for overlap in the bottom generation
-  //if none go up one gen and so on
-
-  let highestGen = getHighestGenInTree(1, tree)
-
-  let overlap = false;
-  let nodesWithOverlap = []
-
-  for (let i = highestGen; i > 0; --i) {
-    let genNodes = getNodesInGeneration(i)
-    if (testCheckOverlap(genNodes)) {
-      overlap = true
-      nodesWithOverlap = genNodes
-      break;
-    }
-  }
-
-  if (!overlap) { return }
-
-  let commonRoot = findCommonRootNode(nodesWithOverlap);
-
-  let allNodesToLeft = [];
-  let allNodesToRight = [];
-
-  let rootXPos = getX(commonRoot.image)
-
-  for (let i = 0; i < tree.length; ++i) {
-    let nodeXPos = getX(tree[i])
-    if (nodeXPos < rootXPos) {
-      allNodesToLeft.push(tree[i]);
-    }
-    if (nodeXPos > rootXPos) {
-      allNodesToRight.push(tree[i])
-    }
-  }
-
-  //While there is overlap, keep spacing each node out a certain number of pixels until no overlap
-  //Should make it so that all nodes will be spaced and no overlap will exist in tree
-  while (overlap) {
-    for (let i = 0; i < allNodesToLeft; ++i) {
-      let nodeXPos = getX(allNodesToLeft[i]);
-      setX(allNodesToLeft[i], nodeXPos - 25);
-    }
-
-    for (let i = 0; i < allNodesToRight; ++i) {
-      let nodeXPos = getX(allNodesToRight[i]);
-      setX(allNodesToRight[i], nodeXPos + 25);
-    }
-
-    for (let i = highestGen; i > 0; --i) {
-      let genNodes = getNodesInGeneration(i)
-      if (testCheckOverlap(genNodes)) {
-        overlap = false
-        break;
-      }
-    }
   }
 }
