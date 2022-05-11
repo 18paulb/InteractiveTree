@@ -310,10 +310,10 @@ function createLines() {
     for (let i = 0; i < value.length; ++i) {
       let nodeXPos = getX(value[i].image);
       let nodeYPos = getY(value[i].image)
-      if (nodeXPos > svgWidth) {
+      if (nodeXPos > svgWidth || nodeXPos == svgWidth) {
         svgWidth = nodeXPos + 50;
       }
-      if (nodeYPos > svgHeight) {
+      if (nodeYPos > svgHeight || nodeYPos == svgHeight) {
         svgHeight = nodeYPos + 100
       }
   
@@ -1176,9 +1176,11 @@ function fixGenerationSpacing(tree, rootNode) {
         updateXPos(currChild, newXPositions.get(currChild));
         
         //recursively go through the next gen's spacing
+        /*
         for (let i = 0; i < rootNodeChildren.length; i++) {
           fixGenerationSpacing(tree, rootNodeChildren[i]);
         }
+        */
         }
       }
     }
