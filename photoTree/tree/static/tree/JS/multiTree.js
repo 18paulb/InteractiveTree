@@ -523,6 +523,8 @@ function addMotherRelationship(id1, id2) {
     return
   }
 
+  debugger
+
   //If child is in nodeBox and mother in tree
   if (inNodeBox(child) && isOnTree(mother)) {
     let currTree = getTree(mother);
@@ -564,12 +566,24 @@ function addMotherRelationship(id1, id2) {
   }
 
   //if both are on the chart
-  if (isOnTree(child) && isOnTree(mother)) {
+  //FIXME: Breaks, what if they are both on chart but in separete trees? -- Accounted For
+  //What if they are on different trees and one gets combined into the other
+  if ((isOnTree(child) && isOnTree(mother)) && (getTree(mother) != getTree(child))) {
 
     let momTree = getTree(mother);
     let childTree = getTree(child);
 
-    combineTrees(momTree, childTree)
+
+    momTree.push(child)
+
+    for (let i = 0; i < childTree.length; ++i) {
+      if (childTree[i].image == child.image) {
+        childTree.splice(i,1);
+        break;
+      }
+    }
+
+    //combineTrees(momTree, childTree)
   }
 
   child.mother = mother.image;
@@ -879,6 +893,8 @@ function closeMenu() {
  * 3. adjustRootNode
 **/
 function shiftChart(tree) {
+
+  debugger
 
   //If there are multiple trees, then shift those trees to the right accordingly
   let treeSpace = getXBuffer(tree);
