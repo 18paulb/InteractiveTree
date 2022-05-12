@@ -568,14 +568,19 @@ function addMotherRelationship(id1, id2) {
   //if both are on the chart
   //FIXME: Breaks, what if they are both on chart but in separete trees? -- Accounted For
   //What if they are on different trees and one gets combined into the other
-  if ((isOnTree(child) && isOnTree(mother)) && (getTree(mother) != getTree(child))) {
+  if ((isOnTree(child) && isOnTree(mother))) {
 
     let momTree = getTree(mother);
     let childTree = getTree(child);
 
+    //Make this account for if they are on different teams and one tree needs to be combined with my other treq
+    if (momTree != childTree) {
+      if (getRootNode(childTree[0]).image == child.image) {
+        combineTrees(momTree, childTree)
+      }
+    }
 
-    momTree.push(child)
-
+    //If they are on different trees and the 2 trees do not need to be combined
     for (let i = 0; i < childTree.length; ++i) {
       if (childTree[i].image == child.image) {
         childTree.splice(i,1);
