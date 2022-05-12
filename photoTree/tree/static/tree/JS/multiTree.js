@@ -192,6 +192,7 @@ function makeMomArray() {
 //Used to connect children to moms
 let momArray = makeMomArray();
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 //GLOBAL VARIABLE for the chart
 let chartList = document.getElementById('chart');
 createChart();
@@ -523,8 +524,6 @@ function addMotherRelationship(id1, id2) {
     return
   }
 
-  debugger
-
   //If child is in nodeBox and mother in tree
   if (inNodeBox(child) && isOnTree(mother)) {
     let currTree = getTree(mother);
@@ -566,26 +565,29 @@ function addMotherRelationship(id1, id2) {
   }
 
   //if both are on the chart
-  //FIXME: Breaks, what if they are both on chart but in separete trees? -- Accounted For
-  //What if they are on different trees and one gets combined into the other
+  //FIXME: Some weird errors exist
   if ((isOnTree(child) && isOnTree(mother))) {
 
     let momTree = getTree(mother);
     let childTree = getTree(child);
 
-    //Make this account for if they are on different teams and one tree needs to be combined with my other treq
-    if (momTree != childTree) {
-      if (getRootNode(childTree[0]).image == child.image) {
+    //if they are on different trees and one tree needs to be combined with my other tree
+    if ((momTree != childTree) && (getRootNode(childTree[0]).image == child.image || getRootNode(childTree[0]).spouse == child.image)) {
         combineTrees(momTree, childTree)
-      }
     }
 
     //If they are on different trees and the 2 trees do not need to be combined
-    for (let i = 0; i < childTree.length; ++i) {
-      if (childTree[i].image == child.image) {
-        childTree.splice(i,1);
-        break;
+    else if ((momTree != childTree) && (getRootNode(childTree[0]).image != child.image || getRootNode(childTree[0]).spouse != child.image)) {
+      for (let i = 0; i < childTree.length; ++i) {
+        if (childTree[i].image == child.image) {
+          momTree.push(childTree[i])
+          childTree.splice(i,1);
+          break;
+        }
       }
+    }
+    else {
+      //Something
     }
 
     //combineTrees(momTree, childTree)
@@ -691,6 +693,8 @@ function removeRelationship(id1, id2) {
 
           momArray = makeMomArray();
 
+          debugger
+
           if (!hasRelationship(mother)) {
             addToNodeContainer(mother.image);
             removeNodeFromTree(mother);
@@ -700,14 +704,21 @@ function removeRelationship(id1, id2) {
             if (dataMap.get(mother.image) != null && dataMap.get(mother.image).length == 0) {
               dataMap.delete(mother.image)
             }
+            if (dataMap.get(mother.image) != null && dataMap.get(mother.image).length > 0) {
+              //Mother should only have one child if it reaches this point
+              dataMap.set(child.image, dataMap.get(mother.image));
+              dataMap.delete(mother.image);
+            }
           }
 
-          //If it is it's own root node
+          //FIXME: Breaking here do to previous changes above
+          //If it is it's own root node          
           if ((getRootNode(child)?.image == child.image || getRootNode(child)?.image == child.spouse) && !inNodeBox(child)) {
             newTree = getTreeLine(child, newTree);
             oldRoot = getRootNode(mother);
             addToTreeMap(newTree, dataMap.get(oldRoot.image));
           }
+          
           break;
         }
       }
@@ -865,7 +876,7 @@ function hoverMenu(nodeId) {
   //Make this class a datapoint technically and make XY pos's from there, just get X,Y from node and then adjust slightly for it to be near node
   hMenu.innerHTML = `
   <div id='hover-menu' class='hover-menu hover-point' style='--y: ${nodeY + 100}px; --x: ${nodeX - 25}px'>
-    <div>Gen: ${getGeneration(dataNode)} <br> Node: ${dataNode.image}</b><br>Spouse: ${dataNode.spouse}<br>x: ${nodeX} y: ${getY(nodeId)}</div>
+    <div>Gen: ${getGeneration(dataNode)} <br> Node: ${dataNode.image}<br>x: ${nodeX} y: ${getY(nodeId)}</div>
       <img class='menu-pic' src='../../static/tree/images/pictures/Kennedy/${nodeId}.PNG'/>
       <div id ='node-${nodeId}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column;'>
         <div><b>${nodeIdName}</br></div>
@@ -883,7 +894,6 @@ function closeHoverMenu() {
 function closeMenu() {
   let menu = document.getElementById('center-menu')
 
-  //TODO Add if that put nodedataBox nodes back to nodeBox
   menu.innerHTML = '';
 
   let confirmBox = document.getElementById('confirmBox');
@@ -894,7 +904,7 @@ function closeMenu() {
 
 /**
  * Currently calls:
- * 1. shiftNodesByMargin
+ * 1. shiftNodesByMarginX
  * 3. adjustRootNode
 **/
 function shiftChart(tree) {
@@ -902,6 +912,7 @@ function shiftChart(tree) {
   debugger
 
   //If there are multiple trees, then shift those trees to the right accordingly
+  //FIXME: Doesn't work in all cases, what if you check spacing between all spaced trees (leftmost/rightmost nodes) and position from there
   let treeSpace = getXBuffer(tree);
   if (dataMap.size > 1) {shiftTree(treeSpace, tree)};
 
@@ -913,11 +924,37 @@ function shiftChart(tree) {
   adjustRootNode(tree);
 
   //1. Shift all nodes to the left to better align on the screen
-  shiftNodesByMargin(tree)
+  shiftNodesByMarginX(tree)
+}
+
+//TODO: How do we want to do this?
+function shiftNodesByMarginY(tree) {
+  //Get the highest yPos on entire tree
+  let yPos = getX(tree[0].image)
+  for (let values of dataMap.values()) {
+    for (let i = 0; i < values.length; ++i) {
+      let checkYPos = getY(values[i].image);
+      if (checkYPos > yPos) {
+        yPos = checkYPos;
+      }
+    }
+  }
+  if (yPos > 100) {
+    shiftMargin = yPos - 100;
+    //shift the xPos of every node by the margin to the left so that furthest left node is 100px from left edge
+    for (let values of dataMap.values()) {
+      for (let i = 0; i < values.length; ++i) {
+        let node = document.getElementById(values[i].image);
+        let originalY = parseAttribute('y', node.style.cssText);
+        let originalX = parseAttribute('x', node.style.cssText);
+        node.setAttribute('style', `--y: ${originalY - shiftMargin}px; --x: ${originalX}px`);
+      }
+    }
+  } 
 }
 
 //Shift all nodes over for better centering
-function shiftNodesByMargin(tree) {
+function shiftNodesByMarginX(tree) {
   //Gets initial val
   let xPos = getX(tree[0].image);
 
@@ -985,8 +1022,6 @@ function shiftTree(xBuffer, tree) {
   }
 }
 
-//Possibilty: Just go in order of the map
-//Possibilty: Make function that gets furthest right xPos of a tree, then on whatver n tree you're on, that call that function on tree n-1 to get pos
 function getFurthestXOfTree(tree) {
   let xPos = 0;
   for (let i = 0; i < tree.length; ++i) {
@@ -1061,11 +1096,6 @@ function adjustHigherGenNodes(nodeMother, currentMomNodeXPos) {
   }
 }
 
-
-
-
-
-//TODO: Need to account for moving spouse as well 
 function fixGenerationSpacing(tree, rootNode) {
   
   let highestGen = getHighestGenInTree(1, tree);
@@ -1232,7 +1262,6 @@ function updateXPos(node, newXPos) {
  * and root spouse at the central position of those two nodes.
 **/
 //FIXED: Issue was with getting the leftmost and rightmost nodes
-//TODO: Finish Refactoring
 function adjustRootNode(tree) {
 
   //In case this tree has no children yet is still root node ie just a spouse tree (2 nodes)
@@ -1283,7 +1312,6 @@ function setChildX(node, widthOfFamily, firstRun) {
   let placeInFam = getPlaceInFamily(node);
 
   let nodeMother = node.mother;
-  //FIXME: In some cases the nodeMother has not been placed yet
   let momXPos = getX(nodeMother);
 
   let famSpacing = widthOfFamily / (numChildren + 1);
@@ -1429,7 +1457,6 @@ function getNumChildrenInFamily(node) {
   return counter;
 }
 
-//REFACTORED
 function getFamilyArray(node) {
   let nodesInFamily = [];
   for (let value of dataMap.values()) {
@@ -1699,11 +1726,9 @@ function hasChildren(node) {
   return false;
 }
 
-
 function getRootNode(node) {
   //check if node is the root node
   if (node.mother == null && getNode(node.spouse)?.mother == null) {
-    //if (!hasChildren(node) && node.spouse != null) {
     if (!hasChildren(node) && node.spouse != null && hasChildren(getNode(node.spouse))) {
       return getNode(node.spouse);
     }
@@ -1789,7 +1814,6 @@ function inNodeBox(node) {
   }
 }
 
-//FOR MULTITREE TESTING
 function getTreeLine(node, tree) {
 
   //If node is Mother gets children
@@ -1898,14 +1922,7 @@ function startEmpty() {
 
 
 
-
-
-
-
 //Just was testing for spacing
-
-
-
 
 //Finds the first node that all nodes in gen nodes have in common, the node in common should be 2 generations up and work for fixGenerationSpacing() - works if there is more than one mother to the specific generation
 //If there is only one mother, this function should just return the mother, and there shouldn't be any overlap anyways
@@ -1947,7 +1964,6 @@ function getAncestors(node, ancestorMap) {
 
   return ancestorMap
 }
-
 
 function findCommonRootNode(nodes) {
 
