@@ -1173,13 +1173,6 @@ function fixGenerationSpacing(tree, rootNode) {
 
         //update all node's x positions with their new X positions
         updateXPos(currChild, newXPositions.get(currChild));
-        
-        //recursively go through the next gen's spacing
-        /*
-        for (let i = 0; i < rootNodeChildren.length; i++) {
-          fixGenerationSpacing(tree, rootNodeChildren[i]);
-        }
-        */
         }
       }
     }
