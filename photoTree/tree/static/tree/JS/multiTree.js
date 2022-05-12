@@ -518,6 +518,11 @@ function addMotherRelationship(id1, id2) {
     child = node2;
   }
 
+  if (hasChildren(getNode(mother.spouse))) {
+    alert("Spouse already has children, please only add child to one parent");
+    return
+  }
+
   //If child is in nodeBox and mother in tree
   if (inNodeBox(child) && isOnTree(mother)) {
     let currTree = getTree(mother);
@@ -643,82 +648,48 @@ function removeRelationship(id1, id2) {
     return;
   }
 
-  //FIXME: Can't you just figure out who the mother is before and then do this part? It can save on one of the if statements
-
-  //Removes Mother/Child Relationship
-  if (node1.mother == id2) {
-    for (let i = 0; i < momArray.length; ++i) {
-      if (momArray[i].data.image == id2) {
-        for (let j = 0; j < momArray[i].children.length; ++j) {
-          if (momArray[i].children[j].image == id1) {
-            isRelated = true;
-
-            node1.mother = null;
-
-            if (!hasRelationship(node1)) {
-              addToNodeContainer(node1.image);
-              removeNodeFromTree(node1);
-            }
-
-            momArray = makeMomArray();
-
-            if (!hasRelationship(node2)) {
-              addToNodeContainer(node2.image);
-              removeNodeFromTree(node2);
-
-              //If the mother does not have a relationship, and it is a root node, you can infer that the tree is empty
-              if (dataMap.get(id2) != null && dataMap.get(id2).length == 0) {
-                dataMap.delete(id2)
-              }
-            }
-
-            //If it is it's own root node
-            if ((getRootNode(node1)?.image == node1.image || getRootNode(node1)?.image == node1.spouse) && !inNodeBox(node1)) {
-              newTree = getTreeLine(node1, newTree);
-              oldRoot = getRootNode(node2);
-              addToTreeMap(newTree, dataMap.get(oldRoot.image));
-            }
-            break;
-          }
-        }
-      }
-    }
+  if (node1.birthyear > node2.birthyear) {
+    mother = node2;
+    child = node1;
+  } else {
+    mother = node1;
+    child = node2;
   }
 
-  else if (node2.mother == id1) {
-    for (let i = 0; i < momArray.length; ++i) {
-      if (momArray[i].data.image == id1) {
-        for (let j = 0; j < momArray[i].children.length; ++j) {
-          if (momArray[i].children[j].image == id2) {
-            isRelated = true;
+  //Removes Mother/Child Relationship
+  for (let i = 0; i < momArray.length; ++i) {
+    if (momArray[i].data.image == mother.image) {
+      for (let j = 0; j < momArray[i].children.length; ++j) {
+        if (momArray[i].children[j].image == child.image) {
+          isRelated = true;
 
-            node2.mother = null;
+          child.mother = null;
 
-            if (!hasRelationship(node2)) {
-              addToNodeContainer(node2.image);
-              removeNodeFromTree(node2);
-            }
-
-            momArray = makeMomArray();
-
-            if (!hasRelationship(node1)) {
-              addToNodeContainer(node1.image);
-              removeNodeFromTree(node1);
-            }
-
-            //If the mother does not have a relationship, and it is a root node, you can infer that the tree is empty
-            if (dataMap.get(id1) != null && dataMap.get(id1).length == 0) {
-              dataMap.delete(id1)
-            }
-
-            //If it is it's own root node AKA its own tree
-            if ((getRootNode(node2)?.image == node2.image || getRootNode(node2)?.image == node2.spouse) && !inNodeBox(node2)) {
-              newTree = getTreeLine(node2, newTree);
-              oldRoot = getRootNode(node1);
-              addToTreeMap(newTree, dataMap.get(oldRoot.image));
-            }
-            break;
+          if (!hasRelationship(child)) {
+            addToNodeContainer(child.image);
+            removeNodeFromTree(child);
           }
+
+          momArray = makeMomArray();
+
+          if (!hasRelationship(mother)) {
+            addToNodeContainer(mother.image);
+            removeNodeFromTree(mother);
+
+            //FIXME: Logic error, what if rootNode is only mother to one kid and you remove that relationship, there is still a tree
+            //If the mother does not have a relationship, and it is a root node, you can infer that the tree is empty
+            if (dataMap.get(mother.image) != null && dataMap.get(mother.image).length == 0) {
+              dataMap.delete(mother.image)
+            }
+          }
+
+          //If it is it's own root node
+          if ((getRootNode(child)?.image == child.image || getRootNode(child)?.image == child.spouse) && !inNodeBox(child)) {
+            newTree = getTreeLine(child, newTree);
+            oldRoot = getRootNode(mother);
+            addToTreeMap(newTree, dataMap.get(oldRoot.image));
+          }
+          break;
         }
       }
     }
@@ -1678,6 +1649,11 @@ function getNodesInGeneration(generation) {
 }
 
 function getChildren(motherNode) {
+
+  if (motherNode == null) {
+    console.log("Node " + motherNode.image + " does not exist")
+    return null
+  }
 
   if (hasChildren(motherNode)) {
     for (let i = 0; i < momArray.length; ++i) {
