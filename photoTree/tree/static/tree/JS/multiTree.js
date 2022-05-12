@@ -1175,6 +1175,20 @@ function fixGenerationSpacing(tree, rootNode) {
         updateXPos(currChild, newXPositions.get(currChild));
         }
       }
+
+      //RECURSIVE CALL: for each rootNodeChild, call fixGenSpacing
+      for (let i = 0; i < rootNodeChildren.length; i++) {
+        let currChild = rootNodeChildren[i];
+        let currChildSpouse = getNode(rootNodeChildren[i].spouse);
+        
+        if (hasChildren(currChild)) {
+          fixGenerationSpacing(tree, currChild);
+        }
+        else if (hasChildren(currChildSpouse)) {
+          fixGenerationSpacing(tree, currChildSpouse);
+        }
+      }
+
     }
   }
 }
