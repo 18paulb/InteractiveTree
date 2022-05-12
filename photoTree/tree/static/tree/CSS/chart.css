@@ -285,9 +285,6 @@ body {
   text-align: center;
   /*ADDED*/
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
 }
 
 .PageLogo-image {
