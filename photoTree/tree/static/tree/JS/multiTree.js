@@ -693,7 +693,7 @@ function removeRelationship(id1, id2) {
 
           momArray = makeMomArray();
 
-          debugger
+          //debugger
 
           if (!hasRelationship(mother)) {
             addToNodeContainer(mother.image);
@@ -909,7 +909,7 @@ function closeMenu() {
 **/
 function shiftChart(tree) {
 
-  debugger
+  //debugger
 
   //If there are multiple trees, then shift those trees to the right accordingly
   //FIXME: Doesn't work in all cases, what if you check spacing between all spaced trees (leftmost/rightmost nodes) and position from there
@@ -921,7 +921,7 @@ function shiftChart(tree) {
   fixGenerationSpacing(tree, rootNode);
 
   //4. Center Root Node between her leftmost and rightmost child
-  adjustRootNode(tree);
+  adjustRootNode(rootNode);
 
   //1. Shift all nodes to the left to better align on the screen
   shiftNodesByMarginX(tree)
@@ -1210,7 +1210,6 @@ function fixGenerationSpacing(tree, rootNode) {
           fixGenerationSpacing(tree, currChildSpouse);
         }
       }
-
     }
   }
 }
@@ -1262,28 +1261,34 @@ function updateXPos(node, newXPos) {
  * and root spouse at the central position of those two nodes.
 **/
 //FIXED: Issue was with getting the leftmost and rightmost nodes
-function adjustRootNode(tree) {
+function adjustRootNode(rootNode) {
 
   //In case this tree has no children yet is still root node ie just a spouse tree (2 nodes)
-  let rootNode = getRootNode(tree[0]);
-  if (!hasChildren(rootNode)) {
-    return
-  }
 
-  let leftmostChild = getLeftmostChild(getRootNode(tree[0]));
-  let rightmostChild = getRightmostChild(getRootNode(tree[0]));
+  if (!hasChildren(rootNode)) {
+    return;
+  }
+  
+  //define the leftmost and rightmost children of the rootNode
+  let leftmostChild = getLeftmostChild(rootNode);
+  let rightmostChild = getRightmostChild(rootNode);
   let leftChildX = getX(leftmostChild.image);
   let rightChildX = getX(rightmostChild.image);
+  let originalXPos = getX(rootNode.image);
+  
   //Will place root node in the middle of the rightMost and leftMost children
   let newXPos = (leftChildX + rightChildX) / 2;
 
-  let rootNodeElement = document.getElementById(getRootNode(tree[0]).image);
-  let rootNodeSpouse = document.getElementById(getRootNode(tree[0]).spouse);
-  let originalY = parseAttribute('y', rootNodeElement.style.cssText);
+  if (newXPos != originalXPos) {
 
-  rootNodeElement.setAttribute('style', `--y: ${originalY}px; --x: ${newXPos}px`);
-  if (rootNodeSpouse != null) {
-    rootNodeSpouse.setAttribute('style', `--y: ${originalY}px; --x: ${newXPos + 100}px`);
+    //set the newXPos for rootNode and its spouse
+    setX(rootNode, newXPos);
+    
+    let rootNodeSpouse = getNode(rootNode.spouse);
+
+    if (rootNodeSpouse != null) {
+      setX(rootNodeSpouse, newXPos + 100);
+    }
   }
 }
 
@@ -1358,6 +1363,8 @@ function hasSpouse(node) {
  * @returns node with the matching nodeId
  */
 function getNode(nodeId) {
+  if (nodeId == null) {return;}
+  
   //checks trees for node
   for (let value of dataMap.values()) {
     for (let i = 0; i < value.length; ++i) {
@@ -1914,7 +1921,7 @@ function startEmpty() {
 
   momArray = [];
 
-  debugger
+  //debugger
   
   createChart();
 }
