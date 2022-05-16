@@ -1,3 +1,10 @@
+*, body {
+  -webkit-font-smoothing: antialiased;
+}
+* {
+  box-sizing: border-box;
+}
+
 /* The parent element */
 .css-chart {
   /* The height, which is initially defined in the HTML */
@@ -102,12 +109,7 @@
   width: calc(var(--hypotenuse) * 1px);
   z-index: -1;
 }
-/*
-.child-line:hover {
-  transition-duration: 0.25s;
-  transform: scale(1.2);
-}
-*/
+
 .spouse-line {
   background-color: #ffc868;
   bottom: var(--y);
@@ -287,10 +289,73 @@ body {
   display: flex;
 }
 
-.PageLogo-image {
+.Header {
   width: 100%;
+  display: block;
+  z-index:20;
+  top: 0;
+  box-shadow: 0 0 10px rgb(0 0 0 / 16%);
+  border-bottom: 1px solid #ddd;
+  position: sticky
+}
+
+.Header-contentTop {
+  background: #002e5d;
+  padding: 0;
+  display: grid;
+  grid-gap: 0;
+  grid-template-columns: 72px auto;
+  box-sizing: border-box;
+}
+
+.Header-Logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 56px;
+  box-sizing: border-box;
 }
 
 .Header-logo img {
   min-height: 20px;
+  max-width: 50px;
+  height: auto;
+}
+
+.Header-titles {
+  position: relative;
+  padding: 9px 36px 9px 13px;
+  box-sizing: border-box;
+  display: block;
+}
+
+.Header-title {
+  font-size: 18px;
+  line-height: 1.4;
+  margin: 6px 0;
+  bottom: 1px;
+  box-sizing: border-boxs;
+}
+.Header-title:before {
+  content: " ";
+  display: block;
+  position: absolute;
+  background: green;
+  width: 1px;
+  height: 74%;
+  right: auto;
+  left: 0;
+  top: 13%;
+}
+
+.PageLogo-image {
+  width: 100%;
+}
+
+img {
+  vertical-align: middle;
+}
+
+a {
+  background-color: transparent;
 }
