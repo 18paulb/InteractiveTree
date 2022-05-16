@@ -521,6 +521,7 @@ function addMotherRelationship(id1, id2) {
     child = node2;
   }
 
+  //TODO: Instead of doing this maybe just add that child to the spouse with children instead
   if (hasChildren(getNode(mother.spouse))) {
     alert("Spouse already has children, please only add child to one parent");
     return
