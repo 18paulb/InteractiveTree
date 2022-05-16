@@ -1203,14 +1203,49 @@ function fixGenerationSpacing(tree, rootNode) {
       for (let i = 0; i < rootNodeChildren.length; i++) {
         let currChild = rootNodeChildren[i];
         let currChildSpouse = getNode(rootNodeChildren[i].spouse);
+        let rightmostChild;
+        let rightmostChildXPos;
+        let potentialOverlap = false;
         
         if (hasChildren(currChild)) {
           fixGenerationSpacing(tree, currChild);
           adjustRootNode(currChild);
+
+          rightmostChild = getRightmostChild(currChild);
+          rightmostChildXPos = getX(rightmostChild.image);
+          potentialOverlap = true;
         }
+        
         else if (hasChildren(currChildSpouse)) {
           fixGenerationSpacing(tree, currChildSpouse);
           adjustRootNode(currChildSpouse);
+
+          rightmostChild = getRightmostChild(currChildSpouse);
+          rightmostChildXPos = getX(rightmostChild.image);
+          potentialOverlap = true;
+        }
+
+        //adjust higher generation nodes that may have overlap
+        if ((i + 1 < rootNodeChildren.length) && potentialOverlap) {
+          let nextChild = rootNodeChildren[i + 1];
+          let newXPos;
+
+          if (hasChildren(nextChild)) {
+            let leftmostChild = getLeftmostChild(nextChild)
+            let leftmostChildXPos = getX(leftmostChild.image);
+
+            if (leftmostChildXPos - rightmostChildXPos < 100) {
+              newXPos = rightmostChildXPos + 200;
+              updateXPos(nextChild, newXPos);
+            }
+          } else {
+            if (hasSpouse(currChild)) {
+              newXPos = getX(currChildSpouse.image) + 200;
+            } else {
+              newXPos = getX(currChild.image) + 200;
+            }
+            updateXPos(nextChild, newXPos);
+          }
         }
       }
     }
