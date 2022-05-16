@@ -1640,6 +1640,7 @@ function hasRelationship(node) {
   return false
 }
 
+//FIXME: Exceeds maximum stack frame at times
 function getGenerationCount(node, count) {
   if (node?.mother == null) {
     if (node?.spouse != null) {
