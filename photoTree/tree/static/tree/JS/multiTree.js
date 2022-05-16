@@ -505,6 +505,8 @@ function addSpouseRelationship(id1, id2) {
 
 function addMotherRelationship(id1, id2) {
 
+  debugger
+
   let node1 = getNode(id1);
   let node2 = getNode(id2);
 
@@ -535,6 +537,17 @@ function addMotherRelationship(id1, id2) {
   //FIXME: Logic errors exist here, what happens if spouse has mother and other spouse gets mother from this condition? we don't want to remove from the old tree
   //If child is on tree and mother in nodeBox
   if (isOnTree(child) && inNodeBox(mother)) {
+
+    //This case happens if mother becomes the new root node of a tree
+    if (dataMap.get(child.image) != null) {
+      dataMap.set(mother.image, dataMap.get(child.image))
+      //Mom is not part of the tree so push to that tree
+      dataMap.get(mother.image).push(mother)
+
+      dataMap.delete(child.image)
+    }
+    else {
+
     let tree = [child, mother];
 
     //Removes child from old tree
@@ -548,6 +561,7 @@ function addMotherRelationship(id1, id2) {
 
     //creates new tree
     dataMap.set(mother.image, tree);
+    } 
   }
 
   //if both are in nodeBox
