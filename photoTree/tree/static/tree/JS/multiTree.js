@@ -1102,7 +1102,7 @@ function fixGenerationSpacing(tree, rootNode) {
   let rootNodeGen = getGeneration(rootNode);
   
   //BASE CASE: continue calling fixGenSpacing until the highest gen of the tree is reached
-  if (rootNodeGen < highestGen) {
+  if (rootNodeGen < highestGen - 1) {
     
     if (hasChildren(rootNode)) {
 
@@ -1114,6 +1114,7 @@ function fixGenerationSpacing(tree, rootNode) {
       //iterate through all the children of the root node
       for (let i = 0; i < rootNodeChildren.length; i++) {
         
+        debugger
         //define the current node and its XPos
         let currChild = rootNodeChildren[i];
         let currChildXPos = getX(currChild.image);
@@ -1205,9 +1206,11 @@ function fixGenerationSpacing(tree, rootNode) {
         
         if (hasChildren(currChild)) {
           fixGenerationSpacing(tree, currChild);
+          adjustRootNode(currChild);
         }
         else if (hasChildren(currChildSpouse)) {
           fixGenerationSpacing(tree, currChildSpouse);
+          adjustRootNode(currChildSpouse);
         }
       }
     }
@@ -1287,8 +1290,9 @@ function adjustRootNode(rootNode) {
     let rootNodeSpouse = getNode(rootNode.spouse);
 
     if (rootNodeSpouse != null) {
-      setX(rootNodeSpouse, newXPos + 100);
+      setX(rootNodeSpouse, newXPos - 100);
     }
+  
   }
 }
 
