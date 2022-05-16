@@ -349,7 +349,7 @@ function createLines() {
 
           let valId = value[i].image;
 
-          svgString += `<line id="line${id}" class='svg-line' x1="${x1}" y1="${chartWidth - y1}" x2="${x2}" y2="${chartWidth - y2}" stroke="black" stroke-width='6' onmouseover="SVGHoverColor(line${id}, 'enter', 'mother')" onmouseleave="SVGHoverColor(line${id}, 'leave', 'mother')" onclick='testAdd(getNode(${valId}), momArray[${index}].children[${j}])'/>`
+          svgString += `<line id="line${id}" x1="${x1}" y1="${chartWidth - y1}" x2="${x2}" y2="${chartWidth - y2}" stroke="black" stroke-width='6' onmouseover="SVGHoverColor(line${id}, 'enter', 'mother')" onmouseleave="SVGHoverColor(line${id}, 'leave', 'mother')" onclick='testAdd(getNode(${valId}), momArray[${index}].children[${j}])'/>`
 
           id++;
         }
@@ -365,7 +365,7 @@ function createLines() {
         let valId = value[i].image;
         let valSpouse = value[i].spouse;
 
-        let line = `<line id="line${id}" class='svg-line' x1="${xPos}" y1="${chartWidth - yPos}" x2="${spouseXPos}" y2="${chartWidth - spouseYPos}" stroke="blue" stroke-width='6' onmouseover="SVGHoverColor(line${id}, 'enter', 'spouse')" onmouseleave="SVGHoverColor(line${id}, 'leave', 'spouse')" onclick='testAdd(getNode(${valId}), getNode(${valSpouse}))'/>`
+        let line = `<line id="line${id}" x1="${xPos}" y1="${chartWidth - yPos}" x2="${spouseXPos}" y2="${chartWidth - spouseYPos}" stroke="blue" stroke-width='6' onmouseover="SVGHoverColor(line${id}, 'enter', 'spouse')" onmouseleave="SVGHoverColor(line${id}, 'leave', 'spouse')" onclick='testAdd(getNode(${valId}), getNode(${valSpouse}))'/>`
 
         //if statement so that two spouse lines aren't drawn between spouses
         if (spouseXPos > xPos) {
@@ -505,6 +505,8 @@ function addSpouseRelationship(id1, id2) {
 
 function addMotherRelationship(id1, id2) {
 
+  debugger
+
   let node1 = getNode(id1);
   let node2 = getNode(id2);
 
@@ -519,9 +521,11 @@ function addMotherRelationship(id1, id2) {
     child = node2;
   }
 
+  //TODO: Instead of doing this maybe just add that child to the spouse with children instead
   if (hasChildren(getNode(mother.spouse))) {
-    alert("Spouse already has children, please only add child to one parent");
-    return
+    alert("Spouse already has children, adding child to spouse");
+    mother = getNode(mother.spouse)
+    //return
   }
 
   //If child is in nodeBox and mother in tree
@@ -535,6 +539,17 @@ function addMotherRelationship(id1, id2) {
   //FIXME: Logic errors exist here, what happens if spouse has mother and other spouse gets mother from this condition? we don't want to remove from the old tree
   //If child is on tree and mother in nodeBox
   if (isOnTree(child) && inNodeBox(mother)) {
+
+    //This case happens if mother becomes the new root node of a tree
+    if (dataMap.get(child.image) != null) {
+      dataMap.set(mother.image, dataMap.get(child.image))
+      //Mom is not part of the tree so push to that tree
+      dataMap.get(mother.image).push(mother)
+
+      dataMap.delete(child.image)
+    }
+    else {
+
     let tree = [child, mother];
 
     //Removes child from old tree
@@ -548,6 +563,7 @@ function addMotherRelationship(id1, id2) {
 
     //creates new tree
     dataMap.set(mother.image, tree);
+    } 
   }
 
   //if both are in nodeBox
@@ -1659,6 +1675,7 @@ function hasRelationship(node) {
   return false
 }
 
+//FIXME: Exceeds maximum stack frame at times
 function getGenerationCount(node, count) {
   if (node?.mother == null) {
     if (node?.spouse != null) {
