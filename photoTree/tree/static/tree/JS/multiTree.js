@@ -444,8 +444,10 @@ function addSpouseRelationship(id1, id2) {
   let spouse1Index;
   let spouse2Index;
 
+  debugger
+
   //If spouse1 is in nodeBox and spouse2 is on tree, push spouse1 onto tree
-  if (inNodeBox(spouse1) != null && isOnTree(spouse2)) {
+  if (inNodeBox(spouse1) && isOnTree(spouse2)) {
     currTree = getTree(spouse2);
     currTree.push(spouse1);
     spouse1Index = getNodeBoxDataIndex(spouse1.image);
@@ -453,7 +455,7 @@ function addSpouseRelationship(id1, id2) {
   }
 
   //If spouse2 is in nodeBox and spouse1 is on tree, push spouse2 onto tree
-  if (inNodeBox(spouse2) != null && isOnTree(spouse1)) {
+  if (inNodeBox(spouse2) && isOnTree(spouse1)) {
     currTree = getTree(spouse1);
     currTree.push(spouse2);
     spouse2Index = getNodeBoxDataIndex(spouse2.image);
@@ -622,6 +624,8 @@ function addMotherRelationship(id1, id2) {
 
 function removeRelationship(id1, id2) {
 
+  debugger
+
   node1 = getNode(id1);
   node2 = getNode(id2);
 
@@ -685,6 +689,9 @@ function removeRelationship(id1, id2) {
     return;
   }
 
+  let mother;
+  let child;
+
   if (node1.birthyear > node2.birthyear) {
     mother = node2;
     child = node1;
@@ -708,8 +715,6 @@ function removeRelationship(id1, id2) {
           }
 
           momArray = makeMomArray();
-
-          //debugger
 
           if (!hasRelationship(mother)) {
             addToNodeContainer(mother.image);
