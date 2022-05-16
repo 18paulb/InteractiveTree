@@ -47,15 +47,6 @@
   transform: scale(1.2);
 }
 
-
-.svg-line {
-  color: blue;
-}
-
-.svg-line:hover {
-  color: red;
-}
-
 .hover-point {
   background-color: white;
   border: 2px solid lightblue;
@@ -76,51 +67,6 @@
 .data-button:visted {
   color: yellow;
   background-color: yellow;
-}
-
-/* Testing to make lines buttons */
-.button-line {
-  background-color: blue;
-  bottom: var(--y);
-  height: 3px;
-  left: var(--x);
-  position: absolute;
-  width: 5px;
-
-  transform: rotate(calc(var(--angle) * 1deg));
-  transform-origin: left bottom;
-  width: calc(var(--hypotenuse) * 1px);
-  z-index: -1;
-}
-.button-line:hover {
-  color: red;
-  background-color: red;
-}
-
-.child-line {
-  background-color: #3b5070; /*was black*/
-  bottom: var(--y);
-  height: 5px;
-  left: var(--x);
-  position: absolute;
-
-  transform: rotate(calc(var(--angle) * 1deg));
-  transform-origin: left bottom;
-  width: calc(var(--hypotenuse) * 1px);
-  z-index: -1;
-}
-
-.spouse-line {
-  background-color: #ffc868;
-  bottom: var(--y);
-  height: 5px;
-  left: var(--x);
-  position: absolute;
-
-  transform: rotate(calc(var(--angle) * 1deg));
-  transform-origin: left bottom;
-  width: calc(var(--hypotenuse) * 1px);
-  z-index: -1;
 }
 
 .footer-box {
@@ -222,8 +168,7 @@
 }
 
 body {
-  background-color: #eef7fe; /*was #fffaf0;*/
-  /*background-color: #413fb4;*/
+  background-color: #eef7fe;
 }
 
 .center-menu {
@@ -238,8 +183,7 @@ body {
   top: 50%;
   left: 50%;
   margin: -100px 0 0 -150px;
-  /*background: #4056A1;*/
-  background: #9dbef1; /*#50bb89;*/
+  background: #9dbef1;
 }
 
 .menu-pics-container {

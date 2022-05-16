@@ -349,7 +349,7 @@ function createLines() {
 
           let valId = value[i].image;
 
-          svgString += `<line id="line${id}" class='svg-line' x1="${x1}" y1="${chartWidth - y1}" x2="${x2}" y2="${chartWidth - y2}" stroke="black" stroke-width='6' onmouseover="SVGHoverColor(line${id}, 'enter', 'mother')" onmouseleave="SVGHoverColor(line${id}, 'leave', 'mother')" onclick='testAdd(getNode(${valId}), momArray[${index}].children[${j}])'/>`
+          svgString += `<line id="line${id}" x1="${x1}" y1="${chartWidth - y1}" x2="${x2}" y2="${chartWidth - y2}" stroke="black" stroke-width='6' onmouseover="SVGHoverColor(line${id}, 'enter', 'mother')" onmouseleave="SVGHoverColor(line${id}, 'leave', 'mother')" onclick='testAdd(getNode(${valId}), momArray[${index}].children[${j}])'/>`
 
           id++;
         }
@@ -365,7 +365,7 @@ function createLines() {
         let valId = value[i].image;
         let valSpouse = value[i].spouse;
 
-        let line = `<line id="line${id}" class='svg-line' x1="${xPos}" y1="${chartWidth - yPos}" x2="${spouseXPos}" y2="${chartWidth - spouseYPos}" stroke="blue" stroke-width='6' onmouseover="SVGHoverColor(line${id}, 'enter', 'spouse')" onmouseleave="SVGHoverColor(line${id}, 'leave', 'spouse')" onclick='testAdd(getNode(${valId}), getNode(${valSpouse}))'/>`
+        let line = `<line id="line${id}" x1="${xPos}" y1="${chartWidth - yPos}" x2="${spouseXPos}" y2="${chartWidth - spouseYPos}" stroke="blue" stroke-width='6' onmouseover="SVGHoverColor(line${id}, 'enter', 'spouse')" onmouseleave="SVGHoverColor(line${id}, 'leave', 'spouse')" onclick='testAdd(getNode(${valId}), getNode(${valSpouse}))'/>`
 
         //if statement so that two spouse lines aren't drawn between spouses
         if (spouseXPos > xPos) {
