@@ -1154,7 +1154,7 @@ function fixGenerationSpacing(tree, rootNode) {
           let rightmostChild;
           let rightmostChildXPos;
           let childOverlap = false;
-          
+          debugger
           //if prevChild has a spouse, then update currChild by prevChild spouse's XPos
           if (hasSpouse(prevChild)) {
             
@@ -1187,7 +1187,7 @@ function fixGenerationSpacing(tree, rootNode) {
           }
           
           if (childOverlap) {
-            
+            debugger
             let leftmostChild;
             let leftmostChildXPos;
 
