@@ -475,15 +475,28 @@ function addSpouseRelationship(id1, id2) {
     nodeBoxData.splice(spouse2Index, 1);
   }
 
-  //TODO: Finish case, do we account for polygamy?
   if (isOnTree(spouse1) && isOnTree(spouse2)) {
     //Gets rid of the old spouse's spouse value
     if (spouse1.spouse != null) {
-      getNode(spouse1.spouse).spouse = null;
+      //getNode(spouse1.spouse).spouse = null;
+      let spouse = getNode(spouse1.spouse) 
+      spouse.spouse = null
+      if (!hasRelationship(spouse)) {
+        addToNodeContainer(spouse.image);
+        removeNodeFromTree(spouse);
+      }
     }
     if (spouse2.spouse != null) {
-      getNode(spouse2.spouse).spouse = null;
+      //getNode(spouse2.spouse).spouse = null;
+      let spouse = getNode(spouse2.spouse) 
+      spouse.spouse = null
+      if (!hasRelationship(spouse)) {
+        addToNodeContainer(spouse.image);
+        removeNodeFromTree(spouse);
+      }
     }
+
+
 
     spouse1.spouse = null;
     spouse2.spouse = null;
@@ -523,7 +536,6 @@ function addMotherRelationship(id1, id2) {
     child = node2;
   }
 
-  //TODO: Instead of doing this maybe just add that child to the spouse with children instead
   if (hasChildren(getNode(mother.spouse))) {
     alert("Spouse already has children, adding child to spouse");
     mother = getNode(mother.spouse)
@@ -623,8 +635,6 @@ function addMotherRelationship(id1, id2) {
 }
 
 function removeRelationship(id1, id2) {
-
-  debugger
 
   node1 = getNode(id1);
   node2 = getNode(id2);
@@ -930,8 +940,6 @@ function closeMenu() {
 **/
 function shiftChart(tree) {
 
-  //debugger
-
   //If there are multiple trees, then shift those trees to the right accordingly
   //FIXME: Doesn't work in all cases, what if you check spacing between all spaced trees (leftmost/rightmost nodes) and position from there
   let treeSpace = getXBuffer(tree);
@@ -1117,6 +1125,7 @@ function adjustHigherGenNodes(nodeMother, currentMomNodeXPos) {
   }
 }
 
+//FIXME: Adding spouses to bottom gen is broken
 function fixGenerationSpacing(tree, rootNode) {
   
   let highestGen = getHighestGenInTree(1, tree);
