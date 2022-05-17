@@ -451,7 +451,7 @@ function testAdd(node1, node2) {
 
   $('#center-menu').html(
     `<div id='center-menu' class='center-menu'>
-    <div><button onclick='returnConfirmBoxNodes(); closeMenu()'>X</button></div>
+    <div><button class="x-button" onclick='returnConfirmBoxNodes(); closeMenu()'><strong>X</strong></button></div>
     <div class='menu-pics-container'>
       <div>
         <img class='menu-pic' src='../../static/tree/images/pictures/Kennedy/${id1}.PNG'/>
