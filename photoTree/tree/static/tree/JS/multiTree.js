@@ -1220,7 +1220,7 @@ function fixGenerationSpacing(tree, rootNode) {
             if (hasChildren(prevChildSpouse) && (hasChildren(currChild) || hasChildren(currChildSpouse))) {
               
               //get the rightmostChild of the prevChildSpouse
-              rightmostChild = getRightmostChild(prevChildSpouse);
+              rightmostChild = getFarthestDownRightChild(prevChildSpouse);
               rightmostChildXPos = getX(rightmostChild.image);
 
               childOverlap = true;
@@ -1229,7 +1229,7 @@ function fixGenerationSpacing(tree, rootNode) {
           if (hasChildren(prevChild) && ((hasChildren(currChild) || hasChildren(currChildSpouse))) && !childOverlap) {
             
             //get the rightmostChild of the prevChild
-            rightmostChild = getRightmostChild(prevChild);
+            rightmostChild = getFarthestDownRightChild(prevChild);
             rightmostChildXPos = getX(rightmostChild.image);
             
             childOverlap = true;
@@ -1247,18 +1247,18 @@ function fixGenerationSpacing(tree, rootNode) {
 
             //get the leftmostChild of the currChild
             if (hasChildren(currChildSpouse)) {
-              leftmostChild = getLeftmostChild(currChildSpouse);
+              leftmostChild = getFarthestDownLeftChild(currChildSpouse);
               leftmostChildXPos = getX(leftmostChild.image);
             }
             if (hasChildren(currChild)) {
-              leftmostChild = getLeftmostChild(currChild);
+              leftmostChild = getFarthestDownLeftChild(currChild);
               leftmostChildXPos = getX(leftmostChild.image);
             }
-
+            debugger
             //gets the difference in XPos between currChild and its leftmost child
             let diff = currChildXPos - leftmostChildXPos;
               
-            updatedXPos = rightmostChildXPos + spacing + diff;
+            updatedXPos = rightmostChildXPos + 150 + diff;
           }
 
           //add updated xPos to newXPositions
@@ -1286,13 +1286,17 @@ function fixGenerationSpacing(tree, rootNode) {
 }
 
 function getSpaceBetweenNodes(gen) {
-  let spacing = 200;
+  let spacing = 250;
   
   if (gen == 2) {
     return spacing;
   }
-  else if (gen > 2) {
+  else if (gen == 3) {
     spacing = 150;
+    return spacing;
+  }
+  else if (gen > 3) {
+    spacing = 125;
     return spacing;
   }
 }
@@ -1370,9 +1374,13 @@ function adjustRootNode(rootNode) {
     let rootNodeSpouse = getNode(rootNode.spouse);
 
     if (rootNodeSpouse != null) {
-      setX(rootNodeSpouse, newXPos - 100);
+      let spouseMother = getNode(rootNodeSpouse.mother);
+      if (spouseMother != null) {
+        setX(rootNodeSpouse, newXPos - 100);
+      } else {
+        setX(rootNodeSpouse, newXPos + 100);
+      }
     }
-  
   }
 }
 
@@ -1868,6 +1876,22 @@ function getLeftmostChild(momNode) {
     }
   }
   return getNode(parseInt(leftmostChild));
+}
+
+function getFarthestDownLeftChild(momNode) {
+  let leftmostNode = getLeftmostChild(momNode);
+  if (hasChildren(leftmostNode)) {
+    return getFarthestDownLeftChild(leftmostNode);
+  }
+  return leftmostNode;
+}
+
+function getFarthestDownRightChild(momNode) {
+  let rightmostNode = getRightmostChild(momNode);
+  if (hasChildren(rightmostNode)) {
+    return getFarthestDownRightChild(rightmostNode);
+  }
+  return rightmostNode;
 }
 
 function getRightmostChild(momNode) {
