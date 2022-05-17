@@ -70,6 +70,48 @@ let data = [
     "name": "William Cavendish",
   },
   {
+    "image": 11,
+    "mother": 2,
+    "spouse": 12,
+    "birthyear": 1921,
+    "name": "Eunice Kennedy",
+  },
+  {
+    "image": 12,
+    "mother": null,
+    "spouse": 11,
+    "birthyear": 1915,
+    "name": "Robert Shriver",
+  },
+  {
+    "image": 13,
+    "mother": 11,
+    "spouse": null,
+    "birthyear": 1955,
+    "name": "Maria Shriver",
+  },
+  {
+    "image": 14,
+    "mother": 11,
+    "spouse": null,
+    "birthyear": 1959,
+    "name": "Timothy Shriver",
+  },
+  {
+    "image": 15,
+    "mother": 11,
+    "spouse": null,
+    "birthyear": 1964,
+    "name": "Mark Shriver",
+  },
+  {
+    "image": 16,
+    "mother": 11,
+    "spouse": null,
+    "birthyear": 1965,
+    "name": "Anthony Shriver",
+  },
+  {
     "image": 23,
     "mother": 2,
     "spouse": 24,
@@ -2008,7 +2050,12 @@ function startEmpty() {
  * @param {tree nodes in generation} nodes 
  */
 
-function isDescendant(ancestor, ancestorMap) {
+function isDescendant(node, ancestor) {
+
+  let ancestorMap = new Map();
+
+  getAncestors(node, ancestorMap);
+
   if (ancestorMap.has(ancestor.image)) {
     return true;
   } else {
@@ -2098,3 +2145,19 @@ function findCommonRootNode(nodes) {
     console.log("No Root Node Shared")
   }
 }
+
+
+
+
+//Expanding other trees
+
+//Function that gets all family nodes of a NODE that are NOT part of active tree
+
+//Function to see if a node is part of active tree or not
+function isDirectDescendant(node, root) {
+  let children = getChildren(root);
+
+
+}
+
+//New global variable of active tree??
