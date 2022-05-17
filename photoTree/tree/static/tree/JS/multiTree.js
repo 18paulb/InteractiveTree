@@ -486,7 +486,7 @@ function addSpouseRelationship(id1, id2) {
   let spouse1Index;
   let spouse2Index;
 
-  debugger
+  //debugger
 
   //If spouse1 is in nodeBox and spouse2 is on tree, push spouse1 onto tree
   if (inNodeBox(spouse1) && isOnTree(spouse2)) {
@@ -562,7 +562,7 @@ function addSpouseRelationship(id1, id2) {
 
 function addMotherRelationship(id1, id2) {
 
-  debugger
+  //debugger
 
   let node1 = getNode(id1);
   let node2 = getNode(id2);
@@ -1174,7 +1174,7 @@ function fixGenerationSpacing(tree, rootNode) {
   let rootNodeGen = getGeneration(rootNode);
   
   //BASE CASE: continue calling fixGenSpacing until the highest gen of the tree is reached
-  if (rootNodeGen < highestGen - 1) {
+  if (rootNodeGen < highestGen) {
     
     if (hasChildren(rootNode)) {
 
@@ -1186,11 +1186,10 @@ function fixGenerationSpacing(tree, rootNode) {
       //iterate through all the children of the root node
       for (let i = 0; i < rootNodeChildren.length; i++) {
         
-        debugger
         //define the current node and its XPos
         let currChild = rootNodeChildren[i];
+        let currChildSpouse = getNode(currChild.spouse);
         let currChildXPos = getX(currChild.image);
-        let updatedXPos;
         
         //need to update the xPos initially to make sure the child nodes are in the right location
         updateXPos(currChild, currChildXPos);
@@ -1200,17 +1199,15 @@ function fixGenerationSpacing(tree, rootNode) {
           //define the previous rootNodeChild and its XPos
           let prevChild = rootNodeChildren[i - 1];
           let prevChildXPos = getX(prevChild.image);
-
-          updateXPos(prevChild, prevChildXPos);
+          let updatedXPos;
           
           //update the current node's xPos by the previous child's xPos plus a set amount
           updatedXPos = prevChildXPos + 200;
           
-          let currChildSpouse = getNode(currChild.spouse);
           let rightmostChild;
           let rightmostChildXPos;
           let childOverlap = false;
-          debugger
+          
           //if prevChild has a spouse, then update currChild by prevChild spouse's XPos
           if (hasSpouse(prevChild)) {
             
@@ -1243,7 +1240,7 @@ function fixGenerationSpacing(tree, rootNode) {
           }
           
           if (childOverlap) {
-            debugger
+
             let leftmostChild;
             let leftmostChildXPos;
 
@@ -1263,61 +1260,24 @@ function fixGenerationSpacing(tree, rootNode) {
             updatedXPos = rightmostChildXPos + 200 + diff;
           }
 
-        //add updated xPos to newXPositions
-        newXPositions.set(currChild, updatedXPos);
+          //add updated xPos to newXPositions
+          newXPositions.set(currChild, updatedXPos);
 
-        //update all node's x positions with their new X positions
-        updateXPos(currChild, newXPositions.get(currChild));
+          //update all node's x positions with their new X positions
+          updateXPos(currChild, newXPositions.get(currChild));
         }
-      }
 
-      //RECURSIVE CALL: for each rootNodeChild, call fixGenSpacing
-      for (let i = 0; i < rootNodeChildren.length; i++) {
-        let currChild = rootNodeChildren[i];
-        let currChildSpouse = getNode(rootNodeChildren[i].spouse);
-        let rightmostChild;
-        let rightmostChildXPos;
-        let potentialOverlap = false;
-        
+        //RECURSIVE CALLS: for each rootNodeChild, call fixGenSpacing
         if (hasChildren(currChild)) {
           fixGenerationSpacing(tree, currChild);
           adjustRootNode(currChild);
-
-          rightmostChild = getRightmostChild(currChild);
-          rightmostChildXPos = getX(rightmostChild.image);
-          potentialOverlap = true;
-        }
-        
+        }   
         else if (hasChildren(currChildSpouse)) {
           fixGenerationSpacing(tree, currChildSpouse);
           adjustRootNode(currChildSpouse);
-
-          rightmostChild = getRightmostChild(currChildSpouse);
-          rightmostChildXPos = getX(rightmostChild.image);
-          potentialOverlap = true;
         }
-
-        //adjust higher generation nodes that may have overlap
-        if ((i + 1 < rootNodeChildren.length) && potentialOverlap) {
-          let nextChild = rootNodeChildren[i + 1];
-          let newXPos;
-
-          if (hasChildren(nextChild)) {
-            let leftmostChild = getLeftmostChild(nextChild)
-            let leftmostChildXPos = getX(leftmostChild.image);
-
-            if (leftmostChildXPos - rightmostChildXPos < 100) {
-              newXPos = rightmostChildXPos + 200;
-              updateXPos(nextChild, newXPos);
-            }
-          } else {
-            if (hasSpouse(currChild)) {
-              newXPos = getX(currChildSpouse.image) + 200;
-            } else {
-              newXPos = getX(currChild.image) + 200;
-            }
-            updateXPos(nextChild, newXPos);
-          }
+        else {
+          fixGenerationSpacing(tree, currChild);
         }
       }
     }
