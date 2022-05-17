@@ -1180,6 +1180,7 @@ function fixGenerationSpacing(tree, rootNode) {
 
       //get all the children of the rootNode
       let rootNodeChildren = getChildren(rootNode);
+      let spacing = getSpaceBetweenNodes(rootNodeGen + 1);
       
       let newXPositions = new Map();
       
@@ -1202,7 +1203,7 @@ function fixGenerationSpacing(tree, rootNode) {
           let updatedXPos;
           
           //update the current node's xPos by the previous child's xPos plus a set amount
-          updatedXPos = prevChildXPos + 200;
+          updatedXPos = prevChildXPos + spacing;
           
           let rightmostChild;
           let rightmostChildXPos;
@@ -1214,7 +1215,7 @@ function fixGenerationSpacing(tree, rootNode) {
             let prevChildSpouse = getNode(prevChild.spouse);
             let prevChildSpouseXPos = getX(prevChildSpouse.image); 
     
-            updatedXPos = prevChildSpouseXPos + 200;
+            updatedXPos = prevChildSpouseXPos + spacing;
             
             if (hasChildren(prevChildSpouse) && (hasChildren(currChild) || hasChildren(currChildSpouse))) {
               
@@ -1257,7 +1258,7 @@ function fixGenerationSpacing(tree, rootNode) {
             //gets the difference in XPos between currChild and its leftmost child
             let diff = currChildXPos - leftmostChildXPos;
               
-            updatedXPos = rightmostChildXPos + 200 + diff;
+            updatedXPos = rightmostChildXPos + spacing + diff;
           }
 
           //add updated xPos to newXPositions
@@ -1281,6 +1282,18 @@ function fixGenerationSpacing(tree, rootNode) {
         }
       }
     }
+  }
+}
+
+function getSpaceBetweenNodes(gen) {
+  let spacing = 200;
+  
+  if (gen == 2) {
+    return spacing;
+  }
+  else if (gen > 2) {
+    spacing = 150;
+    return spacing;
   }
 }
 
