@@ -229,77 +229,16 @@ body {
   padding: 3px;
   font-size: 24px;
   text-align: center;
+  justify-content: space-around;
   /*ADDED*/
   display: flex;
 }
 
-.Header {
-  width: 100%;
-  display: block;
-  z-index:20;
-  top: 0;
-  box-shadow: 0 0 10px rgb(0 0 0 / 16%);
-  border-bottom: 1px solid #ddd;
-  position: sticky
+.header-link {
+  color: white;
+}
+.header-link:hover {
+  color: lightgray;
 }
 
-.Header-contentTop {
-  background: #002e5d;
-  padding: 0;
-  display: grid;
-  grid-gap: 0;
-  grid-template-columns: 72px auto;
-  box-sizing: border-box;
-}
 
-.Header-Logo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 56px;
-  box-sizing: border-box;
-}
-
-.Header-logo img {
-  min-height: 20px;
-  max-width: 50px;
-  height: auto;
-}
-
-.Header-titles {
-  position: relative;
-  padding: 9px 36px 9px 13px;
-  box-sizing: border-box;
-  display: block;
-}
-
-.Header-title {
-  font-size: 18px;
-  line-height: 1.4;
-  margin: 6px 0;
-  bottom: 1px;
-  box-sizing: border-boxs;
-}
-.Header-title:before {
-  content: " ";
-  display: block;
-  position: absolute;
-  background: green;
-  width: 1px;
-  height: 74%;
-  right: auto;
-  left: 0;
-  top: 13%;
-}
-
-.PageLogo-image {
-  width: 100%;
-}
-
-img {
-  vertical-align: middle;
-}
-
-a {
-  background-color: transparent;
-}
