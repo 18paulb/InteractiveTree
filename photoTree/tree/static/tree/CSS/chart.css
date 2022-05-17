@@ -69,14 +69,6 @@
   background-color: yellow;
 }
 
-.footer-box {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
-  height: flex;
-
-  background-color: #002e5d;
-}
 
 .node-container {
   display: flex;
@@ -234,6 +226,19 @@ body {
   justify-content: space-around;
   /*ADDED*/
   display: flex;
+
+  position: absolute;
+  top:0;
+}
+
+.footer-box {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  height: flex;
+  position: absolute;
+
+  background-color: #002e5d;
 }
 
 .header-link {

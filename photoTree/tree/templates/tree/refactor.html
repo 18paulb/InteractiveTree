@@ -10,7 +10,18 @@
 
   <body>
 
-    <div class="page-header">
+    <script>
+      $(window).scroll(function(){
+        $('#header').css({
+          'left': $(this).scrollLeft() + 10 
+        });
+        $('#footer').css({
+          'left': $(this).scrollLeft() + 10 
+        });
+      });
+    </script>
+
+    <div id="header" class="page-header">
       <!--
       <div style='align-items: left; border: 3px green solid'>
         <button onclick="startEmpty()">Empty Tree</button>
@@ -31,9 +42,8 @@
 
     <div id="center-menu"></div>
 
-    <div class="footer-box">
+    <div id="footer" class="footer-box">
       <div id="nodeContainer" class="node-container"></div>
-
       <div id="confirmBox" class="confirm-box"></div>
     </div>
 
