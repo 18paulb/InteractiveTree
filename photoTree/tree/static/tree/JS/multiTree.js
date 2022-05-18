@@ -112,6 +112,48 @@ let data = [
     "name": "Anthony Shriver",
   },
   {
+    "image": 17,
+    "mother": 2,
+    "spouse": 18,
+    "birthyear": 1924,
+    "name": "Patricia Kennedy",
+  },
+  {
+    "image": 18,
+    "mother": null,
+    "spouse": 17,
+    "birthyear": 1923,
+    "name": "Peter Lawford",
+  },
+  {
+    "image": 19,
+    "mother": 17,
+    "spouse": null,
+    "birthyear": 1955,
+    "name": "Christopher Lawford",
+  },
+  {
+    "image": 20,
+    "mother": 17,
+    "spouse": null,
+    "birthyear": 1956,
+    "name": "Sydney Lawford",
+  },
+  {
+    "image": 22,
+    "mother": 17,
+    "spouse": null,
+    "birthyear": 1961,
+    "name": "Robin Lawford",
+  },
+  {
+    "image": 21,
+    "mother": 17,
+    "spouse": null,
+    "birthyear": 1958,
+    "name": "Victoria Lawford",
+  },
+  {
     "image": 23,
     "mother": 2,
     "spouse": 24,
@@ -152,6 +194,104 @@ let data = [
     "spouse": null,
     "birthyear": 1958,
     "name": "Michael Kennedy",
+  },
+  {
+    "image": 29,
+    "mother": 24,
+    "spouse": null,
+    "birthyear": 1959,
+    "name": "Mary Kennedy",
+  },
+  {
+    "image": 30,
+    "mother": 24,
+    "spouse": null,
+    "birthyear": 1963,
+    "name": "Christopher Kennedy",
+  },
+  {
+    "image": 31,
+    "mother": 24,
+    "spouse": null,
+    "birthyear": 1965,
+    "name": "Matthew Kennedy",
+  },
+  {
+    "image": 32,
+    "mother": 24,
+    "spouse": null,
+    "birthyear": 1967,
+    "name": "Douglass Kennedy",
+  },
+  {
+    "image": 33,
+    "mother": 24,
+    "spouse": null,
+    "birthyear": 1968,
+    "name": "Rory Kennedy",
+  },
+  {
+    "image": 34,
+    "mother": 2,
+    "spouse": 35,
+    "birthyear": 1928,
+    "name": "Jean Kennedy",
+  },
+  {
+    "image": 35,
+    "mother": null,
+    "spouse": 34,
+    "birthyear": 1927,
+    "name": "Stephen Smith",
+  },
+  {
+    "image": 36,
+    "mother": 34,
+    "spouse": null,
+    "birthyear": 1960,
+    "name": "William Kennedy Smith",
+  },
+  {
+    "image": 37,
+    "mother": 34,
+    "spouse": null,
+    "birthyear": 1967,
+    "name": "Amanda Smith",
+  },
+  {
+    "image": 38,
+    "mother": 2,
+    "spouse": 39,
+    "birthyear": 1932,
+    "name": "Edward Kennedy",
+  },
+  {
+    "image": 39,
+    "mother": null,
+    "spouse": 38,
+    "birthyear": 1936,
+    "name": "Joan Bennett Kennedy",
+  },
+  {
+    "image": 40,
+    "mother": 39,
+    "spouse": null,
+    "birthyear": 1960,
+    "name": "Kara Kennedy",
+  },
+  {
+    "image": 41,
+    "mother": 39,
+    "spouse": null,
+    "birthyear": 1961,
+    "name": "Edward Kennedy Jr.",
+  },
+  {
+    "image": 42,
+    "mother": 39,
+    "spouse": null,
+    "birthyear": 1967,
+    "name": "Patrick Kennedy",
   },
 ]
 
@@ -562,7 +702,7 @@ function addSpouseRelationship(id1, id2) {
 
 function addMotherRelationship(id1, id2) {
 
-  //debugger
+  debugger
 
   let node1 = getNode(id1);
   let node2 = getNode(id2);
@@ -578,10 +718,24 @@ function addMotherRelationship(id1, id2) {
     child = node2;
   }
 
+  //FIXME: Logic error, what if spouse is younger than mother
+  //This feature might not be wanted, might cause too many issues
   if (hasChildren(getNode(mother.spouse))) {
+    alert("Spouse already has children, please add child to only one parent");
+    closeMenu();
+    return;
+/*
     alert("Spouse already has children, adding child to spouse");
-    mother = getNode(mother.spouse)
-    //return
+    //If the spouse is younger, make the spouse the child and the old child the mom
+    if (getNode(mother.spouse).birthyear > child.birthyear) {
+      let originalMomSpouse = getNode(mother.spouse);
+      mother = child;
+      child = originalMomSpouse;
+    }
+    else {
+      mother = getNode(mother.spouse)
+    }
+*/
   }
 
   //If child is in nodeBox and mother in tree
