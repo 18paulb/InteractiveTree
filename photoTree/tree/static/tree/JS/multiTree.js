@@ -1106,13 +1106,19 @@ function hoverMenu(nodeId) {
 
   let nodeIdName = dataNode.name;
 
+  let yPlacement = 100;
+
+  if (nodeY > 800) {
+    yPlacement = -260;
+  }
+
   //Make this class a datapoint technically and make XY pos's from there, just get X,Y from node and then adjust slightly for it to be near node
   hMenu.innerHTML = `
-  <div id='hover-menu' class='hover-menu hover-point' style='--y: ${nodeY + 100}px; --x: ${nodeX - 25}px'>
+  <div id='hover-menu' class='hover-menu hover-point' style='--y: ${nodeY + yPlacement}px; --x: ${nodeX - 35}px'>
     <div>Node: ${dataNode.image}<br>x: ${nodeX} y: ${getY(nodeId)}</div>
       <img class='menu-pic' src='../../static/tree/images/pictures/Kennedy/${nodeId}.PNG'/>
       <div id ='node-${nodeId}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column;'>
-        <div><b>${nodeIdName}</br></div>
+        <div style="text-align:center"><b>${nodeIdName}</br></div>
         <div><b>${dataNode?.birthyear}</b></div>
       </div>
   </div>
