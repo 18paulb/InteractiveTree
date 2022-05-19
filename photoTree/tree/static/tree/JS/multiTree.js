@@ -708,8 +708,6 @@ function addSpouseRelationship(id1, id2) {
 
 function addMotherRelationship(id1, id2) {
 
-  debugger
-
   let node1 = getNode(id1);
   let node2 = getNode(id2);
 
@@ -783,6 +781,33 @@ function addMotherRelationship(id1, id2) {
     dataMap.set(mother.image, tree);
     } 
   }
+  
+ //TEST, in this, the child is not removed from the old tree
+ /*
+  if (isOnTree(child) && inNodeBox(mother)) {
+
+    //This case happens if mother becomes the new root node of a tree
+    if (dataMap.get(child.image) != null) {
+      dataMap.set(mother.image, dataMap.get(child.image))
+      //Mom is not part of the tree so push to that tree
+      dataMap.get(mother.image).push(mother)
+
+      dataMap.delete(child.image)
+    }
+    else {
+
+    let tree = [child, mother];
+
+    //Removes mom from nodeBoxData
+    let momIndex = getNodeBoxDataIndex(mother.image);
+    nodeBoxData.splice(momIndex, 1)
+
+    //creates new tree
+    dataMap.set(mother.image, tree);
+    } 
+  }
+  ////////////
+  */
 
   //if both are in nodeBox
   if (inNodeBox(child) && inNodeBox(mother)) {
@@ -828,6 +853,10 @@ function addMotherRelationship(id1, id2) {
   child.mother = mother.image;
 
   momArray = makeMomArray();
+
+  debugger
+
+  //console.log(getHiddenFamily(getNode(5)))
 
   createChart();
 
@@ -961,6 +990,8 @@ function removeRelationship(id1, id2) {
   if (!isRelated) {
     alert("Error, No Direct Relationship");
   }
+
+  debugger
 
   createChart();
 
@@ -2401,13 +2432,33 @@ function getDescendants(node, children) {
 
 //New global variable of active tree??
 
+//You only want to go up by the node's mother, do not access spouse mother
 function getHiddenFamily(node) {  
-  for (let tree of dataMap.getValues()) {
-    let root = getRootNode(tree[0]);
-    let children = getDescendants(root, [])
 
-    for (let i = 0; i < tree.length; ++i) {
+  if (node.mother == null) {
+    alert("Does not have hidden family");
+    return;
+  }
 
-    }
+  //Gets the mother of the node with the hidden family  
+  let mother = getNode(node.mother);
+
+  //This will get the root node of that family tree]
+  let root = getSpecificFamilyRoot(mother);
+
+  let hiddenFamily = getDescendants(root, []);
+  //Possibly not needed, adds root to the hidden family tree
+  hiddenFamily.push(root)
+
+  return hiddenFamily
+}
+
+function getSpecificFamilyRoot(node) {
+  if (node.mother == null) {
+    return node;
+  }
+  else {
+    let mother = getNode(node.mother);
+    return getSpecificFamilyRoot(mother);
   }
 }
