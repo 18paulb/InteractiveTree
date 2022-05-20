@@ -1413,17 +1413,17 @@ function fixGenerationSpacing(tree, rootNode) {
               leftmostChildXPos = getX(leftmostChild.image);
             }
 
-            if (hasSpouse(rightmostChild)) {
+            if (hasSpouse(rightmostChild) || (hasSpouse(getNode(rightmostChild.mother)) && rootNodeGen >= 3)) {
               rightmostChildXPos += (spacing / 2);
             }
            
             //gets the difference in XPos between currChild and its leftmost child
             diff = currChildXPos - leftmostChildXPos;
                
-            updatedXPos = rightmostChildXPos + spacing + diff;
+            updatedXPos = rightmostChildXPos + (spacing * 0.75) + diff;
           }
           if (spouseOverlap) {
-            updatedXPos = spouseOverlapVal + spacing + diff;
+            updatedXPos = spouseOverlapVal + (spacing * 0.75) + diff;
           }
 
           //add updated xPos to newXPositions
