@@ -30,14 +30,20 @@
   background-color: white;
   border: 5px solid #7ab7e6; /*was light blue*/
   border-radius: 50%;
-  height: 60px; /*height and width originally 12px*/
+  /*height: 60px;*/
+  /*width: 60px;*/
   position: absolute;
-  width: 60px;
+  height: 3rem;
+  width: 3rem;
 
   /* The data points have a radius of 8px and the line segment has a width of 3px, 
     so we split the difference to center the data points on the line segment origins */
+  /*
   bottom: calc(var(--y) - 27.5px);
   left: calc(var(--x) - 30.5px);
+  */
+  bottom: calc(var(--y) - 24px);
+  left: calc(var(--x) - 23px);
 
   /*originals 6.5 px and 9.5 px*/
 }
@@ -77,8 +83,10 @@
 }
 
 .node-image {
-  width: 90px;
-  height: 90px;
+  /*width: 90px;
+  height: 3px;*/
+  height: 3rem;
+  width: 3rem;
   margin: 4px;
 
   border-radius: 50px;
@@ -110,8 +118,9 @@
 .confirm-box {
   display: flex;
   /*border: 2px solid black;*/
-  height: 130px;
-  width: 220px;
+  height: 5rem;
+  /*width: 220px;*/
+  width: 150px;
 }
 
 /*testing hover*/
@@ -204,26 +213,31 @@ body {
 
 .hover-menu {
   padding: 10px;
-  display: inline-block;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   position: absolute;
   background: white;
-
+  
   border-radius: 10px;
 
-  border: 1px solid rgb(65, 65, 65);
+  border: 2px solid rgb(65, 65, 65);
 
-  box-shadow: #5e5df0 0 10px 20px -10px;
+  box-shadow: #002e5d 0 10px 20px -10px;
 }
 
 .page-header {
   width: 100%;
-  height: 100px;
+  /*height: 100px;*/
+  height: 4rem;
   background-color: #002e5d; /*rgb(61, 177, 173)*/
   font-family: Arial;
   padding: 3px;
   font-size: 24px;
   text-align: center;
   justify-content: space-around;
+  align-items: center;
   /*ADDED*/
   display: flex;
 
@@ -235,7 +249,6 @@ body {
   display: flex;
   justify-content: space-between;
   width: 100%;
-  height: flex;
   position: absolute;
 
   background-color: #002e5d;
@@ -243,6 +256,7 @@ body {
 
 .header-link {
   color: white;
+  text-decoration: none;
 }
 .header-link:hover {
   color: lightgray;

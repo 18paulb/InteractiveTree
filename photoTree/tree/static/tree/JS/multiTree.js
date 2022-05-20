@@ -304,7 +304,7 @@ dataMap.set(data[1].image, Array.from(data));
 let nodeBoxData = [];
 
 //Change this and HTML in order to change graph size
-let chartWidth = 1200;
+let chartWidth = 1000;
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Defines class to be used for the objects of the values in momArray
@@ -480,6 +480,12 @@ function createDataPoints(treeValue) {
   }
 }
 
+function changeToActiveState(id) {
+  let node = document.getElementById(id);
+
+  node.style.border = "5px solid green";
+}
+
 function createLines() {
   let svgString = '';
 
@@ -531,7 +537,7 @@ function createLines() {
 
           let valId = value[i].image;
 
-          svgString += `<line id="line${id}" x1="${x1}" y1="${chartWidth - y1}" x2="${x2}" y2="${chartWidth - y2}" stroke="black" stroke-width='6' onmouseover="SVGHoverColor(line${id}, 'enter', 'mother')" onmouseleave="SVGHoverColor(line${id}, 'leave', 'mother')" onclick='testAdd(getNode(${valId}), momArray[${index}].children[${j}])'/>`
+          svgString += `<line id="line${id}" x1="${x1}" y1="${chartWidth - y1}" x2="${x2}" y2="${chartWidth - y2}" stroke="black" stroke-width='5' onmouseover="SVGHoverColor(line${id}, 'enter', 'mother')" onmouseleave="SVGHoverColor(line${id}, 'leave', 'mother')" onclick='testAdd(getNode(${valId}), momArray[${index}].children[${j}])'/>`
 
           id++;
         }
@@ -547,7 +553,7 @@ function createLines() {
         let valId = value[i].image;
         let valSpouse = value[i].spouse;
 
-        let line = `<line id="line${id}" x1="${xPos}" y1="${chartWidth - yPos}" x2="${spouseXPos}" y2="${chartWidth - spouseYPos}" stroke="blue" stroke-width='6' onmouseover="SVGHoverColor(line${id}, 'enter', 'spouse')" onmouseleave="SVGHoverColor(line${id}, 'leave', 'spouse')" onclick='testAdd(getNode(${valId}), getNode(${valSpouse}))'/>`
+        let line = `<line id="line${id}" x1="${xPos}" y1="${chartWidth - yPos}" x2="${spouseXPos}" y2="${chartWidth - spouseYPos}" stroke="blue" stroke-width='5' onmouseover="SVGHoverColor(line${id}, 'enter', 'spouse')" onmouseleave="SVGHoverColor(line${id}, 'leave', 'spouse')" onclick='testAdd(getNode(${valId}), getNode(${valSpouse}))'/>`
 
         //if statement so that two spouse lines aren't drawn between spouses
         if (spouseXPos > xPos) {
@@ -702,8 +708,6 @@ function addSpouseRelationship(id1, id2) {
 
 function addMotherRelationship(id1, id2) {
 
-  debugger
-
   let node1 = getNode(id1);
   let node2 = getNode(id2);
 
@@ -722,6 +726,7 @@ function addMotherRelationship(id1, id2) {
   //This feature might not be wanted, might cause too many issues
   if (hasChildren(getNode(mother.spouse))) {
     alert("Spouse already has children, please add child to only one parent");
+    returnConfirmBoxNodes();
     closeMenu();
     return;
 /*
@@ -747,6 +752,7 @@ function addMotherRelationship(id1, id2) {
   }
 
   //FIXME: Logic errors exist here, what happens if spouse has mother and other spouse gets mother from this condition? we don't want to remove from the old tree
+  //FIXME: also, try to add account for the hidden trees and how that will affect dataMap, maybe add those nodes onto tree but only show main root node's tree
   //If child is on tree and mother in nodeBox
   if (isOnTree(child) && inNodeBox(mother)) {
 
@@ -775,6 +781,33 @@ function addMotherRelationship(id1, id2) {
     dataMap.set(mother.image, tree);
     } 
   }
+  
+ //TEST, in this, the child is not removed from the old tree
+ /*
+  if (isOnTree(child) && inNodeBox(mother)) {
+
+    //This case happens if mother becomes the new root node of a tree
+    if (dataMap.get(child.image) != null) {
+      dataMap.set(mother.image, dataMap.get(child.image))
+      //Mom is not part of the tree so push to that tree
+      dataMap.get(mother.image).push(mother)
+
+      dataMap.delete(child.image)
+    }
+    else {
+
+    let tree = [child, mother];
+
+    //Removes mom from nodeBoxData
+    let momIndex = getNodeBoxDataIndex(mother.image);
+    nodeBoxData.splice(momIndex, 1)
+
+    //creates new tree
+    dataMap.set(mother.image, tree);
+    } 
+  }
+  ////////////
+  */
 
   //if both are in nodeBox
   if (inNodeBox(child) && inNodeBox(mother)) {
@@ -815,13 +848,15 @@ function addMotherRelationship(id1, id2) {
     else {
       //Something
     }
-
-    //combineTrees(momTree, childTree)
   }
 
   child.mother = mother.image;
 
   momArray = makeMomArray();
+
+  debugger
+
+  //console.log(getHiddenFamily(getNode(5)))
 
   createChart();
 
@@ -955,6 +990,8 @@ function removeRelationship(id1, id2) {
   if (!isRelated) {
     alert("Error, No Direct Relationship");
   }
+
+  debugger
 
   createChart();
 
@@ -1100,13 +1137,19 @@ function hoverMenu(nodeId) {
 
   let nodeIdName = dataNode.name;
 
+  let yPlacement = 100;
+
+  if (nodeY > 800) {
+    yPlacement = -260;
+  }
+
   //Make this class a datapoint technically and make XY pos's from there, just get X,Y from node and then adjust slightly for it to be near node
   hMenu.innerHTML = `
-  <div id='hover-menu' class='hover-menu hover-point' style='--y: ${nodeY + 100}px; --x: ${nodeX - 25}px'>
-    <div>Gen: ${getGeneration(dataNode)} <br> Node: ${dataNode.image}<br>x: ${nodeX} y: ${getY(nodeId)}</div>
+  <div id='hover-menu' class='hover-menu hover-point' style='--y: ${nodeY + yPlacement}px; --x: ${nodeX - 35}px'>
+    <div>Node: ${dataNode.image}<br>x: ${nodeX} y: ${getY(nodeId)}</div>
       <img class='menu-pic' src='../../static/tree/images/pictures/Kennedy/${nodeId}.PNG'/>
       <div id ='node-${nodeId}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column;'>
-        <div><b>${nodeIdName}</br></div>
+        <div style="text-align:center"><b>${nodeIdName}</br></div>
         <div><b>${dataNode?.birthyear}</b></div>
       </div>
   </div>
@@ -1196,8 +1239,8 @@ function shiftNodesByMarginX(tree) {
 
   let shiftMargin;
 
-  if (xPos > 100) {
-    shiftMargin = xPos - 100;
+  if (xPos > 25) {
+    shiftMargin = xPos - 25;
     //shift the xPos of every node by the margin to the left so that furthest left node is 100px from left edge
     for (let values of dataMap.values()) {
       for (let i = 0; i < values.length; ++i) {
@@ -1210,7 +1253,7 @@ function shiftNodesByMarginX(tree) {
   } 
   else {
     //shift the xPos of every node by the margin to the right so that furthest left node is 100px from left edge
-    shiftMargin = 100;
+    shiftMargin = 25;
     for (let values of dataMap.values()) {
       for (let i = 0; i < values.length; ++i) {
         let node = document.getElementById(values[i].image);
@@ -1452,6 +1495,7 @@ function fixGenerationSpacing(tree, rootNode) {
 
 //FIXME: can change later, just made the spacing between nodes of each gen hardcoded values
 function getSpaceBetweenNodes(gen) {
+  /*
   let spacing = 200;
   
   if (gen == 2) {
@@ -1462,6 +1506,19 @@ function getSpaceBetweenNodes(gen) {
   }
   else if (gen > 3) {
     spacing = 100;
+  }
+  return spacing;
+  */
+  let spacing = 140;
+  
+  if (gen == 2) {
+    return spacing;
+  }
+  else if (gen == 3) {
+    spacing = 70;
+  }
+  else if (gen > 3) {
+    spacing = 50;
   }
   return spacing;
 }
@@ -1622,7 +1679,9 @@ function hasSpouse(node) {
  * @returns node with the matching nodeId
  */
 function getNode(nodeId) {
-  if (nodeId == null) {return;}
+  if (nodeId == null) {
+    return null;
+  }
   
   //checks trees for node
   for (let value of dataMap.values()) {
@@ -2213,6 +2272,8 @@ function startEmpty() {
  * @param {tree nodes in generation} nodes 
  */
 
+
+/* This is another way of finding if is descedent
 function isDescendant(node, ancestor) {
 
   let ancestorMap = new Map();
@@ -2225,7 +2286,7 @@ function isDescendant(node, ancestor) {
     return false;
   }
 }
-
+*/
 function getAncestors(node, ancestorMap) {
   //Base Case
   if (node.mother == null && node.spouse == null) {
@@ -2310,17 +2371,94 @@ function findCommonRootNode(nodes) {
 }
 
 
-
-
 //Expanding other trees
 
 //Function that gets all family nodes of a NODE that are NOT part of active tree
 
 //Function to see if a node is part of active tree or not
-function isDirectDescendant(node, root) {
-  let children = getChildren(root);
+function isDescendant(node, root, descendants) {
+  let children = []
 
+  for (let i = 0; i < children; ++i) {
+    if (children[i].image == node.image) {
+      return true;
+    }
+  }
+  return false;
+}
 
+function getDescendants(node, children) {
+  //Base Case
+
+  if (!hasChildren(node)) {
+    return children;
+  }
+
+  let nodeChildren = getChildren(node);
+
+  //Adds Spouse of Node
+  if (node.spouse != null) {
+    let inTree = false;
+    //Checks if already in tree to avoid duplicates
+    for (let i = 0; i < children.length; ++i) {
+      if (children[i].image == node.spouse) {
+        inTree = true;
+      }
+    }
+    if (!inTree) {
+      children.push(getNode(node.spouse))
+    }
+  }
+
+  //The recursive call, either calls this function on node's children or spouses children
+  for (let i = 0; i < nodeChildren.length; ++i) {
+    let spouse = getNode(nodeChildren[i].spouse);
+    children.push(nodeChildren[i])
+
+    if (spouse != null) {
+      children.push(spouse);
+    }
+
+    if (hasChildren(nodeChildren[i])) {
+      getDescendants(nodeChildren[i], children);
+    }
+
+    if (spouse != null && hasChildren(spouse)) {
+      getDescendants(spouse, children);
+    }
+  }
+  return children;
 }
 
 //New global variable of active tree??
+
+//You only want to go up by the node's mother, do not access spouse mother
+function getHiddenFamily(node) {  
+
+  if (node.mother == null) {
+    alert("Does not have hidden family");
+    return;
+  }
+
+  //Gets the mother of the node with the hidden family  
+  let mother = getNode(node.mother);
+
+  //This will get the root node of that family tree]
+  let root = getSpecificFamilyRoot(mother);
+
+  let hiddenFamily = getDescendants(root, []);
+  //Possibly not needed, adds root to the hidden family tree
+  hiddenFamily.push(root)
+
+  return hiddenFamily
+}
+
+function getSpecificFamilyRoot(node) {
+  if (node.mother == null) {
+    return node;
+  }
+  else {
+    let mother = getNode(node.mother);
+    return getSpecificFamilyRoot(mother);
+  }
+}
