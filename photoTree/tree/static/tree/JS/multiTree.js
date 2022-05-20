@@ -368,6 +368,23 @@ function makeMomArray() {
     }
   }
 
+  //TEST REMOVE DUPLICATE CHILDREN
+  for (let i = 0; i < tmpArray.length; ++i) {
+    let children = tmpArray[i].children
+    for (let j = 0; j < children.length; ++j) {
+      for (let k = 1; k < children.length; ++k) {
+        if (k == j) {
+          continue;
+        }
+        if (children[j].image == children[k].image) {
+          //console.log("Duplicate Found: ", children[j].name)
+          children.splice(k,1);
+          k--;
+        }
+      }
+    }
+  }
+
   return tmpArray;
 }
 
@@ -376,9 +393,63 @@ let momArray = makeMomArray();
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 //GLOBAL VARIABLE for the chart
+
+let activeRoot = getNode(2);
+
 let chartList = document.getElementById('chart');
 createChart();
 
+
+
+/*
+function createChart() {
+
+  //Makes sure that the chart is empty of dataMap is empty
+  if (dataMap.size == 0) {
+    for (let i = 0; i < chartList.children.length; ++i) {
+      chartList.children[i].remove();
+      i -= 1;
+    }
+  }
+
+  let shownTree = []
+
+  for (let tree of dataMap.values()) {
+
+    debugger
+    //TEST
+    if (getRootNode(tree[0]).image != activeRoot.image) {
+      continue;
+    }
+
+    let descendants = getDescendants(activeRoot, []);
+    descendants.push(activeRoot);
+
+    //TODO: This does not account for duplicate nodes yet
+    for (let i = 0; i < descendants.length; ++i) {
+      for (let j = 0; j < tree.length; ++j) {
+        if (tree[j] == descendants[i]) {
+          shownTree.push(tree[j]);
+        }
+      }
+    }
+
+    //showTree = descendants;
+
+    debugger
+    //remove duplicates
+    createDataPoints(shownTree);
+
+  }
+
+  shiftChart(shownTree)
+  checkRootNode();
+  createLines();
+
+  debugger
+}
+*/
+//Original Function
 function createChart() {
 
   //Makes sure that the chart is empty of dataMap is empty
@@ -390,11 +461,11 @@ function createChart() {
   }
 
   for (let tree of dataMap.values()) {
-    //Passes in tree
     createDataPoints(tree);
   }
-  for (let value of dataMap.values()) {
-    shiftChart(value);
+  for (let tree of dataMap.values()) {
+
+    shiftChart(tree);
   }
 
   //Makes sure mother is root node and not father (needed because of certain addRelationship conditions)
@@ -402,6 +473,7 @@ function createChart() {
 
   createLines();
 }
+
 
 function removeTreeFromChart(tree) {
   for (let i = 0; i < tree.length; ++i) {
@@ -448,10 +520,27 @@ function createDataPoints(treeValue) {
     for (let node = 0; node < nodesInGen.length; node++) {
 
       //get all nodes in the current tree
+      //Protect against duplicates
       if (treeValue.includes(nodesInGen[node])) {
-        nodesInTree.push(nodesInGen[node]);
+        //TEST//////
+        let inTree = false;
+        for (let i = 0; i < nodesInTree.length; ++i) {
+          if (nodesInTree[i].image == nodesInGen[node].image) {
+            inTree = true;
+          }
+        }
+
+        if (!inTree) {
+          nodesInTree.push(nodesInGen[node]);
+        }
+        ///////////
+
+        //Original
+        //nodesInTree.push(nodesInGen[node]);
       }
     }
+
+    debugger
 
     //iterate through all the nodes in current tree and create an element for them
     for (let nodeIndex = 0; nodeIndex < nodesInTree.length; nodeIndex++) {
@@ -480,12 +569,6 @@ function createDataPoints(treeValue) {
   }
 }
 
-function changeToActiveState(id) {
-  let node = document.getElementById(id);
-
-  node.style.border = "5px solid green";
-}
-
 function createLines() {
   let svgString = '';
 
@@ -497,13 +580,15 @@ function createLines() {
 
   for (let value of dataMap.values()) {
     for (let i = 0; i < value.length; ++i) {
-      let nodeXPos = getX(value[i].image);
-      let nodeYPos = getY(value[i].image)
-      if (nodeXPos > svgWidth || nodeXPos == svgWidth) {
-        svgWidth = nodeXPos + 50;
-      }
-      if (nodeYPos > svgHeight || nodeYPos == svgHeight) {
-        svgHeight = nodeYPos + 100
+      if (isOnTree(value[i])) {
+        let nodeXPos = getX(value[i].image);
+        let nodeYPos = getY(value[i].image)
+        if (nodeXPos > svgWidth || nodeXPos == svgWidth) {
+          svgWidth = nodeXPos + 50;
+        }
+        if (nodeYPos > svgHeight || nodeYPos == svgHeight) {
+          svgHeight = nodeYPos + 100
+        }
       }
   
     }
@@ -516,51 +601,53 @@ function createLines() {
   for (let value of dataMap.values()) {
 
     for (let i = 0; i < value.length; ++i) {
+      
+    if (isOnTree(value[i])) {
+        let li = $(`#${value[i].image}`);
+        let yPos = parseAttribute('y', li[0].style.cssText);
+        let xPos = parseAttribute('x', li[0].style.cssText);
 
-      let li = $(`#${value[i].image}`);
-      let yPos = parseAttribute('y', li[0].style.cssText);
-      let xPos = parseAttribute('x', li[0].style.cssText);
+        //Creates Child Lines
+        if (hasChildren(value[i])) {
 
-      //Creates Child Lines
-      if (hasChildren(value[i])) {
+          let index = getMomArrayIndex(momArray, value[i].image);
 
-        let index = getMomArrayIndex(momArray, value[i].image);
+          for (let j = 0; j < momArray[index].children.length; ++j) {
 
-        for (let j = 0; j < momArray[index].children.length; ++j) {
+            let childElement = $(`#${momArray[index].children[j].image}`)
 
-          let childElement = $(`#${momArray[index].children[j].image}`)
+            let x1 = xPos;
+            let x2 = parseAttribute('x', childElement[0].style.cssText);
+            let y1 = yPos;
+            let y2 = parseAttribute('y', childElement[0].style.cssText);
 
-          let x1 = xPos;
-          let x2 = parseAttribute('x', childElement[0].style.cssText);
-          let y1 = yPos;
-          let y2 = parseAttribute('y', childElement[0].style.cssText);
+            let valId = value[i].image;
+
+            svgString += `<line id="line${id}" x1="${x1}" y1="${chartWidth - y1}" x2="${x2}" y2="${chartWidth - y2}" stroke="black" stroke-width='5' onmouseover="SVGHoverColor(line${id}, 'enter', 'mother')" onmouseleave="SVGHoverColor(line${id}, 'leave', 'mother')" onclick='testAdd(getNode(${valId}), momArray[${index}].children[${j}])'/>`
+
+            id++;
+          }
+        }
+
+        //Creates Spouse Lines
+        if (value[i].spouse != null) {
+
+          let spouseElement = $(`#${value[i].spouse}`);
+          let spouseXPos = parseAttribute('x', spouseElement[0].style.cssText);
+          let spouseYPos = parseAttribute('y', spouseElement[0].style.cssText);
 
           let valId = value[i].image;
+          let valSpouse = value[i].spouse;
 
-          svgString += `<line id="line${id}" x1="${x1}" y1="${chartWidth - y1}" x2="${x2}" y2="${chartWidth - y2}" stroke="black" stroke-width='5' onmouseover="SVGHoverColor(line${id}, 'enter', 'mother')" onmouseleave="SVGHoverColor(line${id}, 'leave', 'mother')" onclick='testAdd(getNode(${valId}), momArray[${index}].children[${j}])'/>`
+          let line = `<line id="line${id}" x1="${xPos}" y1="${chartWidth - yPos}" x2="${spouseXPos}" y2="${chartWidth - spouseYPos}" stroke="blue" stroke-width='5' onmouseover="SVGHoverColor(line${id}, 'enter', 'spouse')" onmouseleave="SVGHoverColor(line${id}, 'leave', 'spouse')" onclick='testAdd(getNode(${valId}), getNode(${valSpouse}))'/>`
+
+          //if statement so that two spouse lines aren't drawn between spouses
+          if (spouseXPos > xPos) {
+            svgString += line
+          }
 
           id++;
         }
-      }
-
-      //Creates Spouse Lines
-      if (value[i].spouse != null) {
-
-        let spouseElement = $(`#${value[i].spouse}`);
-        let spouseXPos = parseAttribute('x', spouseElement[0].style.cssText);
-        let spouseYPos = parseAttribute('y', spouseElement[0].style.cssText);
-
-        let valId = value[i].image;
-        let valSpouse = value[i].spouse;
-
-        let line = `<line id="line${id}" x1="${xPos}" y1="${chartWidth - yPos}" x2="${spouseXPos}" y2="${chartWidth - spouseYPos}" stroke="blue" stroke-width='5' onmouseover="SVGHoverColor(line${id}, 'enter', 'spouse')" onmouseleave="SVGHoverColor(line${id}, 'leave', 'spouse')" onclick='testAdd(getNode(${valId}), getNode(${valSpouse}))'/>`
-
-        //if statement so that two spouse lines aren't drawn between spouses
-        if (spouseXPos > xPos) {
-          svgString += line
-        }
-
-        id++;
       }
     }
   }
@@ -604,6 +691,7 @@ function testAdd(node1, node2) {
         <div id ='node-${id1}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px;'>
           <div><b>${node1.name}</b></div>
           <div><b>${id1Birthyear}</b></div>
+          <button onclick="getHiddenFamily(${node1.image})">Show Family</button>
         </div>
       </div>
       <div>
@@ -611,6 +699,7 @@ function testAdd(node1, node2) {
         <div id ='node-${id2}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px;'>
           <div><b>${node2.name}</b></div>
           <div><b>${id2Birthyear}</b></div>
+          <button onclick="getHiddenFamily(${node2.image})">Show Family</button>
         </div>
       </div>
     </div>
@@ -754,6 +843,7 @@ function addMotherRelationship(id1, id2) {
   //FIXME: Logic errors exist here, what happens if spouse has mother and other spouse gets mother from this condition? we don't want to remove from the old tree
   //FIXME: also, try to add account for the hidden trees and how that will affect dataMap, maybe add those nodes onto tree but only show main root node's tree
   //If child is on tree and mother in nodeBox
+  /*
   if (isOnTree(child) && inNodeBox(mother)) {
 
     //This case happens if mother becomes the new root node of a tree
@@ -781,9 +871,9 @@ function addMotherRelationship(id1, id2) {
     dataMap.set(mother.image, tree);
     } 
   }
-  
+  */
  //TEST, in this, the child is not removed from the old tree
- /*
+ //There will be duplicates of certain nodes in the trees and only the one connected to the activeNode will be shown and created
   if (isOnTree(child) && inNodeBox(mother)) {
 
     //This case happens if mother becomes the new root node of a tree
@@ -807,7 +897,6 @@ function addMotherRelationship(id1, id2) {
     } 
   }
   ////////////
-  */
 
   //if both are in nodeBox
   if (inNodeBox(child) && inNodeBox(mother)) {
@@ -852,11 +941,9 @@ function addMotherRelationship(id1, id2) {
 
   child.mother = mother.image;
 
-  momArray = makeMomArray();
-
   debugger
 
-  //console.log(getHiddenFamily(getNode(5)))
+  momArray = makeMomArray();
 
   createChart();
 
@@ -1147,11 +1234,12 @@ function hoverMenu(nodeId) {
   hMenu.innerHTML = `
   <div id='hover-menu' class='hover-menu hover-point' style='--y: ${nodeY + yPlacement}px; --x: ${nodeX - 35}px'>
     <div>Node: ${dataNode.image}<br>x: ${nodeX} y: ${getY(nodeId)}</div>
-      <img class='menu-pic' src='../../static/tree/images/pictures/Kennedy/${nodeId}.PNG'/>
-      <div id ='node-${nodeId}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column;'>
-        <div style="text-align:center"><b>${nodeIdName}</br></div>
-        <div><b>${dataNode?.birthyear}</b></div>
-      </div>
+    <button>Show Tree</button>
+    <img class='menu-pic' src='../../static/tree/images/pictures/Kennedy/${nodeId}.PNG'/>
+    <div id ='node-${nodeId}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column;'>
+      <div style="text-align:center"><b>${nodeIdName}</br></div>
+      <div><b>${dataNode?.birthyear}</b></div>
+    </div>
   </div>
   `
 }
@@ -1179,6 +1267,8 @@ function closeMenu() {
 **/
 function shiftChart(tree) {
 
+  debugger
+
   //If there are multiple trees, then shift those trees to the right accordingly
   //FIXME: Doesn't work in all cases, what if you check spacing between all spaced trees (leftmost/rightmost nodes) and position from there
   let treeSpace = getXBuffer(tree);
@@ -1193,7 +1283,7 @@ function shiftChart(tree) {
 
   //1. Shift all nodes by a set margin to better align on the screen
   shiftNodesByMarginX(tree)
-  shiftNodesByMarginY(tree)
+  //shiftNodesByMarginY(tree)
 }
 
 //TODO: How do we want to do this?
@@ -1230,9 +1320,11 @@ function shiftNodesByMarginX(tree) {
   //Get the leftmost XPos on entire tree
   for (let values of dataMap.values()) {
     for (let i = 0; i < values.length; ++i) {
-      let checkXPos = getX(values[i].image);
-      if (checkXPos < xPos) {
-        xPos = checkXPos;
+      if (isOnTree(values[i])) {
+        let checkXPos = getX(values[i].image);
+        if (checkXPos < xPos) {
+          xPos = checkXPos;
+        }
       }
     }
   }
@@ -1244,10 +1336,12 @@ function shiftNodesByMarginX(tree) {
     //shift the xPos of every node by the margin to the left so that furthest left node is 100px from left edge
     for (let values of dataMap.values()) {
       for (let i = 0; i < values.length; ++i) {
-        let node = document.getElementById(values[i].image);
-        let originalY = parseAttribute('y', node.style.cssText);
-        let originalX = parseAttribute('x', node.style.cssText);
-        node.setAttribute('style', `--y: ${originalY}px; --x: ${originalX - shiftMargin}px`);
+        if (isOnTree(values[i])) {
+          let node = document.getElementById(values[i].image);
+          let originalY = parseAttribute('y', node.style.cssText);
+          let originalX = parseAttribute('x', node.style.cssText);
+          node.setAttribute('style', `--y: ${originalY}px; --x: ${originalX - shiftMargin}px`);
+        }
       }
     }
   } 
@@ -1256,10 +1350,12 @@ function shiftNodesByMarginX(tree) {
     shiftMargin = 25;
     for (let values of dataMap.values()) {
       for (let i = 0; i < values.length; ++i) {
-        let node = document.getElementById(values[i].image);
-        let originalY = parseAttribute('y', node.style.cssText);
-        let originalX = parseAttribute('x', node.style.cssText);
-        node.setAttribute('style', `--y: ${originalY}px; --x: ${originalX + shiftMargin}px`);
+        if (isOnTree(values[i])) {
+          let node = document.getElementById(values[i].image);
+          let originalY = parseAttribute('y', node.style.cssText);
+          let originalX = parseAttribute('x', node.style.cssText);
+          node.setAttribute('style', `--y: ${originalY}px; --x: ${originalX + shiftMargin}px`);
+        }
       }
     }
   }
@@ -2433,7 +2529,11 @@ function getDescendants(node, children) {
 //New global variable of active tree??
 
 //You only want to go up by the node's mother, do not access spouse mother
-function getHiddenFamily(node) {  
+function getHiddenFamily(id) {  
+
+  debugger
+
+  let node = getNode(id)
 
   if (node.mother == null) {
     alert("Does not have hidden family");
@@ -2450,7 +2550,33 @@ function getHiddenFamily(node) {
   //Possibly not needed, adds root to the hidden family tree
   hiddenFamily.push(root)
 
-  return hiddenFamily
+  console.log(hiddenFamily)
+
+  //EVEN MORE RISKY TESTS
+
+  for (let i = 0; i < hiddenFamily.length; ++i) {
+    let inDataTree = false;
+    for (let j = 0; j < dataMap.get(root.image).length; ++j) {
+      if (dataMap.get(root.image)[j] == hiddenFamily[i]) {
+        inDataTree = true;
+      }
+    }
+
+    if (!inDataTree) {
+      dataMap.get(root.image).push(hiddenFamily[i]);
+    }
+  }
+
+  let oldMainTree = getTree(activeRoot);
+  removeTreeFromChart(oldMainTree);
+
+  activeRoot = root
+
+  createChart()
+
+  closeMenu();
+
+  //return hiddenFamily
 }
 
 function getSpecificFamilyRoot(node) {
