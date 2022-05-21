@@ -400,6 +400,11 @@ let chartList = document.getElementById('chart');
 createChart();
 
 
+//IMPORTANT: Functions changed in hiddenTree
+//1. Create Chart
+//2. ShiftNodesByMarginX (Accounts for only one tree on page)
+//3. AddMotherRelationship (Causes duplicates of nodes in multiple trees)
+
 
 /*
 function createChart() {
@@ -416,7 +421,6 @@ function createChart() {
 
   for (let tree of dataMap.values()) {
 
-    debugger
     //TEST
     if (getRootNode(tree[0]).image != activeRoot.image) {
       continue;
@@ -434,7 +438,6 @@ function createChart() {
       }
     }
 
-    //showTree = descendants;
 
     debugger
     //remove duplicates
@@ -818,18 +821,6 @@ function addMotherRelationship(id1, id2) {
     returnConfirmBoxNodes();
     closeMenu();
     return;
-/*
-    alert("Spouse already has children, adding child to spouse");
-    //If the spouse is younger, make the spouse the child and the old child the mom
-    if (getNode(mother.spouse).birthyear > child.birthyear) {
-      let originalMomSpouse = getNode(mother.spouse);
-      mother = child;
-      child = originalMomSpouse;
-    }
-    else {
-      mother = getNode(mother.spouse)
-    }
-*/
   }
 
   //If child is in nodeBox and mother in tree
@@ -843,7 +834,7 @@ function addMotherRelationship(id1, id2) {
   //FIXME: Logic errors exist here, what happens if spouse has mother and other spouse gets mother from this condition? we don't want to remove from the old tree
   //FIXME: also, try to add account for the hidden trees and how that will affect dataMap, maybe add those nodes onto tree but only show main root node's tree
   //If child is on tree and mother in nodeBox
-  /*
+  
   if (isOnTree(child) && inNodeBox(mother)) {
 
     //This case happens if mother becomes the new root node of a tree
@@ -871,9 +862,10 @@ function addMotherRelationship(id1, id2) {
     dataMap.set(mother.image, tree);
     } 
   }
-  */
+  
  //TEST, in this, the child is not removed from the old tree
  //There will be duplicates of certain nodes in the trees and only the one connected to the activeNode will be shown and created
+ /*
   if (isOnTree(child) && inNodeBox(mother)) {
 
     //This case happens if mother becomes the new root node of a tree
@@ -897,7 +889,7 @@ function addMotherRelationship(id1, id2) {
     } 
   }
   ////////////
-
+*/
   //if both are in nodeBox
   if (inNodeBox(child) && inNodeBox(mother)) {
     let tree = [child, mother]
@@ -1271,6 +1263,7 @@ function shiftChart(tree) {
 
   //If there are multiple trees, then shift those trees to the right accordingly
   //FIXME: Doesn't work in all cases, what if you check spacing between all spaced trees (leftmost/rightmost nodes) and position from there
+  //TODO: Uncomment this out
   let treeSpace = getXBuffer(tree);
   if (dataMap.size > 1) {shiftTree(treeSpace, tree)};
 
@@ -1318,18 +1311,42 @@ function shiftNodesByMarginX(tree) {
   let xPos = getX(tree[0].image);
 
   //Get the leftmost XPos on entire tree
-  for (let values of dataMap.values()) {
-    for (let i = 0; i < values.length; ++i) {
-      if (isOnTree(values[i])) {
-        let checkXPos = getX(values[i].image);
-        if (checkXPos < xPos) {
-          xPos = checkXPos;
-        }
+  for (let i = 0; i < tree.length; ++i) {
+    if (isOnTree(tree[i])) {
+      let checkXPos = getX(tree[i].image);
+      if (checkXPos < xPos) {
+        xPos = checkXPos;
       }
     }
   }
 
   let shiftMargin;
+/*
+  if (xPos > 25) {
+    shiftMargin = xPos - 25;
+    //shift the xPos of every node by the margin to the left so that furthest left node is 100px from left edge
+    for (let i = 0; i < tree.length; ++i) {
+      if (isOnTree(tree[i])) {
+        let node = document.getElementById(tree[i].image);
+        let originalY = parseAttribute('y', node.style.cssText);
+        let originalX = parseAttribute('x', node.style.cssText);
+        node.setAttribute('style', `--y: ${originalY}px; --x: ${originalX - shiftMargin}px`);
+      }
+    }
+  } 
+  else {
+    //shift the xPos of every node by the margin to the right so that furthest left node is 100px from left edge
+    shiftMargin = 25;
+    for (let i = 0; i < tree.length; ++i) {
+      if (isOnTree(tree[i])) {
+        let node = document.getElementById(tree[i].image);
+        let originalY = parseAttribute('y', node.style.cssText);
+        let originalX = parseAttribute('x', node.style.cssText);
+        node.setAttribute('style', `--y: ${originalY}px; --x: ${originalX + shiftMargin}px`);
+      }
+    }
+  }
+*/
 
   if (xPos > 25) {
     shiftMargin = xPos - 25;
@@ -1359,6 +1376,7 @@ function shiftNodesByMarginX(tree) {
       }
     }
   }
+
 }
 
 function shiftTree(xBuffer, tree) {
@@ -1390,9 +1408,11 @@ function shiftTree(xBuffer, tree) {
 function getFurthestXOfTree(tree) {
   let xPos = 0;
   for (let i = 0; i < tree.length; ++i) {
-    let compareX = getX(tree[i].image)
-    if (compareX > xPos) {
-      xPos = compareX;
+    if (isOnTree(tree[i])) {
+      let compareX = getX(tree[i].image);
+      if (compareX > xPos) {
+        xPos = compareX;
+      }
     }
   }
   return xPos;
@@ -1927,10 +1947,6 @@ function getMomsInGen(generation) {
   return newMomArray;
 }
 
-function getMother(node) {
-  return getNode(node.mother);
-}
-
 function getDataIndex(id) {
   for (let value of dataMap.values()) {
     for (let i = 0; i < value.length; ++i) {
@@ -2367,22 +2383,6 @@ function startEmpty() {
  * You shoud only have to check at most 2 generations up from starting nodes
  * @param {tree nodes in generation} nodes 
  */
-
-
-/* This is another way of finding if is descedent
-function isDescendant(node, ancestor) {
-
-  let ancestorMap = new Map();
-
-  getAncestors(node, ancestorMap);
-
-  if (ancestorMap.has(ancestor.image)) {
-    return true;
-  } else {
-    return false;
-  }
-}
-*/
 function getAncestors(node, ancestorMap) {
   //Base Case
   if (node.mother == null && node.spouse == null) {
@@ -2409,79 +2409,9 @@ function getAncestors(node, ancestorMap) {
   return ancestorMap
 }
 
-function findCommonRootNode(nodes) {
-
-  //FIXME: this loop only works if there is 2 or less families in the generation
-  //Find number of famillies in this generaion, that's how many nodeMoms you need, then you only need to check one child of each family and not all of them to find 1st common ancestor
-  
-  //This gets how many different mothers there are to the gen, thus how many different families there are
-  let motherIds = [];
-  for (let i = 0; i < nodes.length; ++i) {
-    motherIds.push(nodes[i].mother);
-  }
-  //Gets rid of duplicates
-  motherIds = new Set(motherIds);
-  motherIds = Array.from(motherIds);
-
-  //This gets one node from each family to compare too
-  let compareChildren = []
-  for (let i = 0; i < motherIds.length; ++i) {
-    let motherNode = getNode(motherIds[i])
-    let leftChild = getLeftmostChild(motherNode)
-    compareChildren.push(leftChild);
-  }
-
-  //If there is only one family to compare then it should jsut return the mother, input shouldn't allow this to happen but just in case
-  if (compareChildren.length == 1) {
-    return getNode(compareChildren[0].mother)
-  }
-
-  //Makes an array of maps that contain ancestors for each compareChildren elements
-  let ancestorList = []
-  for (let i = 0; i < compareChildren.length; ++i) {
-    let ancestors = getAncestors(compareChildren[i], new Map())
-    ancestorList.push(ancestors)
-  }
-
-  //Compares all the maps to find the commonRootNode
-  let sharedRootNode = null;
-  for (let i = 1; i < ancestorList.length; ++i) {
-    for (let key1 of ancestorList[i-1].keys()) {
-      for (let key2 of ancestorList[i].keys()) {
-        if (key1 == key2) {
-          sharedRootNode = getNode(key1)
-        }
-      }
-    }
-  }
-
-  if (sharedRootNode != null) {
-    //Just in case it grabs the husband and not wife
-    if (!hasChildren(sharedRootNode)) {
-      sharedRootNode = getNode(sharedRootNode.spouse)
-    }
-    return sharedRootNode;
-  } else {
-    console.log("No Root Node Shared")
-  }
-}
-
-
 //Expanding other trees
-
 //Function that gets all family nodes of a NODE that are NOT part of active tree
-
 //Function to see if a node is part of active tree or not
-function isDescendant(node, root, descendants) {
-  let children = []
-
-  for (let i = 0; i < children; ++i) {
-    if (children[i].image == node.image) {
-      return true;
-    }
-  }
-  return false;
-}
 
 function getDescendants(node, children) {
   //Base Case
@@ -2530,8 +2460,6 @@ function getDescendants(node, children) {
 
 //You only want to go up by the node's mother, do not access spouse mother
 function getHiddenFamily(id) {  
-
-  debugger
 
   let node = getNode(id)
 
