@@ -467,7 +467,6 @@ function createChart() {
     createDataPoints(tree);
   }
   for (let tree of dataMap.values()) {
-
     shiftChart(tree);
   }
 
@@ -542,8 +541,6 @@ function createDataPoints(treeValue) {
         //nodesInTree.push(nodesInGen[node]);
       }
     }
-
-    debugger
 
     //iterate through all the nodes in current tree and create an element for them
     for (let nodeIndex = 0; nodeIndex < nodesInTree.length; nodeIndex++) {
@@ -1311,16 +1308,19 @@ function shiftNodesByMarginX(tree) {
   let xPos = getX(tree[0].image);
 
   //Get the leftmost XPos on entire tree
-  for (let i = 0; i < tree.length; ++i) {
-    if (isOnTree(tree[i])) {
-      let checkXPos = getX(tree[i].image);
-      if (checkXPos < xPos) {
-        xPos = checkXPos;
+  for (let value of dataMap.values()) {
+    for (let i = 0; i < value.length; ++i) {
+      if (isOnTree(value[i])) {
+        let checkXPos = getX(value[i].image);
+        if (checkXPos < xPos) {
+          xPos = checkXPos;
+        }
       }
     }
-  }
+  } 
 
   let shiftMargin;
+//TEST
 /*
   if (xPos > 25) {
     shiftMargin = xPos - 25;
