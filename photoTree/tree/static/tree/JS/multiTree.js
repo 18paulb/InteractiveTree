@@ -706,6 +706,9 @@ function testAdd(node1, node2) {
   let id1Birthyear = node1.birthyear;
   let id2Birthyear = node2.birthyear;
 
+  addToConfirmBox(id1);
+  addToConfirmBox(id2);
+
   $('#center-menu').html(
     `<div id='center-menu' class='center-menu'>
     <div><button class="x-button" onclick='returnConfirmBoxNodes(); closeMenu()'><strong>X</strong></button></div>
@@ -813,8 +816,6 @@ function addSpouseRelationship(id1, id2) {
   }
 
   createChart();
-
-  document.getElementById('confirmBox').innerHTML = '';
 
   closeMenu();
 }
@@ -960,8 +961,6 @@ function addMotherRelationship(id1, id2) {
 
   createChart();
 
-  document.getElementById('confirmBox').innerHTML = '';
-
   closeMenu();
 }
 
@@ -1022,10 +1021,6 @@ function removeRelationship(id1, id2) {
     closeMenu();
 
     createChart();
-
-    let box = document.getElementById('confirmBox');
-    box.innerHTML = ''
-    box.style.border = ''
 
     return;
   }
@@ -1095,10 +1090,6 @@ function removeRelationship(id1, id2) {
 
   createChart();
 
-  let box = document.getElementById('confirmBox');
-  box.innerHTML = ''
-  box.style.border = ''
-
   closeMenu();
 }
 
@@ -1149,6 +1140,10 @@ function addToConfirmBox(id) {
     }
   }
 
+  if (box.children.length == 1 && box.children[0] instanceof HTMLParagraphElement) {
+    $('#confirmBox').html('');
+  }
+
   //Doesn't let you add more than 2 nodes
   if (box.children.length >= 2) {
     alert("Can't have more than 2 nodes in confirmation box.");
@@ -1168,7 +1163,7 @@ function addToConfirmBox(id) {
   //sets border for confirmBox
 
   if ($('#confirmBox').children.length > 0) {
-    $('#confirmBox').css('border', '5px solid black');
+    $('#confirmBox').css('border', '2px solid black');
   }
 
   //Parses id to just original ID
@@ -1257,12 +1252,15 @@ function closeHoverMenu() {
 }
 
 function closeMenu() {
+
+  debugger
+
   let menu = document.getElementById('center-menu')
 
   menu.innerHTML = '';
 
   let confirmBox = document.getElementById('confirmBox');
-  confirmBox.innerHTML = '';
+  confirmBox.innerHTML = "<p>Clicked nodes come here</p>"
 }
 
 //Spacing
@@ -2374,6 +2372,8 @@ function returnConfirmBoxNodes() {
 
   for (let i = 0; i < confirmBox.children.length; ++i) {
 
+    if (confirmBox.children[i] instanceof HTMLParagraphElement) {continue}
+
     let tmpNode = document.getElementById(confirmBox.children[i].id.substr(4));
 
     if (tmpNode == null) {
@@ -2549,6 +2549,7 @@ function getSpecificFamilyRoot(node) {
 }
 
 //TEST SPACING
+/*
 function findCommonRootNode(nodes) {
 
   //FIXME: this loop only works if there is 2 or less families in the generation
@@ -2605,3 +2606,4 @@ function findCommonRootNode(nodes) {
     console.log("No Root Node Shared")
   }
 }
+*/
