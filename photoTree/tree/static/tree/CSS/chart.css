@@ -8,14 +8,22 @@
 /* The parent element */
 .css-chart {
   /* The height, which is initially defined in the HTML */
-  height: var(--widget-size);
+  /*height: var(--widget-size);*/
+  height: 80%;
+
   /* A little breathing room should there be others items around the chart */
-  margin: 1em;
+  margin: .5em;
   /* Remove any padding so we have as much space to work with inside the element */
   padding: 0;
   position: relative;
+
   /* The chart width, as defined in the HTML */
-  width: var(--widget-size);
+  /*width: var(--widget-size);*/
+  width: 80%;
+
+  border: 2px solid black;
+  
+  overflow: scroll;
 }
 
 /* The unordered list holding the data points, no list styling and no spacing */
@@ -44,8 +52,6 @@
   */
   bottom: calc(var(--y) - 24px);
   left: calc(var(--x) - 23px);
-
-  /*originals 6.5 px and 9.5 px*/
 }
 
 .data-point:hover {
@@ -241,7 +247,7 @@ body {
   /*ADDED*/
   display: flex;
 
-  position: absolute;
+  position: relative;
   top:0;
 }
 
@@ -249,7 +255,7 @@ body {
   display: flex;
   justify-content: space-between;
   width: 100%;
-  position: absolute;
+  position: relative;
 
   background-color: #002e5d;
 }
