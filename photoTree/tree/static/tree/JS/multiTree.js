@@ -859,10 +859,10 @@ function addMotherRelationship(id1, id2) {
     dataMap.set(mother.image, tree);
     } 
   }
-  
+  /*
  //TEST, in this, the child is not removed from the old tree
  //There will be duplicates of certain nodes in the trees and only the one connected to the activeNode will be shown and created
- /*
+ 
   if (isOnTree(child) && inNodeBox(mother)) {
 
     //This case happens if mother becomes the new root node of a tree
@@ -1308,6 +1308,7 @@ function shiftNodesByMarginX(tree) {
   let xPos = getX(tree[0].image);
 
   //Get the leftmost XPos on entire tree
+  
   for (let value of dataMap.values()) {
     for (let i = 0; i < value.length; ++i) {
       if (isOnTree(value[i])) {
@@ -1317,11 +1318,51 @@ function shiftNodesByMarginX(tree) {
         }
       }
     }
-  } 
+  }
+  
+ let shiftMargin;
 
-  let shiftMargin;
-//TEST
+ if (xPos > 25) {
+  shiftMargin = xPos - 25;
+  //shift the xPos of every node by the margin to the left so that furthest left node is 100px from left edge
+  for (let values of dataMap.values()) {
+    for (let i = 0; i < values.length; ++i) {
+      if (isOnTree(values[i])) {
+        let node = document.getElementById(values[i].image);
+        let originalY = parseAttribute('y', node.style.cssText);
+        let originalX = parseAttribute('x', node.style.cssText);
+        node.setAttribute('style', `--y: ${originalY}px; --x: ${originalX - shiftMargin}px`);
+      }
+    }
+  }
+} 
+else {
+  //shift the xPos of every node by the margin to the right so that furthest left node is 100px from left edge
+  shiftMargin = 25;
+  for (let values of dataMap.values()) {
+    for (let i = 0; i < values.length; ++i) {
+      if (isOnTree(values[i])) {
+        let node = document.getElementById(values[i].image);
+        let originalY = parseAttribute('y', node.style.cssText);
+        let originalX = parseAttribute('x', node.style.cssText);
+        node.setAttribute('style', `--y: ${originalY}px; --x: ${originalX + shiftMargin}px`);
+      }
+    }
+  }
+}
+
+
 /*
+ //TEST
+  for (let i = 0; i < tree.length; ++i) {
+    if (isOnTree(tree[i])) {
+      let checkXPos = getX(tree[i].image);
+      if (checkXPos < xPos) {
+        xPos = checkXPos;
+      }
+    }
+  }
+
   if (xPos > 25) {
     shiftMargin = xPos - 25;
     //shift the xPos of every node by the margin to the left so that furthest left node is 100px from left edge
@@ -1347,35 +1388,6 @@ function shiftNodesByMarginX(tree) {
     }
   }
 */
-
-  if (xPos > 25) {
-    shiftMargin = xPos - 25;
-    //shift the xPos of every node by the margin to the left so that furthest left node is 100px from left edge
-    for (let values of dataMap.values()) {
-      for (let i = 0; i < values.length; ++i) {
-        if (isOnTree(values[i])) {
-          let node = document.getElementById(values[i].image);
-          let originalY = parseAttribute('y', node.style.cssText);
-          let originalX = parseAttribute('x', node.style.cssText);
-          node.setAttribute('style', `--y: ${originalY}px; --x: ${originalX - shiftMargin}px`);
-        }
-      }
-    }
-  } 
-  else {
-    //shift the xPos of every node by the margin to the right so that furthest left node is 100px from left edge
-    shiftMargin = 25;
-    for (let values of dataMap.values()) {
-      for (let i = 0; i < values.length; ++i) {
-        if (isOnTree(values[i])) {
-          let node = document.getElementById(values[i].image);
-          let originalY = parseAttribute('y', node.style.cssText);
-          let originalX = parseAttribute('x', node.style.cssText);
-          node.setAttribute('style', `--y: ${originalY}px; --x: ${originalX + shiftMargin}px`);
-        }
-      }
-    }
-  }
 
 }
 
@@ -2409,10 +2421,6 @@ function getAncestors(node, ancestorMap) {
   return ancestorMap
 }
 
-//Expanding other trees
-//Function that gets all family nodes of a NODE that are NOT part of active tree
-//Function to see if a node is part of active tree or not
-
 function getDescendants(node, children) {
   //Base Case
 
@@ -2455,8 +2463,6 @@ function getDescendants(node, children) {
   }
   return children;
 }
-
-//New global variable of active tree??
 
 //You only want to go up by the node's mother, do not access spouse mother
 function getHiddenFamily(id) {  
