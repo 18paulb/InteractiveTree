@@ -9,18 +9,7 @@
   </head>
 
   <body>
-<!--
-    <script>
-      $(window).scroll(function(){
-        $('#header').css({
-          'left': $(this).scrollLeft() + 10 
-        });
-        $('#footer').css({
-          'left': $(this).scrollLeft() + 10 
-        });
-      });
-    </script>
-  -->
+
     <div id="header" class="page-header">
       <!--
       <div style='align-items: left; border: 3px green solid'>
@@ -35,19 +24,21 @@
     </div>
 
     <div style="display: flex;">
-      <figure id="treeChart" class="css-chart" style="--widget-size: 1000px">
+
+      <figure id="treeChart" class="css-chart" style="--widget-size: 1000px; zoom: 1;">
         <ul id="chart" class="line-chart"></ul>
         <svg id='lines' height="1000" width="1000" style="z-index:-1; overflow:hidden"></svg>
         <div id="hover-menu"></div>
       </figure>
 
-      <div id="confirmBox" class="confirm-box">
-        <p>Clicked nodes come here</p>
+      <div>
+        <button class="button-34" onclick="zoomIn()">+</button>
+        <button class="button-34" onclick="zoomOut()">-</button>
+        <button class="button-34" onclick="resetZoom()">&#x21bb</button>
       </div>
 
-      <div>
-        <button onclick="zoomIn()">Zoom In</button>
-        <button onclick="zoomOut()">Zoom out</button>
+      <div id="confirmBox" class="confirm-box">
+        <p>Clicked nodes come here</p>
       </div>
 
     </div>
