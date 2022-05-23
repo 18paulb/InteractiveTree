@@ -578,24 +578,53 @@ function createLines() {
   let svgWidth = svgelem.getBBox().width
   let svgHeight = svgelem.getBBox().height
 
+  //Gets new width for SVG
   for (let value of dataMap.values()) {
     for (let i = 0; i < value.length; ++i) {
       if (isOnTree(value[i])) {
         let nodeXPos = getX(value[i].image);
-        let nodeYPos = getY(value[i].image)
         if (nodeXPos > svgWidth || nodeXPos == svgWidth) {
           svgWidth = nodeXPos + 50;
-        }
-        if (nodeYPos > svgHeight || nodeYPos == svgHeight) {
-          svgHeight = nodeYPos + 100
         }
       }
   
     }
   }
+/*
+  //Gets new height for SVG
+  let maxHeight;
+  let minHeight;
 
+  //Gets Initial Vals
+  for (let value of dataMap.values()) {
+    for (let i = 0; i < value.length; ++i) {
+      if (isOnTree(value[i])) {
+        maxHeight = getY(value[i].image)
+        minHeight = getY(value[i].image)
+        break;
+      }
+    }
+    break;
+  }
+
+  for (let value of dataMap.values()) {
+    for (let i = 0; i < value.length; ++i) {
+      if (isOnTree(value[i])) {
+        let nodeYPos = getY(value[i].image);
+        if (nodeYPos > maxHeight) {
+          maxHeight = nodeYPos
+        }
+        if (nodeYPos < minHeight) {
+          minHeight = nodeYPos;
+        }
+      }
+    }
+  }
+
+  let heightDiff = (maxHeight - minHeight)
+*/
   svgelem.setAttribute("width", svgWidth)
-  //svgelem.setAttribute("height", svgHeight)
+  //svgelem.setAttribute("height", heightDiff)
 
   let id = 1;
   for (let value of dataMap.values()) {
@@ -1193,12 +1222,6 @@ function removeFromNodeContainer(id) {
   let child = document.getElementById("button" + id);
 
   container.removeChild(child);
-}
-
-function removeAllChildNodes(parent) {
-  while (parent.firstChild) {
-    parent.removeChild(parent.firstChild);
-  }
 }
 
 function hoverMenu(nodeId) {
