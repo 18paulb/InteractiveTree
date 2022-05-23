@@ -524,7 +524,6 @@ function createDataPoints(treeValue) {
       //get all nodes in the current tree
       //Protect against duplicates
       if (treeValue.includes(nodesInGen[node])) {
-        //TEST//////
         let inTree = false;
         for (let i = 0; i < nodesInTree.length; ++i) {
           if (nodesInTree[i].image == nodesInGen[node].image) {
@@ -535,10 +534,6 @@ function createDataPoints(treeValue) {
         if (!inTree) {
           nodesInTree.push(nodesInGen[node]);
         }
-        ///////////
-
-        //Original
-        //nodesInTree.push(nodesInGen[node]);
       }
     }
 
@@ -1296,7 +1291,7 @@ function shiftChart(tree) {
 
   //1. Shift all nodes by a set margin to better align on the screen
   shiftNodesByMarginX(tree)
-  //shiftNodesByMarginY(tree)
+  shiftNodesByMarginY(tree)
 }
 
 //TODO: How do we want to do this?
@@ -1311,8 +1306,8 @@ function shiftNodesByMarginY(tree) {
       }
     }
   }
-  if (yPos > 1050) {
-    shiftMargin = yPos - 1050;
+  if (yPos > 950) {
+    shiftMargin = yPos - 950;
     //shift the yPos of every node downward so that highest node is 1050px
     for (let values of dataMap.values()) {
       for (let i = 0; i < values.length; ++i) {
@@ -1322,7 +1317,19 @@ function shiftNodesByMarginY(tree) {
         node.setAttribute('style', `--y: ${originalY - shiftMargin}px; --x: ${originalX}px`);
       }
     }
-  } 
+  }
+  if (yPos < 950) {
+    shiftMargin = 950 - yPos;
+    //shift the yPos of every node downward so that highest node is 1050px
+    for (let values of dataMap.values()) {
+      for (let i = 0; i < values.length; ++i) {
+        let node = document.getElementById(values[i].image);
+        let originalY = parseAttribute('y', node.style.cssText);
+        let originalX = parseAttribute('x', node.style.cssText);
+        node.setAttribute('style', `--y: ${originalY + shiftMargin}px; --x: ${originalX}px`);
+      }
+    }
+  }
 }
 
 //Shift all nodes over for better centering
@@ -2445,8 +2452,8 @@ function getAncestors(node, ancestorMap) {
 }
 
 function getDescendants(node, children) {
-  //Base Case
 
+  //Base Case
   if (!hasChildren(node)) {
     return children;
   }
@@ -2543,5 +2550,63 @@ function getSpecificFamilyRoot(node) {
   else {
     let mother = getNode(node.mother);
     return getSpecificFamilyRoot(mother);
+  }
+}
+
+//TEST SPACING
+function findCommonRootNode(nodes) {
+
+  //FIXME: this loop only works if there is 2 or less families in the generation
+  //Find number of famillies in this generaion, that's how many nodeMoms you need, then you only need to check one child of each family and not all of them to find 1st common ancestor
+  
+  //This gets how many different mothers there are to the gen, thus how many different families there are
+  let motherIds = [];
+  for (let i = 0; i < nodes.length; ++i) {
+    motherIds.push(nodes[i].mother);
+  }
+  //Gets rid of duplicates
+  motherIds = new Set(motherIds);
+  motherIds = Array.from(motherIds);
+
+  //This gets one node from each family to compare too
+  let compareChildren = []
+  for (let i = 0; i < motherIds.length; ++i) {
+    let motherNode = getNode(motherIds[i])
+    let leftChild = getLeftmostChild(motherNode)
+    compareChildren.push(leftChild);
+  }
+
+  //If there is only one family to compare then it should jsut return the mother, input shouldn't allow this to happen but just in case
+  if (compareChildren.length == 1) {
+    return getNode(compareChildren[0].mother)
+  }
+
+  //Makes an array of maps that contain ancestors for each compareChildren elements
+  let ancestorList = []
+  for (let i = 0; i < compareChildren.length; ++i) {
+    let ancestors = getAncestors(compareChildren[i], new Map())
+    ancestorList.push(ancestors)
+  }
+
+  //Compares all the maps to find the commonRootNode
+  let sharedRootNode = null;
+  for (let i = 1; i < ancestorList.length; ++i) {
+    for (let key1 of ancestorList[i-1].keys()) {
+      for (let key2 of ancestorList[i].keys()) {
+        if (key1 == key2) {
+          sharedRootNode = getNode(key1)
+        }
+      }
+    }
+  }
+
+  if (sharedRootNode != null) {
+    //Just in case it grabs the husband and not wife
+    if (!hasChildren(sharedRootNode)) {
+      sharedRootNode = getNode(sharedRootNode.spouse)
+    }
+    return sharedRootNode;
+  } else {
+    console.log("No Root Node Shared")
   }
 }
