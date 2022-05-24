@@ -748,8 +748,6 @@ function addSpouseRelationship(id1, id2) {
   let spouse1Index;
   let spouse2Index;
 
-  //debugger
-
   //If spouse1 is in nodeBox and spouse2 is on tree, push spouse1 onto tree
   if (inNodeBox(spouse1) && isOnTree(spouse2)) {
     currTree = getTree(spouse2);
@@ -955,8 +953,6 @@ function addMotherRelationship(id1, id2) {
 
   child.mother = mother.image;
 
-  debugger
-
   momArray = makeMomArray();
 
   createChart();
@@ -1085,8 +1081,6 @@ function removeRelationship(id1, id2) {
   if (!isRelated) {
     alert("Error, No Direct Relationship");
   }
-
-  debugger
 
   createChart();
 
@@ -1253,8 +1247,6 @@ function closeHoverMenu() {
 
 function closeMenu() {
 
-  debugger
-
   let menu = document.getElementById('center-menu')
 
   menu.innerHTML = '';
@@ -1272,11 +1264,9 @@ function closeMenu() {
 **/
 function shiftChart(tree) {
 
-  debugger
 
   //If there are multiple trees, then shift those trees to the right accordingly
   //FIXME: Doesn't work in all cases, what if you check spacing between all spaced trees (leftmost/rightmost nodes) and position from there
-  //TODO: Uncomment this out
   let treeSpace = getXBuffer(tree);
   if (dataMap.size > 1) {shiftTree(treeSpace, tree)};
 
@@ -2403,8 +2393,6 @@ function startEmpty() {
   dataMap.clear();
 
   momArray = [];
-
-  //debugger
   
   createChart();
 }
@@ -2548,62 +2536,40 @@ function getSpecificFamilyRoot(node) {
   }
 }
 
-//TEST SPACING
-/*
-function findCommonRootNode(nodes) {
+//Front End Functions
+function zoomIn() {
+  debugger
+  let treeChart = document.getElementById("treeChart");
+  let currZoom = treeChart.style.zoom;
+  currZoom = parseFloat(currZoom);
 
-  //FIXME: this loop only works if there is 2 or less families in the generation
-  //Find number of famillies in this generaion, that's how many nodeMoms you need, then you only need to check one child of each family and not all of them to find 1st common ancestor
-  
-  //This gets how many different mothers there are to the gen, thus how many different families there are
-  let motherIds = [];
-  for (let i = 0; i < nodes.length; ++i) {
-    motherIds.push(nodes[i].mother);
-  }
-  //Gets rid of duplicates
-  motherIds = new Set(motherIds);
-  motherIds = Array.from(motherIds);
-
-  //This gets one node from each family to compare too
-  let compareChildren = []
-  for (let i = 0; i < motherIds.length; ++i) {
-    let motherNode = getNode(motherIds[i])
-    let leftChild = getLeftmostChild(motherNode)
-    compareChildren.push(leftChild);
+  if (currZoom == 1.6) {
+    treeChart.style.zoom = 1.6;
+    return
   }
 
-  //If there is only one family to compare then it should jsut return the mother, input shouldn't allow this to happen but just in case
-  if (compareChildren.length == 1) {
-    return getNode(compareChildren[0].mother)
-  }
-
-  //Makes an array of maps that contain ancestors for each compareChildren elements
-  let ancestorList = []
-  for (let i = 0; i < compareChildren.length; ++i) {
-    let ancestors = getAncestors(compareChildren[i], new Map())
-    ancestorList.push(ancestors)
-  }
-
-  //Compares all the maps to find the commonRootNode
-  let sharedRootNode = null;
-  for (let i = 1; i < ancestorList.length; ++i) {
-    for (let key1 of ancestorList[i-1].keys()) {
-      for (let key2 of ancestorList[i].keys()) {
-        if (key1 == key2) {
-          sharedRootNode = getNode(key1)
-        }
-      }
-    }
-  }
-
-  if (sharedRootNode != null) {
-    //Just in case it grabs the husband and not wife
-    if (!hasChildren(sharedRootNode)) {
-      sharedRootNode = getNode(sharedRootNode.spouse)
-    }
-    return sharedRootNode;
-  } else {
-    console.log("No Root Node Shared")
-  }
+  let newZoom = currZoom + .1;
+  treeChart.style.zoom = `${newZoom}`;
 }
-*/
+
+function zoomOut() {
+  debugger
+  let treeChart = document.getElementById("treeChart");
+  let currZoom = treeChart.style.zoom;
+  currZoom = parseFloat(currZoom);
+
+  if (currZoom == .5) {
+    treeChart.style.zoom = .5;
+    return
+  }
+
+  let newZoom = currZoom - .1;
+
+  treeChart.style.zoom = `${newZoom}`;
+}
+
+function resetZoom() {
+  debugger
+  let treeChart = document.getElementById("treeChart");
+  treeChart.style.zoom = 1;
+}
