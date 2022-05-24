@@ -9,7 +9,7 @@
 .css-chart {
   /* The height, which is initially defined in the HTML */
   /*height: var(--widget-size);*/
-  height: 80%;
+  height: 100%;
 
   /* A little breathing room should there be others items around the chart */
   margin: .5em;
@@ -19,7 +19,7 @@
 
   /* The chart width, as defined in the HTML */
   /*width: var(--widget-size);*/
-  width: 80%;
+  width: 100%;
 
   border: 2px solid black;
   
@@ -40,8 +40,6 @@
   background-color: white;
   border: 5px solid #7ab7e6; /*was light blue*/
   border-radius: 50%;
-  /*height: 60px;*/
-  /*width: 60px;*/
   position: absolute;
   height: 3rem;
   width: 3rem;
@@ -82,7 +80,6 @@
   color: yellow;
   background-color: yellow;
 }
-
 
 .node-container {
   display: flex;
@@ -184,19 +181,21 @@ body {
 
 .center-menu {
   padding: 10px;
-  border: 5px solid black;
+  border: 4px solid black;
   border-radius: 15px;
 
-  position: fixed;
+  /*Added*/
+  width: 100%;
+
+  /*position: fixed;
   width: 400px;
   height: 400px;
   z-index: 1;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+  */
   background: #9dbef1;
-
-
 }
 
 .menu-pics-container {
@@ -282,4 +281,33 @@ body {
 }
 .x-button:hover {
   background-color: darkgray;
+}
+
+.zoom-btn {
+  display: flex;
+  margin: 5px;
+
+  /*background: #5E5DF0;*/
+  background: rgb(230, 222, 222);
+  border-radius: 999px;
+  box-shadow: #002e5d 0 10px 20px -10px;
+  box-sizing: border-box;
+  color: black;
+  cursor: pointer;
+  font-family: Inter, Helvetica, "Apple Color Emoji", "Segoe UI Emoji",
+    NotoColorEmoji, "Noto Color Emoji", "Segoe UI Symbol", "Android Emoji",
+    EmojiSymbols, -apple-system, system-ui, "Segoe UI", Roboto, "Helvetica Neue",
+    "Noto Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+  opacity: 1;
+  outline: 0 solid transparent;
+  padding: 8px 18px;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  width: fit-content;
+  word-break: break-word;
+  border: 2px solid black;
 }

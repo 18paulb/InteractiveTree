@@ -709,33 +709,57 @@ function testAdd(node1, node2) {
   addToConfirmBox(id1);
   addToConfirmBox(id2);
 
-  $('#center-menu').html(
+  let confirmBox = document.getElementById('confirmBox');
+  confirmBox.innerHTML = "<p>Clicked nodes come here</p>"
+
+  $('#menu-position').html(
     `<div id='center-menu' class='center-menu'>
-    <div><button class="x-button" onclick='returnConfirmBoxNodes(); closeMenu()'><strong>X</strong></button></div>
-    <div class='menu-pics-container'>
-      <div>
-        <img class='menu-pic' src='../../static/tree/images/pictures/Kennedy/${id1}.PNG'/>
-        <div id ='node-${id1}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px;'>
-          <div><b>${node1.name}</b></div>
-          <div><b>${id1Birthyear}</b></div>
-          <button onclick="getHiddenFamily(${node1.image})">Show Family</button>
+      <div><button class="x-button" onclick='returnConfirmBoxNodes(); closeMenu()'><strong>X</strong></button></div>
+      <div class='menu-pics-container'>
+        <div style="display: flex; flex-direction: column; justify-content:center; align-items:center;">
+          <img class='menu-pic' src='../../static/tree/images/pictures/Kennedy/${id1}.PNG'/>
+          <div id ='node-${id1}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px;'>
+            <div><b>${node1.name}</b></div>
+            <div><b>${id1Birthyear}</b></div>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; justify-content:center; align-items:center;">
+          <img class='menu-pic' src='../../static/tree/images/pictures/Kennedy/${id2}.PNG'/>
+          <div id ='node-${id2}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px;'>
+            <div><b>${node2.name}</b></div>
+            <div><b>${id2Birthyear}</b></div>
+          </div>
         </div>
       </div>
-      <div>
-        <img class='menu-pic' src='../../static/tree/images/pictures/Kennedy/${id2}.PNG'/>
-        <div id ='node-${id2}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px;'>
-          <div><b>${node2.name}</b></div>
-          <div><b>${id2Birthyear}</b></div>
-          <button onclick="getHiddenFamily(${node2.image})">Show Family</button>
+      <div class='menu-button'>
+        <button id='removeButton' class='button-34' onclick='removeRelationship(${id1}, ${id2})'>Remove Relationship</button>
+        <button id='addMotherButton' class='button-34' onclick='addMotherRelationship(${id1}, ${id2})'>Add Mother/Child Relationship</button>
+        <button id='addSpouseButton' class='button-34' onclick='addSpouseRelationship(${id1}, ${id2})'>Add Spouse Relationship</button>
+      </div>
+    </div>`)
+}
+
+function openNodeOptions(node) {
+  let id1 = node.image;
+  let id1Birthyear = node.birthyear;
+
+  $('#menu-position').html(
+    `<div id='center-menu' class='center-menu'>
+      <div><button class="x-button" onclick='returnConfirmBoxNodes(); closeMenu()'><strong>X</strong></button></div>
+      <div class='menu-pics-container'>
+        <div style="display: flex; flex-direction: column; justify-content:center; align-items:center;">
+          <img class='menu-pic' src='../../static/tree/images/pictures/Kennedy/${id1}.PNG'/>
+          <div id ='node-${id1}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px;'>
+            <div><b>${node.name}</b></div>
+            <div><b>${id1Birthyear}</b></div>
+          </div>
         </div>
       </div>
-    </div>
-    <div class='menu-button'>
-      <button id='removeButton' class='button-34' onclick='removeRelationship(${id1}, ${id2})'>Remove Relationship</button>
-      <button id='addMotherButton' class='button-34' onclick='addMotherRelationship(${id1}, ${id2})'>Add Mother/Child Relationship</button>
-      <button id='addSpouseButton' class='button-34' onclick='addSpouseRelationship(${id1}, ${id2})'>Add Spouse Relationship</button>
-    </div>
-  </div>`)
+      <div class='menu-button'>
+        <button id='removeButton' class='button-34' onclick='deleteNode(${id1});'>Delete Node</button>
+        <button id='hiddenFamilyButton' class='button-34' onclick='getHiddenFamily(${id1})'>Show Family</button>
+      </div>
+    </div>`)
 }
 
 function addSpouseRelationship(id1, id2) {
@@ -1134,6 +1158,10 @@ function addToConfirmBox(id) {
     }
   }
 
+  //TEST
+  openNodeOptions(getNode(id));
+
+  //Get rid of starting text
   if (box.children.length == 1 && box.children[0] instanceof HTMLParagraphElement) {
     $('#confirmBox').html('');
   }
@@ -1247,7 +1275,7 @@ function closeHoverMenu() {
 
 function closeMenu() {
 
-  let menu = document.getElementById('center-menu')
+  let menu = document.getElementById('menu-position')
 
   menu.innerHTML = '';
 
@@ -1993,6 +2021,34 @@ function removeNodeFromTree(node) {
   }
 }
 
+function deleteNode(id) {
+  let deleted = false;
+  for (let value of dataMap.values()) {
+    for (let i = 0; i < value.length; ++i) {
+      if (value[i].image == id) {
+        value.splice(i,1)
+        i--;
+        deleted = true;
+      }
+      if (value[i].spouse == id) {
+        value[i].spouse = null;
+      }
+      if (value[i].mother == id) {
+        value[i].mother = null;
+      }
+    }
+  }
+
+  debugger
+
+  document.getElementById(`${id}`).remove();
+
+  if (deleted) {
+    closeMenu();
+    createChart();
+  }
+}
+
 function getNodeBoxDataIndex(id) {
   for (let i = 0; i < nodeBoxData.length; ++i) {
     if (id == nodeBoxData[i].image) {
@@ -2538,7 +2594,6 @@ function getSpecificFamilyRoot(node) {
 
 //Front End Functions
 function zoomIn() {
-  debugger
   let treeChart = document.getElementById("treeChart");
   let currZoom = treeChart.style.zoom;
   currZoom = parseFloat(currZoom);
@@ -2553,13 +2608,12 @@ function zoomIn() {
 }
 
 function zoomOut() {
-  debugger
   let treeChart = document.getElementById("treeChart");
   let currZoom = treeChart.style.zoom;
   currZoom = parseFloat(currZoom);
 
-  if (currZoom == .5) {
-    treeChart.style.zoom = .5;
+  if (currZoom == .7) {
+    treeChart.style.zoom = .7;
     return
   }
 
@@ -2569,7 +2623,6 @@ function zoomOut() {
 }
 
 function resetZoom() {
-  debugger
   let treeChart = document.getElementById("treeChart");
   treeChart.style.zoom = 1;
 }
