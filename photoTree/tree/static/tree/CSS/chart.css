@@ -311,3 +311,7 @@ body {
   word-break: break-word;
   border: 2px solid black;
 }
+.zoom-btn:hover {
+  transition-duration: 0.2s;
+  background-color: rgb(185, 176, 176);
+}

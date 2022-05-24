@@ -310,15 +310,10 @@ let chartWidth = 1000;
 //Defines class to be used for the objects of the values in momArray
 class mom {
   children = [];
-  spouse = null;
   data = null;
 
   addChild(child) {
     this.children.push(child);
-  }
-
-  addSpouse(spouse) {
-    this.spouse = spouse;
   }
 }
 
@@ -360,15 +355,6 @@ function makeMomArray() {
     tmpArray[i].children = tmpChildren;
   }
 
-  //Add spouse to mom Object
-  for (let i = 0; i < tmpArray.length; ++i) {
-    if (tmpArray[i].spouse != null) {
-      let spouse = getNode(tmpArray[i].data.spouse);
-      tmpArray[i].spouse = spouse.image;
-    }
-  }
-
-  //TEST REMOVE DUPLICATE CHILDREN
   for (let i = 0; i < tmpArray.length; ++i) {
     let children = tmpArray[i].children
     for (let j = 0; j < children.length; ++j) {
@@ -377,7 +363,6 @@ function makeMomArray() {
           continue;
         }
         if (children[j].image == children[k].image) {
-          //console.log("Duplicate Found: ", children[j].name)
           children.splice(k,1);
           k--;
         }
@@ -585,41 +570,8 @@ function createLines() {
   
     }
   }
-/*
-  //Gets new height for SVG
-  let maxHeight;
-  let minHeight;
 
-  //Gets Initial Vals
-  for (let value of dataMap.values()) {
-    for (let i = 0; i < value.length; ++i) {
-      if (isOnTree(value[i])) {
-        maxHeight = getY(value[i].image)
-        minHeight = getY(value[i].image)
-        break;
-      }
-    }
-    break;
-  }
-
-  for (let value of dataMap.values()) {
-    for (let i = 0; i < value.length; ++i) {
-      if (isOnTree(value[i])) {
-        let nodeYPos = getY(value[i].image);
-        if (nodeYPos > maxHeight) {
-          maxHeight = nodeYPos
-        }
-        if (nodeYPos < minHeight) {
-          minHeight = nodeYPos;
-        }
-      }
-    }
-  }
-
-  let heightDiff = (maxHeight - minHeight)
-*/
   svgelem.setAttribute("width", svgWidth)
-  //svgelem.setAttribute("height", heightDiff)
 
   let id = 1;
   for (let value of dataMap.values()) {
@@ -740,26 +692,67 @@ function testAdd(node1, node2) {
 }
 
 function openNodeOptions(node) {
-  let id1 = node.image;
-  let id1Birthyear = node.birthyear;
+  let id = node.image;
+  let idBirthyear = node.birthyear;
 
   $('#menu-position').html(
     `<div id='center-menu' class='center-menu'>
       <div><button class="x-button" onclick='returnConfirmBoxNodes(); closeMenu()'><strong>X</strong></button></div>
       <div class='menu-pics-container'>
         <div style="display: flex; flex-direction: column; justify-content:center; align-items:center;">
-          <img class='menu-pic' src='../../static/tree/images/pictures/Kennedy/${id1}.PNG'/>
-          <div id ='node-${id1}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px;'>
+          <img class='menu-pic' src='../../static/tree/images/pictures/Kennedy/${id}.PNG'/>
+          <div id ='node-${id}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px;'>
             <div><b>${node.name}</b></div>
-            <div><b>${id1Birthyear}</b></div>
+            <div><b>${idBirthyear}</b></div>
           </div>
         </div>
       </div>
-      <div class='menu-button'>
-        <button id='removeButton' class='button-34' onclick='deleteNode(${id1});'>Delete Node</button>
-        <button id='hiddenFamilyButton' class='button-34' onclick='getHiddenFamily(${id1})'>Show Family</button>
+      <div id="menu-buttons" class='menu-button'>
+        <button id='hiddenFamilyButton' class='button-34' onclick='getHiddenFamily(${id})'>Show Family</button>
+        <button id='editButton' class='button-34' onclick='editNode(${id})'>Edit Info</button>
+        <button id='removeButton' class='button-34' onclick='deleteNode(${id});'>Delete Node</button>
       </div>
     </div>`)
+}
+
+function editNode(id) {
+  debugger
+
+  let node = getNode(id)
+  let birthyear = node.birthyear;
+  let name = node.name;
+
+
+  $('#menu-buttons').html(
+    `<form id="editForm">
+      <label for="name">Name:</label>
+      <input id="name" type="text" value="${name}"><br><br>
+      <label for="byear">Birthyear:</label>
+      <input id="byear" type="text" value="${birthyear}"><br><br>
+      <input type="submit" value="Submit">
+    </form>`)
+
+    $("#editForm").submit(function(e) {
+      e.preventDefault();
+
+      let inputYear = document.getElementById("byear").value
+      let inputName = document.getElementById("name").value
+
+      for (let i = 0; i < inputYear.length; ++i) {
+        let isNumber = parseInt(inputYear[i])
+        if (isNaN(isNumber)) {
+          alert("Birthyear must contain only numbers");
+          closeMenu();
+          return;
+        }
+      }
+
+      node.birthyear = inputYear;
+      node.name = inputName;
+
+      closeMenu();
+    })
+
 }
 
 function addSpouseRelationship(id1, id2) {
@@ -1258,7 +1251,6 @@ function hoverMenu(nodeId) {
   hMenu.innerHTML = `
   <div id='hover-menu' class='hover-menu hover-point' style='--y: ${nodeY + yPlacement}px; --x: ${nodeX - 35}px'>
     <div>Node: ${dataNode.image}<br>x: ${nodeX} y: ${getY(nodeId)}</div>
-    <button>Show Tree</button>
     <img class='menu-pic' src='../../static/tree/images/pictures/Kennedy/${nodeId}.PNG'/>
     <div id ='node-${nodeId}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column;'>
       <div style="text-align:center"><b>${nodeIdName}</br></div>
@@ -2022,22 +2014,48 @@ function removeNodeFromTree(node) {
 }
 
 function deleteNode(id) {
+
+  let execute = confirm("This person will be permanently deleted, are you sure you want to proceed?")
+
+  if (!execute) {
+    return;
+  }
+
   let deleted = false;
   for (let value of dataMap.values()) {
     for (let i = 0; i < value.length; ++i) {
+      //Deletes any instances of node
       if (value[i].image == id) {
         value.splice(i,1)
         i--;
         deleted = true;
       }
+      //If any node has it as spouse, set to null
       if (value[i].spouse == id) {
         value[i].spouse = null;
       }
+      //if any node has it as mother, set to null
       if (value[i].mother == id) {
         value[i].mother = null;
       }
+
+      //if the value ends up having no relationships because of deletion, put in node container
+      if (!hasRelationship(value[i])) {
+        debugger
+        addToNodeContainer(value[i].image)
+        document.getElementById(`${value[i].image}`).remove();
+        removeNodeFromTree(value[i])
+        i--;
+      }
+
+      //TODO: Add case for if you try to permanently delete the root node
+      //If it is a rootNode
+      if (value[i].mother == null && getNode(value[i].spouse).mother == null) {
+
+      }
     }
   }
+
 
   debugger
 
@@ -2045,6 +2063,7 @@ function deleteNode(id) {
 
   if (deleted) {
     closeMenu();
+    momArray = makeMomArray();
     createChart();
   }
 }
@@ -2598,8 +2617,8 @@ function zoomIn() {
   let currZoom = treeChart.style.zoom;
   currZoom = parseFloat(currZoom);
 
-  if (currZoom == 1.6) {
-    treeChart.style.zoom = 1.6;
+  if (currZoom == 1.4) {
+    treeChart.style.zoom = 1.4;
     return
   }
 
