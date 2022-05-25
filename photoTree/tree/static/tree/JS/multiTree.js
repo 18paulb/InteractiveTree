@@ -495,6 +495,8 @@ function createDataPoints(treeValue) {
   
   //get highest gen in current tree
   let genCount = getLongestGenChain();
+  //TEST:
+  //let genCount = getLongestGenChain(treeValue);
   
   //iterate through all of the gens in current tree
   for (let genIndex = 1; genIndex <= genCount; genIndex++) {
@@ -660,7 +662,7 @@ function testAdd(node1, node2) {
 
   $('#menu-position').html(
     `<div id='center-menu' class='center-menu'>
-      <div><button class="x-button" onclick='closeMenu()'><strong>X</strong></button></div>
+      <div><button class="x-button" onclick='closeMenu(), returnConfirmBoxNodes(${id1}, ${id2})'><strong>X</strong></button></div>
       <div class='menu-pics-container'>
         <div style="display: flex; flex-direction: column; justify-content:center; align-items:center;">
           <img class='menu-pic' src='../../static/tree/images/pictures/Kennedy/${id1}.PNG'/>
@@ -685,7 +687,6 @@ function testAdd(node1, node2) {
     </div>`)
 }
 
-//FIXME: Data loss when pulling from NodeContainer
 function openNodeOptions(id) {
   let node = getNode(id);
   let idBirthyear = node.birthyear;
@@ -735,21 +736,30 @@ function editNode(id) {
   let birthyear = node.birthyear;
   let name = node.name;
 
-
   $('#menu-buttons').html(
     `<form id="editForm">
-      <label for="name">Name:</label>
-      <input id="name" type="text" value="${name}"><br><br>
-      <label for="byear">Birthyear:</label>
-      <input id="byear" type="text" value="${birthyear}"><br><br>
-      <input type="submit" value="Submit">
-    </form>`)
-
+      <div class="form-group">
+        <label for="name">Name</label>
+        <input type="text" class="form-control" id="name" value="${name}">
+      </div>
+      <div class="form-group">
+        <label for="byear">Birthyear</label>
+        <input type="text" class="form-control" id="byear" value="${birthyear}">
+      </div>
+      <button type="submit" class="btn btn-primary">Submit Edits</button>
+    </form>`
+  )
     $("#editForm").submit(function(e) {
       e.preventDefault();
 
       let inputYear = document.getElementById("byear").value
       let inputName = document.getElementById("name").value
+
+      if (inputYear.length != 4) {
+        alert("Birthyear must be 4 digit number")
+        closeMenu();
+        return;
+      }
 
       for (let i = 0; i < inputYear.length; ++i) {
         let isNumber = parseInt(inputYear[i])
@@ -868,7 +878,7 @@ function addMotherRelationship(id1, id2) {
   //This feature might not be wanted, might cause too many issues
   if (hasChildren(getNode(mother.spouse))) {
     alert("Spouse already has children, please add child to only one parent");
-    //returnConfirmBoxNodes();
+    returnConfirmBoxNodes(id1, id2);
     closeMenu();
     return;
   }
@@ -1438,7 +1448,8 @@ function getXBuffer(tree) {
 
 function fixGenerationSpacing(tree, rootNode) {
   
-  let highestGen = getHighestGenInTree(1, tree);
+  //let highestGen = getHighestGenInTree(1, tree);
+  let highestGen = getLongestGenChain();
   let rootNodeGen = getGeneration(rootNode);
   
   //BASE CASE: continue calling fixGenSpacing until the highest gen of the tree is reached
@@ -1787,6 +1798,8 @@ function setY(generation, genCount) {
   return (chartWidth + 250) - (chartWidth / genCount + 1) * generation;
 }
 
+//FIXME: Find better way, this takes way too much 
+
 function getLongestGenChain() {
   let genCount = 0;
   for (let value of dataMap.values()) {
@@ -1800,6 +1813,21 @@ function getLongestGenChain() {
   return genCount;
 }
 
+//TEST
+/*
+function getLongestGenChain(treeValue) {
+  let genCount = 0;
+  let rootNode = getRootNode(treeValue[0]);
+  for (let i = 0; i < treeValue.length; ++i) {
+    //If it or spouse does not have children, it is at lowest gen
+    if (!hasChildren(treeValue[i]) && !hasChildren(getNode(treeValue.spouse))) {
+      while (currNode.image != rootNode.image) {
+
+      }
+    }
+  }
+}
+*/
 function getPlaceInGeneration(node, generation) {
   let nodeArray = [];
   nodeArray = getNodesInGeneration(generation);
@@ -2048,6 +2076,8 @@ function hasRelationship(node) {
 
 //FIXME: Exceeds maximum stack frame at times
 function getGenerationCount(node, count) {
+  debugger
+
   if (node?.mother == null) {
     if (node?.spouse != null) {
       let spouse = getNode(node.spouse);
@@ -2328,23 +2358,16 @@ function checkRootNode() {
 }
 
 //If confirmBox menu is exited without changing relationship, confirmBox is cleared, this is to make sure that no node is lost
-//FIXME: REFACTOR
-function returnConfirmBoxNodes() {
+function returnConfirmBoxNodes(id1, id2) {
+  let node1 = getNode(id1);
+  let node2 = getNode(id2);
 
-  let confirmBox = document.getElementById('confirmBox');
-
-  for (let i = 0; i < confirmBox.children.length; ++i) {
-
-    if (confirmBox.children[i] instanceof HTMLParagraphElement) {continue}
-
-    let tmpNode = document.getElementById(confirmBox.children[i].id.substr(4));
-
-    if (tmpNode == null) {
-      addToNodeContainer(confirmBox.children[i].id.substr(4))
-    }
+  if (!hasRelationship(node1)) {
+    addToNodeContainer(id1);
   }
-
-  $('#confirmBox').html('');
+  if (!hasRelationship(node2)) {
+    addToNodeContainer(id2);
+  }
 }
 
 //FOR PRESENTATION
@@ -2542,4 +2565,19 @@ function zoomOut() {
 function resetZoom() {
   let treeChart = document.getElementById("treeChart");
   treeChart.style.zoom = 1;
+}
+
+function hideTree(id) {
+  let node = getNode(id);
+
+  let descendants = getDescendants(node, []);
+}
+
+function moveAnimation(tree) {
+  let htmlEls = []
+
+  for (let i = 0; i < tree.length; ++i) {
+    let el = document.getElementById(`${tree[i].image}`)
+    htmlEls.push(el);
+  }
 }
