@@ -545,10 +545,33 @@ function createDataPoints(treeValue) {
       li.innerHTML += `<div id='button${currNode.image}' onclick='openNodeOptions(${currNode.image})'>
       <img class="data-point data-button" src="../../static/tree/images/pictures/Kennedy/${currNode.image}.PNG" onmouseenter='hoverMenu(${currNode.image})' onmouseleave='closeHoverMenu()'>
       </div>`
+
+      if (hasChildren(currNode)) {
+        li.innerHTML += `<button id="${currNode.image}-hide-button" class='expand-tree' onclick="hideTree(${currNode.image}); changeButton(${currNode.image}, 'hide')">&#8593</button>`
+      }
     
       chartList.appendChild(li);
     }
   }
+}
+
+function changeButton(id, method) {
+  debugger
+
+  let hideButton = document.getElementById(`${id}-hide-button`);
+
+  console.log(hideButton.attributes.onclick.nodeValue)
+
+  if (method == 'show') {
+    hideButton.attributes.onclick.nodeValue = `"hideTree(${id}); changeButton(${id}, 'hide')"`;
+    hideButton.innerHTML = "&#8593";
+  }
+  if (method == 'hide') {
+    hideButton.attributes.onclick.nodeValue = `"showTree(${id}); changeButton(${id}, 'show')"`;
+    hideButton.innerHTML = "&#8595";
+  }
+
+  console.log(hideButton.attributes.onclick.nodeValue)
 }
 
 function createLines() {

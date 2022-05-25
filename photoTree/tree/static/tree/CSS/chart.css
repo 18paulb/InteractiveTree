@@ -53,6 +53,21 @@
   left: calc(var(--x) - 23px);
 }
 
+.expand-tree {
+  background-color: white;
+  border-radius: 50%;
+  position: absolute;
+  height: 1.5rem;
+  width: 1.5rem;
+
+  display:flex;
+  justify-content: center;
+  align-items: center;
+
+  bottom: calc(var(--y) - 40px);
+  left: calc(var(--x) - 12px);
+}
+
 .data-point:hover {
   transition-duration: 0.25s;
   transform: scale(1.2);
