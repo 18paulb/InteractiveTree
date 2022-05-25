@@ -12,7 +12,6 @@
   height: 100%;
 
   /* A little breathing room should there be others items around the chart */
-  margin: .5em;
   /* Remove any padding so we have as much space to work with inside the element */
   padding: 0;
   position: relative;
@@ -303,7 +302,6 @@ body {
   line-height: 24px;
   opacity: 1;
   outline: 0 solid transparent;
-  padding: 8px 18px;
   user-select: none;
   -webkit-user-select: none;
   touch-action: manipulation;
@@ -314,4 +312,20 @@ body {
 .zoom-btn:hover {
   transition-duration: 0.2s;
   background-color: rgb(185, 176, 176);
+}
+
+.tree-animation {
+  width: 100px;
+  height: 100px;
+  background-color: red;
+  position: absolute;
+  animation-name: treeMove;
+  animation-duration: 4s;
+}
+@keyframes treeMove {
+  0%   {background-color:red; left:0px; top:0px;}
+  25%  {background-color:yellow; left:200px; top:0px;}
+  50%  {background-color:blue; left:200px; top:200px;}
+  75%  {background-color:green; left:0px; top:200px;}
+  100% {background-color:red; left:0px; top:0px;}
 }
