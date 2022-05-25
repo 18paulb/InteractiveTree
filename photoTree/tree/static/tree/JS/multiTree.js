@@ -1242,6 +1242,7 @@ function shiftChart(tree) {
   if (dataMap.size > 1) {shiftTree(treeSpace, tree)};
 
   //3. Find the furthest down generation in the tree and adjust the spacing so there are no overlaps
+  debugger
   let rootNode = getRootNode(tree[0]);
   fixGenerationSpacing(tree, rootNode);
 
@@ -1435,51 +1436,6 @@ function getXBuffer(tree) {
   return 0;
 }
 
-function adjustHigherGenNodes(nodeMother, currentMomNodeXPos) {
-
-  let mother = getNode(nodeMother)
-
-  //Get an array of the children nodes
-  let childNodeArray = getChildren(mother);
-  let nodesToAdjust = []
-
-  //1. Get the xPositions of all nodes besides the mom and her children
-  //FIXME: Would you want to iterate through all values? or Just val of tree
-  for (let value of dataMap.values()) {
-    for (let i = 0; i < value.length; ++i) {
-      for (let j = 0; j < childNodeArray.length; ++j) {
-        if ((childNodeArray[j].image == value[i].image) && isOnTree(value[i])) {
-          nodesToAdjust.push(value[i]);
-        }
-      }
-    }
-  }
-
-  let nodesXPositions = []
-  for (let i = 0; i < nodesToAdjust.length; i++) {
-    nodesXPositions.push(getX(nodesToAdjust[i].image));
-  }
-
-  //2. Adjust the xPositions of elements in the momXPositions array
-  let adjustX;
-
-  for (let i = 0; i < nodesXPositions.length; i++) {
-    if (nodesXPositions[i] > currentMomNodeXPos) {
-      nodesXPositions[i] += adjustX;
-    }
-    else if (nodesXPositions[i] < currentMomNodeXPos) {
-      nodesXPositions[i] -= adjustX;
-    }
-  }
-
-  //3. Adjust the corresponding node elements with their new xPositions
-  for (let i = 0; i < nodesToAdjust.length; i++) {
-    let node = document.getElementById(nodesToAdjust[i].image);
-    let originalY = parseAttribute('y', node.style.cssText);
-    node.setAttribute('style', `--y: ${originalY}px; --x: ${nodesXPositions[i]}px`);
-  }
-}
-
 function fixGenerationSpacing(tree, rootNode) {
   
   let highestGen = getHighestGenInTree(1, tree);
@@ -1530,11 +1486,14 @@ function fixGenerationSpacing(tree, rootNode) {
             childOverlap = true;
           }
           
+          let prevChildSpouse;
+          let prevChildSpouseXPos;
+          
           //if prevChild has a spouse, then update currChild by prevChild spouse's XPos
           if (hasSpouse(prevChild)) {
             
-            let prevChildSpouse = getNode(prevChild.spouse);
-            let prevChildSpouseXPos = getX(prevChildSpouse.image); 
+            prevChildSpouse = getNode(prevChild.spouse);
+            prevChildSpouseXPos = getX(prevChildSpouse.image); 
     
             updatedXPos = prevChildSpouseXPos + spacing;
             
@@ -1558,47 +1517,53 @@ function fixGenerationSpacing(tree, rootNode) {
             let leftmostChild;
             let leftmostChildXPos;
 
+            let diff;
             //get the leftmostChild of the currChild
             if (hasChildren(currChildSpouse)) {
               leftmostChild = getFarthestDownLeftChild(currChildSpouse);
               leftmostChildXPos = getX(leftmostChild.image);
+              let currChildSpouseXPos = getX(currChildSpouse.spouse);
+              diff = currChildSpouseXPos - leftmostChildXPos;
             }
             if (hasChildren(currChild)) {
               leftmostChild = getFarthestDownLeftChild(currChild);
               leftmostChildXPos = getX(leftmostChild.image);
-            }
-            let diff = currChildXPos - leftmostChildXPos;
-
-            //if there is only one child, then make the diff equal to spacing / 2
-            if (diff == 0) {
-              diff = spacing / 2;
+              diff = currChildXPos - leftmostChildXPos;
             }
 
             //check to prevent overlap from spouses in higher gens
             if (hasSpouse(rightmostChild) || (hasSpouse(getNode(rightmostChild.mother)) && rootNodeGen >= 3)) {
               rightmostChildXPos += spacing;
             }
-
-            updatedXPos = rightmostChildXPos + (spacing / 2) + diff;
+            updatedXPos = rightmostChildXPos + spacing + diff;
           }
 
           //add updated xPos to newXPositions
           newXPositions.set(currChild, updatedXPos);
-
+          
           //update all node's x positions with their new X positions
           updateXPos(currChild, newXPositions.get(currChild));
+          
+          //A check needed to prevent overlap of spouses with previously updated nodes
+          if (hasSpouse(prevChild)) {
+            currChildXPos = getX(currChild.image);
+            prevChildSpouseXPos = getX(prevChildSpouse.image);
+
+            if (currChildXPos - prevChildSpouseXPos < spacing) {
+              // console.log(`found overlap between node ${currChild.image} and node ${prevChildSpouse.image}`)
+              // console.log(`node ${currChild.image}'s xPos: ${getX(currChild.image)}`)
+              // console.log(`node ${prevChildSpouse.image}'s xPos: ${getX(prevChildSpouse.image)}`)
+
+              updatedXPos += spacing - (currChildXPos - prevChildSpouseXPos);
+              newXPositions.set(currChild, updatedXPos);
+              updateXPos(currChild, newXPositions.get(currChild));
+            }
+          } 
         }
 
         //RECURSIVE CALLS: for each rootNodeChild, call fixGenSpacing
-        let inShiftGenSpacing = true;
-        if (hasChildren(currChild)) {
-          fixGenerationSpacing(tree, currChild);
-          //adjustRootNode(currChild, inShiftGenSpacing);
-        }   
-        else if (hasChildren(currChildSpouse)) {
-          let currChildSpouseXPos = getX(currChildSpouse.image);
+        if (hasChildren(currChildSpouse)) {
           fixGenerationSpacing(tree, currChildSpouse);
-          //adjustRootNode(currChildSpouse, inShiftGenSpacing);
         }
         else {
           fixGenerationSpacing(tree, currChild);
@@ -1629,11 +1594,8 @@ function getSpaceBetweenNodes(gen) {
   if (gen == 2) {
     return spacing;
   }
-  else if (gen == 3) {
+  else {
     spacing = 70;
-  }
-  else if (gen > 3) {
-    spacing = 50;
   }
   return spacing;
 }
@@ -1647,35 +1609,50 @@ function updateXPos(node, newXPos) {
   //updates xPos of the node
   setX(node, newXPos);
 
+  let nodeChildren;
+  
   //if node has spouse
   if (node.spouse != null) {
+    let nodeSpouse = getNode(node.spouse);
     newXPos = newXPos + 100;
-    setX(getNode(node.spouse), newXPos);
+    setX(nodeSpouse, newXPos);
 
     //if node's spouse has children
-    if (hasChildren(getNode(node.spouse))) {
-      let nodeChildren = getChildren(getNode(node.spouse));
-      
-      for (let i = 0; i < nodeChildren.length; i++) {
-        setX(nodeChildren[i], setChildX(nodeChildren[i], getWidthOfFamily(nodeChildren[i])));
-        
-        if (hasChildren(nodeChildren[i])) {
-          updateXPos(nodeChildren[i], setChildX(nodeChildren[i], getWidthOfFamily(nodeChildren[i])));
-        }
-      }
+    if (hasChildren(nodeSpouse)) {
+      nodeChildren = getChildren(nodeSpouse);
+      shiftChildrenX(nodeSpouse, nodeChildren);
     }
   }
   //if node has children
   if (hasChildren(node)) {
-    let nodeChildren = getChildren(node);
+    nodeChildren = getChildren(node);
+    shiftChildrenX(node, nodeChildren);
+  }
+}
+
+function shiftChildrenX(nodeMother, nodeChildren) {
+  
+  //get the XPos of the mother node
+  let motherXPos = getX(nodeMother.image);
+  
+  //set spacing between children (can change later)
+  let spacing = 70;
+
+  //define the factor to shift all the child nodes by so they are centered under the mother
+  let shiftFactor = spacing * ((nodeChildren.length - 1) / 2);
+
+  let newXPositions = new Map();
+  for (let childId = 0; childId < nodeChildren.length; childId++) {
+    let currChild = nodeChildren[childId];
     
-    for (let i = 0; i < nodeChildren.length; i++) {
-      setX(nodeChildren[i], setChildX(nodeChildren[i], getWidthOfFamily(nodeChildren[i])));
-      
-      if (hasChildren(nodeChildren[i])) {
-        updateXPos(nodeChildren[i], setChildX(nodeChildren[i], getWidthOfFamily(nodeChildren[i])));
-      }
-    }
+    //set the childXPos as a factor of spacing
+    let newChildXPos = motherXPos + spacing * childId - shiftFactor;
+
+    //store the newXPositions in a map
+    newXPositions.set(currChild, newChildXPos);
+
+    //set the newXPositions shifted over by the shiftFactor
+    setX(currChild, newXPositions.get(currChild));
   }
 }
 
@@ -1684,7 +1661,7 @@ function updateXPos(node, newXPos) {
  * of the root node and sets the x position of the rootnode
  * and root spouse at the central position of those two nodes.
 **/
-function adjustRootNode(rootNode, inShiftGenSpacing) {
+function adjustRootNode(rootNode) {
 
   //In case this tree has no children yet is still root node ie just a spouse tree (2 nodes)
   if (!hasChildren(rootNode)) {
@@ -1700,34 +1677,19 @@ function adjustRootNode(rootNode, inShiftGenSpacing) {
   
   //Will place root node in the middle of the rightMost and leftMost children
   let newXPos = (leftChildX + rightChildX) / 2;
-  let diff = originalXPos - newXPos;
 
   if (newXPos != originalXPos) {
-
-    //TEST: trying to find the best way to shift the bottom nodes over correctly
-    if (inShiftGenSpacing) {
-      //shift everything in bottom gens over by diff
-      let rootNodeChildren = getChildren(rootNode);
-      for (let i = 0; i < rootNodeChildren.length; i++) {
-        let rootNodeChildXPos = getX(rootNodeChildren[i].image);
-        updateXPos(rootNodeChildren[i], rootNodeChildXPos + diff);
-      }
-    }
-    else {
-      //set the newXPos for rootNode and its spouse
-      setX(rootNode, newXPos);
-      
-      let rootNodeSpouse = getNode(rootNode.spouse);
-
-      if (rootNodeSpouse != null) {
-        let spouseMother = getNode(rootNodeSpouse.mother);
-        
-        if (spouseMother != null) {
-          setX(rootNodeSpouse, newXPos - 100);
-        } 
-        else {
-          setX(rootNodeSpouse, newXPos + 100);
-        }
+    //set the newXPos for rootNode and its spouse
+    setX(rootNode, newXPos);
+    
+    let rootNodeSpouse = getNode(rootNode.spouse);
+    if (rootNodeSpouse != null) {
+      let spouseMother = getNode(rootNodeSpouse.mother); 
+      if (spouseMother != null) {
+        setX(rootNodeSpouse, newXPos - 100);
+      } 
+      else {
+        setX(rootNodeSpouse, newXPos + 100);
       }
     }
   }
@@ -1747,29 +1709,6 @@ function setX(node, newXPos) {
  */
 function setInitialX(currGen, placeInGen) {
   let xPos = (chartWidth / (getNumInGeneration(currGen) + 1)) * placeInGen;
-  return xPos;
-}
-
-//setX for gen3 and above nodes
-//TODO: Replace all instances of this function
-function setChildX(node, widthOfFamily) {
-  
-  let numChildren = getNumChildrenInFamily(node);
-  let placeInFam = getPlaceInFamily(node);
-
-  let nodeMother = node.mother;
-  let momXPos = getX(nodeMother);
-
-  let famSpacing = widthOfFamily / (numChildren + 1);
-
-  let momGen = getGeneration(node.mother);
-  let momsInGen = getMomsInGen(momGen);
-
-  let xPos;
-  for (let i = 0; i < momsInGen.length; i++) {
-    xPos = (famSpacing * placeInFam) + (momXPos - (widthOfFamily / 2));
-  }
-  
   return xPos;
 }
 
