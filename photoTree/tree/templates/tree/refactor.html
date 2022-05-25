@@ -34,17 +34,13 @@
       </div>
 
       <div style="display: flex; flex-direction: column; align-items: center; width: 20%">
-        <div style="display: flex; align-items: center; width: 100%">
-          <div>
-            <button class="zoom-btn" onclick="zoomIn()">+</button>
-            <button class="zoom-btn" onclick="zoomOut()">-</button>
+        <!--flex-direction: row; width: 100%">-->
+          <div style="display:flex; justify-content: space-evenly;">
+            <button class="zoom-btn" onclick="zoomIn()">&#65291</button>
+            <button class="zoom-btn" onclick="zoomOut()">&#65293</button>
             <button class="zoom-btn" onclick="resetZoom()">&#x21bb</button>
           </div>
-
-          <div id="confirmBox" class="confirm-box" style="width: 100%;">
-            <p>Clicked nodes come here</p>
-          </div>
-        </div>
+        <!--</div>-->
 
         <div id="menu-position" style="width: 100%;"></div>
       </div>

@@ -540,7 +540,7 @@ function createDataPoints(treeValue) {
       li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`);
 
       //append each element to the tree
-      li.innerHTML += `<div id='button${currNode.image}' onclick='addToConfirmBox(${currNode.image})'>
+      li.innerHTML += `<div id='button${currNode.image}' onclick='openNodeOptions(${currNode.image})'>
       <img class="data-point data-button" src="../../static/tree/images/pictures/Kennedy/${currNode.image}.PNG" onmouseenter='hoverMenu(${currNode.image})' onmouseleave='closeHoverMenu()'>
       </div>`
     
@@ -658,26 +658,20 @@ function testAdd(node1, node2) {
   let id1Birthyear = node1.birthyear;
   let id2Birthyear = node2.birthyear;
 
-  addToConfirmBox(id1);
-  addToConfirmBox(id2);
-
-  let confirmBox = document.getElementById('confirmBox');
-  confirmBox.innerHTML = "<p>Clicked nodes come here</p>"
-
   $('#menu-position').html(
     `<div id='center-menu' class='center-menu'>
-      <div><button class="x-button" onclick='returnConfirmBoxNodes(); closeMenu()'><strong>X</strong></button></div>
+      <div><button class="x-button" onclick='closeMenu()'><strong>X</strong></button></div>
       <div class='menu-pics-container'>
         <div style="display: flex; flex-direction: column; justify-content:center; align-items:center;">
           <img class='menu-pic' src='../../static/tree/images/pictures/Kennedy/${id1}.PNG'/>
-          <div id ='node-${id1}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px;'>
+          <div id ='node-${id1}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px; text-align:center'>
             <div><b>${node1.name}</b></div>
             <div><b>${id1Birthyear}</b></div>
           </div>
         </div>
         <div style="display: flex; flex-direction: column; justify-content:center; align-items:center;">
           <img class='menu-pic' src='../../static/tree/images/pictures/Kennedy/${id2}.PNG'/>
-          <div id ='node-${id2}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px;'>
+          <div id ='node-${id2}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px; text-align:center'>
             <div><b>${node2.name}</b></div>
             <div><b>${id2Birthyear}</b></div>
           </div>
@@ -691,14 +685,34 @@ function testAdd(node1, node2) {
     </div>`)
 }
 
-function openNodeOptions(node) {
-  let id = node.image;
+//FIXME: Data loss when pulling from NodeContainer
+function openNodeOptions(id) {
+  let node = getNode(id);
   let idBirthyear = node.birthyear;
 
+  //If there is already a node, add the 2nd node
+  //All code in if is just to parse the id
+  if (document.getElementById("menu-position").innerHTML != "") {
+    let container = document.getElementById("menu-position");
+    let currMenuNodeId = container.children[0].id;
+    let id = ""
+
+    for (let i = 0; i < currMenuNodeId.length; ++i) {
+      if (isNaN(currMenuNodeId[i])) {
+        break;
+      }
+      id += currMenuNodeId[i];
+    }
+
+    id = parseInt(id);
+    testAdd(getNode(id), node);
+    return;
+  }
+
   $('#menu-position').html(
-    `<div id='center-menu' class='center-menu'>
-      <div><button class="x-button" onclick='returnConfirmBoxNodes(); closeMenu()'><strong>X</strong></button></div>
-      <div class='menu-pics-container'>
+    `<div id='${id}center-menu' class='center-menu'>
+      <div><button class="x-button" onclick='closeMenu()'><strong>X</strong></button></div>
+      <div id="menu-pics" class='menu-pics-container'>
         <div style="display: flex; flex-direction: column; justify-content:center; align-items:center;">
           <img class='menu-pic' src='../../static/tree/images/pictures/Kennedy/${id}.PNG'/>
           <div id ='node-${id}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px;'>
@@ -716,7 +730,6 @@ function openNodeOptions(node) {
 }
 
 function editNode(id) {
-  debugger
 
   let node = getNode(id)
   let birthyear = node.birthyear;
@@ -855,7 +868,7 @@ function addMotherRelationship(id1, id2) {
   //This feature might not be wanted, might cause too many issues
   if (hasChildren(getNode(mother.spouse))) {
     alert("Spouse already has children, please add child to only one parent");
-    returnConfirmBoxNodes();
+    //returnConfirmBoxNodes();
     closeMenu();
     return;
   }
@@ -1141,65 +1154,6 @@ function combineTrees(originalTree, treeToBeAdded) {
   dataMap.delete(rootKey.image);
 }
 
-function addToConfirmBox(id) {
-  let box = document.getElementById("confirmBox");
-
-  //Doesn't let you add a node twice
-  for (let i = 0; i < box.children.length; ++i) {
-    if (box.children[i].id == `node${id}`) {
-      return;
-    }
-  }
-
-  //TEST
-  openNodeOptions(getNode(id));
-
-  //Get rid of starting text
-  if (box.children.length == 1 && box.children[0] instanceof HTMLParagraphElement) {
-    $('#confirmBox').html('');
-  }
-
-  //Doesn't let you add more than 2 nodes
-  if (box.children.length >= 2) {
-    alert("Can't have more than 2 nodes in confirmation box.");
-    $('#confirmBox').html('');
-    return;
-  }
-
-  let nodeId = `node${id}`;
-  let img = document.createElement('img');
-
-  img.setAttribute('id', nodeId);
-  img.setAttribute('class', 'node-image');
-  img.setAttribute('src', `../../static/tree/images/pictures/Kennedy/${id}.PNG`);
-
-  $('#confirmBox').append(img);
-
-  //sets border for confirmBox
-
-  if ($('#confirmBox').children.length > 0) {
-    $('#confirmBox').css('border', '2px solid black');
-  }
-
-  //Parses id to just original ID
-  let children = [];
-
-  for (let i = 0; i < box.children.length; ++i) {
-    children.push(box.children[i].id.substr(4))
-  }
-
-  //Opens menu with all the info
-  if (children.length == 2) {
-    let param1 = children[0];
-    let param2 = children[1];
-
-    let node1 = getNode(parseInt(param1));
-    let node2 = getNode(parseInt(param2))
-
-    testAdd(node1, node2)
-  }
-}
-
 function addToNodeContainer(id) {
   nodeBoxData.push(getNode(id))
 
@@ -1214,7 +1168,7 @@ function addToNodeContainer(id) {
 
   button.setAttribute('id', `button${id}`);
   button.setAttribute('class', 'nodeBox-button');
-  button.setAttribute('onclick', `addToConfirmBox(${id}), removeFromNodeContainer(${id})`);
+  button.setAttribute('onclick', `openNodeOptions(${id}), removeFromNodeContainer(${id})`);
 
   button.appendChild(img);
 
@@ -1270,9 +1224,6 @@ function closeMenu() {
   let menu = document.getElementById('menu-position')
 
   menu.innerHTML = '';
-
-  let confirmBox = document.getElementById('confirmBox');
-  confirmBox.innerHTML = "<p>Clicked nodes come here</p>"
 }
 
 //Spacing
@@ -1302,7 +1253,6 @@ function shiftChart(tree) {
   shiftNodesByMarginY(tree)
 }
 
-//TODO: How do we want to do this?
 function shiftNodesByMarginY(tree) {
   //Get the highest yPos on entire tree
   let yPos = getY(tree[0].image)
@@ -1484,7 +1434,6 @@ function getXBuffer(tree) {
   }
   return 0;
 }
-
 
 function adjustHigherGenNodes(nodeMother, currentMomNodeXPos) {
 
@@ -2440,6 +2389,7 @@ function checkRootNode() {
 }
 
 //If confirmBox menu is exited without changing relationship, confirmBox is cleared, this is to make sure that no node is lost
+//FIXME: REFACTOR
 function returnConfirmBoxNodes() {
 
   let confirmBox = document.getElementById('confirmBox');
