@@ -2,9 +2,36 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Photo Family Tree</title>
-    <link rel="stylesheet" href="../../static/tree/CSS/chart.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="../../static/tree/CSS/chart.css"/>
+
+    <style>
+      /* width */
+      ::-webkit-scrollbar {
+        width: 10px;
+        height: 12px;
+      }
+      
+      /* Track */
+      ::-webkit-scrollbar-track {
+        background: #f1f1f1; 
+        visibility: hidden;
+      }
+       
+      /* Handle */
+      ::-webkit-scrollbar-thumb {
+        background: rgb(175, 175, 175); 
+        border-radius: 10px;
+      }
+      
+      /* Handle on hover */
+      ::-webkit-scrollbar-thumb:hover {
+        background: rgb(129, 129, 129); 
+      }
+      </style>
+    
 
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js'></script>
   </head>
@@ -46,7 +73,7 @@
 
     </div>
 
-    <div class="tree-animation"></div>
+    <!--<div class="tree-animation"></div>-->
 
     <!--<div id="center-menu"></div>-->
 

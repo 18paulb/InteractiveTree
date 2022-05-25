@@ -723,9 +723,11 @@ function openNodeOptions(id) {
         </div>
       </div>
       <div id="menu-buttons" class='menu-button'>
-        <button id='hiddenFamilyButton' class='button-34' onclick='getHiddenFamily(${id})'>Show Family</button>
+        <button id='hiddenFamilyButton' class='button-34' onclick='getHiddenFamily(${id})'>Show Hidden Family</button>
         <button id='editButton' class='button-34' onclick='editNode(${id})'>Edit Info</button>
         <button id='removeButton' class='button-34' onclick='deleteNode(${id});'>Delete Node</button>
+        <button class='button-34' onclick='hideTree(${id})'>Hide Tree</button>
+        <button class='button-34' onclick='showTree(${id})'>Show Tree</button>
       </div>
     </div>`)
 }
@@ -1245,14 +1247,12 @@ function closeMenu() {
 **/
 function shiftChart(tree) {
 
-
   //If there are multiple trees, then shift those trees to the right accordingly
   //FIXME: Doesn't work in all cases, what if you check spacing between all spaced trees (leftmost/rightmost nodes) and position from there
   let treeSpace = getXBuffer(tree);
   if (dataMap.size > 1) {shiftTree(treeSpace, tree)};
 
   //3. Find the furthest down generation in the tree and adjust the spacing so there are no overlaps
-  debugger
   let rootNode = getRootNode(tree[0]);
   fixGenerationSpacing(tree, rootNode);
 
@@ -1524,6 +1524,8 @@ function fixGenerationSpacing(tree, rootNode) {
           }
           
           if (childOverlap) {
+
+            debugger
 
             let leftmostChild;
             let leftmostChildXPos;
@@ -2046,6 +2048,7 @@ function parseAttribute(lookFor, attribute) {
           numString += attribute[j];
           j++;
         }
+        break;
       }
     }
   }
@@ -2076,7 +2079,6 @@ function hasRelationship(node) {
 
 //FIXME: Exceeds maximum stack frame at times
 function getGenerationCount(node, count) {
-  debugger
 
   if (node?.mother == null) {
     if (node?.spouse != null) {
@@ -2568,9 +2570,67 @@ function resetZoom() {
 }
 
 function hideTree(id) {
+
   let node = getNode(id);
 
   let descendants = getDescendants(node, []);
+
+  //Hides Descendants Nodes
+  for (let i = 0; i < descendants.length; ++i) {
+    if (descendants[i].image == node.spouse) {continue;} 
+    let el = document.getElementById(`${descendants[i].image}`);
+    el.style.visibility = "hidden";
+  }
+
+  //Hides SVG Lines
+  let lines = document.getElementById("lines");
+  for (let i = 0; i < lines.children.length; ++i) {
+    if (lines.children[i].x1.baseVal.value == getX(node.image) || lines.children[i].x2.baseVal.value == getX(node.image)) {
+      if (lines.children[i].x1.baseVal.value == getX(node.mother) || lines.children[i].x2.baseVal.value == getX(node.mother) || lines.children[i].x1.baseVal.value == getX(node.spouse) || lines.children[i].x2.baseVal.value == getX(node.spouse)) {
+        continue;
+      } else {
+        lines.children[i].style.visibility = "hidden";
+      }
+    }
+    //Makes hidden all lines that the descendants are connected to
+    for (let j = 0; j < descendants.length; ++j) {
+      if (descendants[j].image == node.spouse) {continue;} 
+      if (lines.children[i].x1.baseVal.value == getX(descendants[j].image) || lines.children[i].x2.baseVal.value == getX(descendants[j].image)) {
+        lines.children[i].style.visibility = "hidden";
+      }
+    }
+  }
+}
+
+function showTree(id) {
+  let node = getNode(id);
+  let descendants = getDescendants(node, []);
+
+  //Reveals Descendant Nodes
+  for (let i = 0; i < descendants.length; ++i) {
+    if (descendants[i].image == node.spouse) {continue;}
+    let el = document.getElementById(`${descendants[i].image}`);
+    el.style.visibility = "visible";
+  }
+
+  //Receals SVG Lines
+  let lines = document.getElementById("lines");
+  for (let i = 0; i < lines.children.length; ++i) {
+    if (lines.children[i].x1.baseVal.value == getX(node.image) || lines.children[i].x2.baseVal.value == getX(node.image)) {
+      if (lines.children[i].x1.baseVal.value == getX(node.mother) || lines.children[i].x2.baseVal.value == getX(node.mother) || lines.children[i].x1.baseVal.value == getX(node.spouse) || lines.children[i].x2.baseVal.value == getX(node.spouse)) {
+        continue;
+      } else {
+        lines.children[i].style.visibility = "visible";
+      }
+    }
+    //Reveals all lines that the descendants are connected to
+    for (let j = 0; j < descendants.length; ++j) {
+      if (descendants[j].image == node.spouse) {continue;} 
+      if (lines.children[i].x1.baseVal.value == getX(descendants[j].image) || lines.children[i].x2.baseVal.value == getX(descendants[j].image)) {
+        lines.children[i].style.visibility = "visible";
+      }
+    }
+  }
 }
 
 function moveAnimation(tree) {
