@@ -1537,7 +1537,7 @@ function fixGenerationSpacing(tree, rootNode) {
   let rootNodeGen = getGeneration(rootNode);
   
   //BASE CASE: continue calling fixGenSpacing until the highest gen of the tree is reached
-  if (rootNodeGen < highestGen) {
+  if (rootNodeGen <= highestGen) {
     
     if (hasChildren(rootNode)) {
 
@@ -1608,32 +1608,27 @@ function fixGenerationSpacing(tree, rootNode) {
 
             let leftmostChild;
             let leftmostChildXPos;
-            let diff;
 
             //get the leftmostChild of the currChild
             if (hasChildren(currChildSpouse)) {
               leftmostChild = getFarthestDownLeftChild(currChildSpouse);
               leftmostChildXPos = getX(leftmostChild.image);
-              
-              let currChildSpouseXPos = getX(currChildSpouse.image);
-              diff = currChildSpouseXPos - leftmostChildXPos;
             }
             if (hasChildren(currChild)) {
               leftmostChild = getFarthestDownLeftChild(currChild);
               leftmostChildXPos = getX(leftmostChild.image);
-              
-              diff = currChildXPos - leftmostChildXPos;
             }
+            let diff = currChildXPos - leftmostChildXPos;
 
             //if there is only one child, then make the diff equal to spacing / 2
             if (diff == 0) {
               diff = spacing / 2;
             }
 
-            // //check to prevent overlap in higher gens
-            // if (hasSpouse(rightmostChild) || (hasSpouse(getNode(rightmostChild.mother)) && rootNodeGen >= 3)) {
-            //   rightmostChildXPos += spacing;
-            // }
+            //check to prevent overlap from spouses in higher gens
+            if (hasSpouse(rightmostChild) || (hasSpouse(getNode(rightmostChild.mother)) && rootNodeGen >= 3)) {
+              rightmostChildXPos += spacing;
+            }
 
             updatedXPos = rightmostChildXPos + (spacing / 2) + diff;
           }
@@ -1646,14 +1641,15 @@ function fixGenerationSpacing(tree, rootNode) {
         }
 
         //RECURSIVE CALLS: for each rootNodeChild, call fixGenSpacing
+        let inShiftGenSpacing = true;
         if (hasChildren(currChild)) {
           fixGenerationSpacing(tree, currChild);
-          //adjustRootNode(currChild);
-
+          //adjustRootNode(currChild, inShiftGenSpacing);
         }   
         else if (hasChildren(currChildSpouse)) {
+          let currChildSpouseXPos = getX(currChildSpouse.image);
           fixGenerationSpacing(tree, currChildSpouse);
-          //adjustRootNode(currChildSpouse);
+          //adjustRootNode(currChildSpouse, inShiftGenSpacing);
         }
         else {
           fixGenerationSpacing(tree, currChild);
@@ -1679,7 +1675,7 @@ function getSpaceBetweenNodes(gen) {
   }
   return spacing;
   */
-  let spacing = 200;
+  let spacing = 100;
   
   if (gen == 2) {
     return spacing;
@@ -1739,10 +1735,9 @@ function updateXPos(node, newXPos) {
  * of the root node and sets the x position of the rootnode
  * and root spouse at the central position of those two nodes.
 **/
-function adjustRootNode(rootNode) {
+function adjustRootNode(rootNode, inShiftGenSpacing) {
 
   //In case this tree has no children yet is still root node ie just a spouse tree (2 nodes)
-
   if (!hasChildren(rootNode)) {
     return;
   }
@@ -1756,20 +1751,34 @@ function adjustRootNode(rootNode) {
   
   //Will place root node in the middle of the rightMost and leftMost children
   let newXPos = (leftChildX + rightChildX) / 2;
+  let diff = originalXPos - newXPos;
 
   if (newXPos != originalXPos) {
 
-    //set the newXPos for rootNode and its spouse
-    setX(rootNode, newXPos);
-    
-    let rootNodeSpouse = getNode(rootNode.spouse);
+    //TEST: trying to find the best way to shift the bottom nodes over correctly
+    if (inShiftGenSpacing) {
+      //shift everything in bottom gens over by diff
+      let rootNodeChildren = getChildren(rootNode);
+      for (let i = 0; i < rootNodeChildren.length; i++) {
+        let rootNodeChildXPos = getX(rootNodeChildren[i].image);
+        updateXPos(rootNodeChildren[i], rootNodeChildXPos + diff);
+      }
+    }
+    else {
+      //set the newXPos for rootNode and its spouse
+      setX(rootNode, newXPos);
+      
+      let rootNodeSpouse = getNode(rootNode.spouse);
 
-    if (rootNodeSpouse != null) {
-      let spouseMother = getNode(rootNodeSpouse.mother);
-      if (spouseMother != null) {
-        setX(rootNodeSpouse, newXPos - 100);
-      } else {
-        setX(rootNodeSpouse, newXPos + 100);
+      if (rootNodeSpouse != null) {
+        let spouseMother = getNode(rootNodeSpouse.mother);
+        
+        if (spouseMother != null) {
+          setX(rootNodeSpouse, newXPos - 100);
+        } 
+        else {
+          setX(rootNodeSpouse, newXPos + 100);
+        }
       }
     }
   }
