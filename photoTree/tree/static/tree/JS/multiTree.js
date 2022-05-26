@@ -1469,6 +1469,11 @@ function getXBuffer(tree) {
   return 0;
 }
 
+/**
+ * Adjusts all of the x positioning of nodes in the tree.
+ * @param {the tree that's passed in} tree 
+ * @param {the root node of the tree} rootNode 
+ */
 function fixGenerationSpacing(tree, rootNode) {
   
   //let highestGen = getHighestGenInTree(1, tree);
@@ -1541,14 +1546,11 @@ function fixGenerationSpacing(tree, rootNode) {
             }
 
             if (prevChildSpouseXPos > rightmostChildXPos) {
-              spouseOverlap = true;
               rightmostChildXPos = prevChildSpouseXPos;
             }
           }
           
           if (childOverlap) {
-
-            debugger
 
             let leftmostChild;
             let leftmostChildXPos;
@@ -1568,9 +1570,10 @@ function fixGenerationSpacing(tree, rootNode) {
             }
 
             //check to prevent overlap from spouses in higher gens
-            if (hasSpouse(rightmostChild) || (hasSpouse(getNode(rightmostChild.mother)) && rootNodeGen >= 3)) {
+            if (hasSpouse(rightmostChild) || (hasSpouse(getNode(rightmostChild.mother)) && getGeneration(currChild) >= 3)) {
               rightmostChildXPos += spacing;
             }
+
             updatedXPos = rightmostChildXPos + spacing + diff;
           }
 
@@ -1579,6 +1582,9 @@ function fixGenerationSpacing(tree, rootNode) {
           
           //update all node's x positions with their new X positions
           updateXPos(currChild, newXPositions.get(currChild));
+
+          //if previous nodes have overlapping children, this check spaces out nodes accordingly
+          shiftOverlappingNodes(rootNodeChildren, spacing);
           
           //A check needed to prevent overlap of spouses with previously updated nodes
           if (hasSpouse(prevChild)) {
@@ -1611,23 +1617,67 @@ function fixGenerationSpacing(tree, rootNode) {
   }
 }
 
+/**
+ * Accounts for any unforseen overlapping nodes 
+ * @param {the children of the rootNode} rootNodeChildren 
+ * @param {how much space to put between each node} spacing 
+ */
+function shiftOverlappingNodes(rootNodeChildren, spacing) {
+  
+  //Loop through all of the rootNodeChildren
+  for (let i = 1; i < rootNodeChildren.length; i++) {
+    
+    let currChild = getMotherNode(rootNodeChildren[i]);
+    let currChildren;
+
+    //get children of the current child or its spouse
+    if (hasChildren(currChild)) {
+      currChildren = getChildren(currChild);
+    }
+    
+    if (currChildren != null) {
+      //loop through all of the nodes previous to the currChild
+      for (let j = i - 1; j >= 0; j--) {
+
+        let prevChild = getMotherNode(rootNodeChildren[j]);
+        let prevChildren;
+
+        //get children of the previous child or its spouse
+        if (hasChildren(prevChild)) {
+          prevChildren = getChildren(prevChild);
+        }
+
+        //if the previous node has children
+        if (prevChildren != null) {
+          
+          //get the leftmost child of the current node and rightmost child of the previous node
+          let rightmostChild = getFarthestDownRightChild(getMotherNode(prevChild));
+          let rightmostChildXPos = getX(rightmostChild.image);
+
+          let leftmostChild = getFarthestDownLeftChild(getMotherNode(currChild));
+          let leftmostChildXPos = getX(leftmostChild.image);
+
+          if ((leftmostChildXPos - rightmostChildXPos < spacing) && (getGeneration(leftmostChild) == getGeneration(rightmostChild))) {
+            let currChildXPos = getX(getMotherNode(currChild).image);
+            let diff = currChildXPos - leftmostChildXPos;
+            
+            //check to prevent overlap from spouses in higher gens
+            if (hasSpouse(rightmostChild) || (hasSpouse(getNode(rightmostChild.mother)) && getGeneration(currChild) >= 3)) {
+              rightmostChildXPos += spacing;
+            }
+
+            let updatedXPos = rightmostChildXPos + spacing + diff;
+            updateXPos(currChild, updatedXPos);
+          }
+        }
+      }
+    }
+  }
+}
+
 //FIXME: can change later, just made the spacing between nodes of each gen hardcoded values
 function getSpaceBetweenNodes(gen) {
-  /*
-  let spacing = 200;
-  
-  if (gen == 2) {
-    return spacing;
-  }
-  else if (gen == 3) {
-    spacing = 120;
-  }
-  else if (gen > 3) {
-    spacing = 100;
-  }
-  return spacing;
-  */
-  let spacing = 100;
+  let spacing = 120;
   
   if (gen == 2) {
     return spacing;
@@ -1648,6 +1698,7 @@ function updateXPos(node, newXPos) {
   setX(node, newXPos);
 
   let nodeChildren;
+  let hasDescendants = false;
   
   //if node has spouse
   if (node.spouse != null) {
@@ -1659,12 +1710,20 @@ function updateXPos(node, newXPos) {
     if (hasChildren(nodeSpouse)) {
       nodeChildren = getChildren(nodeSpouse);
       shiftChildrenX(nodeSpouse, nodeChildren);
+      hasDescendants = true;
     }
   }
   //if node has children
   if (hasChildren(node)) {
     nodeChildren = getChildren(node);
     shiftChildrenX(node, nodeChildren);
+    hasDescendants = true;
+  }
+
+  if (hasDescendants) {
+    for (let i = 0; i < nodeChildren.length; i++) {
+      updateXPos(nodeChildren[i], getX(nodeChildren[i].image));
+    }
   }
 }
 
@@ -2238,6 +2297,16 @@ function getRootNode(node) {
       }
     }
   }
+}
+
+function getMotherNode(node) {
+  if (hasSpouse(node)) {
+    let spouse = getNode(node.spouse);
+    if (hasChildren(spouse)) {
+      return spouse;
+    }
+  }
+  return node;
 }
 
 function getLeftmostChild(momNode) {
