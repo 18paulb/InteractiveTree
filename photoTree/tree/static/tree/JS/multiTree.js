@@ -1598,9 +1598,11 @@ function fixGenerationSpacing(tree, rootNode) {
         //RECURSIVE CALLS: for each rootNodeChild, call fixGenSpacing
         if (hasChildren(currChildSpouse)) {
           fixGenerationSpacing(tree, currChildSpouse);
+          adjustRootNode(currChildSpouse);
         }
         else {
           fixGenerationSpacing(tree, currChild);
+          adjustRootNode(currChild);
         }
       }
     }
