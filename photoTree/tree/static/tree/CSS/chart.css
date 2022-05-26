@@ -16,6 +16,8 @@
   padding: 0;
   position: relative;
 
+  margin: 0;
+
   /* The chart width, as defined in the HTML */
   /*width: var(--widget-size);*/
   width: 100%;
@@ -25,6 +27,16 @@
   overflow: scroll;
 
   zoom: 1;
+}
+
+.tree-container {
+  height: auto;
+  width: auto;
+  position: relative;
+
+  border: 4px solid black;
+  overflow: scroll;
+  margin: 0;
 }
 
 /* The unordered list holding the data points, no list styling and no spacing */

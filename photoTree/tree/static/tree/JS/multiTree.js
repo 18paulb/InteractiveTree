@@ -382,6 +382,7 @@ let momArray = makeMomArray();
 let activeRoot = getNode(2);
 
 let chartList = document.getElementById('chart');
+let treeHolder = document.getElementById('tree-holder-chart')
 createChart();
 
 
@@ -555,8 +556,9 @@ function createDataPoints(treeValue) {
   }
 }
 
+//FIXME: Bug with overlapping close functions in generations, buttons get switched up
+
 function changeButton(id, method) {
-  debugger
 
   let hideButton = document.getElementById(`${id}-hide-button`);
 
@@ -2662,5 +2664,15 @@ function moveAnimation(tree) {
   for (let i = 0; i < tree.length; ++i) {
     let el = document.getElementById(`${tree[i].image}`)
     htmlEls.push(el);
+  }
+}
+
+function moveToTreeHolder(tree) {
+  let mainTree = document.getElementById("treeChart");
+  let treeHolder = document.getElementById("tree-holder");
+
+  for (let i = 0; i < tree.length; ++i) {
+    let el = document.getElementById(`${tree[i].image}`);
+
   }
 }
