@@ -563,11 +563,11 @@ function changeButton(id, method) {
   console.log(hideButton.attributes.onclick.nodeValue)
 
   if (method == 'show') {
-    hideButton.attributes.onclick.nodeValue = `"hideTree(${id}); changeButton(${id}, 'hide')"`;
+    hideButton.attributes.onclick.nodeValue = `hideTree(${id}); changeButton(${id}, 'hide')`;
     hideButton.innerHTML = "&#8593";
   }
   if (method == 'hide') {
-    hideButton.attributes.onclick.nodeValue = `"showTree(${id}); changeButton(${id}, 'show')"`;
+    hideButton.attributes.onclick.nodeValue = `showTree(${id}); changeButton(${id}, 'show')`;
     hideButton.innerHTML = "&#8595";
   }
 
@@ -749,8 +749,6 @@ function openNodeOptions(id) {
         <button id='hiddenFamilyButton' class='button-34' onclick='getHiddenFamily(${id})'>Show Hidden Family</button>
         <button id='editButton' class='button-34' onclick='editNode(${id})'>Edit Info</button>
         <button id='removeButton' class='button-34' onclick='deleteNode(${id});'>Delete Node</button>
-        <button class='button-34' onclick='hideTree(${id})'>Hide Tree</button>
-        <button class='button-34' onclick='showTree(${id})'>Show Tree</button>
       </div>
     </div>`)
 }
