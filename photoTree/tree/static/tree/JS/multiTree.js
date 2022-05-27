@@ -559,10 +559,9 @@ function createDataPoints(treeValue) {
 //FIXME: Bug with overlapping close functions in generations, buttons get switched up
 
 function changeButton(id, method) {
+  debugger
 
   let hideButton = document.getElementById(`${id}-hide-button`);
-
-  console.log(hideButton.attributes.onclick.nodeValue)
 
   if (method == 'show') {
     hideButton.attributes.onclick.nodeValue = `hideTree(${id}); changeButton(${id}, 'hide')`;
@@ -573,7 +572,6 @@ function changeButton(id, method) {
     hideButton.innerHTML = "&#8595";
   }
 
-  console.log(hideButton.attributes.onclick.nodeValue)
 }
 
 function createLines() {
@@ -2674,12 +2672,16 @@ function hideTree(id) {
     if (descendants[i].image == node.spouse) {continue;} 
     let el = document.getElementById(`${descendants[i].image}`);
     el.style.visibility = "hidden";
+    if (hasChildren(descendants[i])) {
+      changeButton(descendants[i].image, "hide");
+    }
   }
 
   //Hides SVG Lines
   let lines = document.getElementById("lines");
   for (let i = 0; i < lines.children.length; ++i) {
     if (lines.children[i].x1.baseVal.value == getX(node.image) || lines.children[i].x2.baseVal.value == getX(node.image)) {
+      //This makes sure it doesn't erase spouse or node's mother lines
       if (lines.children[i].x1.baseVal.value == getX(node.mother) || lines.children[i].x2.baseVal.value == getX(node.mother) || lines.children[i].x1.baseVal.value == getX(node.spouse) || lines.children[i].x2.baseVal.value == getX(node.spouse)) {
         continue;
       } else {
@@ -2705,6 +2707,9 @@ function showTree(id) {
     if (descendants[i].image == node.spouse) {continue;}
     let el = document.getElementById(`${descendants[i].image}`);
     el.style.visibility = "visible";
+    if (hasChildren(descendants[i])) {
+      changeButton(descendants[i].image, "show");
+    }
   }
 
   //Receals SVG Lines

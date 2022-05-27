@@ -23,6 +23,7 @@
   width: 100%;
 
   border: 4px solid black;
+  border-top: none;
   
   overflow: scroll;
 
@@ -264,7 +265,7 @@ body {
   font-size: 24px;
   text-align: center;
   justify-content: space-around;
-  align-items: center;
+  align-items: center !important;
   /*ADDED*/
   display: flex;
 
