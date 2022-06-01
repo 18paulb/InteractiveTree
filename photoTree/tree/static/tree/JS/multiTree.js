@@ -556,10 +556,9 @@ function createDataPoints(treeValue) {
   }
 }
 
-//FIXME: Bug with overlapping close functions in generations, buttons get switched up
+//FIXME: Bug: Sometimes hiding a tree will hide line in other trees
 
 function changeButton(id, method) {
-  debugger
 
   let hideButton = document.getElementById(`${id}-hide-button`);
 
@@ -702,7 +701,7 @@ function testAdd(node1, node2) {
           </div>
         </div>
       </div>
-      <div class='menu-button'>
+      <div class='menu-button-container'>
         <button id='removeButton' class='button-34' onclick='removeRelationship(${id1}, ${id2})'>Remove Relationship</button>
         <button id='addMotherButton' class='button-34' onclick='addMotherRelationship(${id1}, ${id2})'>Add Mother/Child Relationship</button>
         <button id='addSpouseButton' class='button-34' onclick='addSpouseRelationship(${id1}, ${id2})'>Add Spouse Relationship</button>
@@ -745,7 +744,7 @@ function openNodeOptions(id) {
           </div>
         </div>
       </div>
-      <div id="menu-buttons" class='menu-button'>
+      <div id="menu-buttons" class='menu-button-container'>
         <button id='hiddenFamilyButton' class='button-34' onclick='getHiddenFamily(${id})'>Show Hidden Family</button>
         <button id='editButton' class='button-34' onclick='editNode(${id})'>Edit Info</button>
         <button id='removeButton' class='button-34' onclick='deleteNode(${id});'>Delete Node</button>
@@ -1342,8 +1341,8 @@ function shiftNodesByMarginX(tree) {
   
  let shiftMargin;
 
- if (xPos > 25) {
-  shiftMargin = xPos - 25;
+ if (xPos > 50) {
+  shiftMargin = xPos - 50;
   //shift the xPos of every node by the margin to the left so that furthest left node is 100px from left edge
   for (let values of dataMap.values()) {
     for (let i = 0; i < values.length; ++i) {
@@ -1358,7 +1357,7 @@ function shiftNodesByMarginX(tree) {
 } 
 else {
   //shift the xPos of every node by the margin to the right so that furthest left node is 100px from left edge
-  shiftMargin = 25;
+  shiftMargin = 50;
   for (let values of dataMap.values()) {
     for (let i = 0; i < values.length; ++i) {
       if (isOnTree(values[i])) {

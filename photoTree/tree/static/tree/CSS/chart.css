@@ -32,7 +32,7 @@
 
 .tree-container {
   height: auto;
-  width: auto;
+  width: 100%;
   position: relative;
 
   border: 4px solid black;
@@ -231,7 +231,7 @@ body {
   height: 100px;
 }
 
-.menu-button {
+.menu-button-container {
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -262,7 +262,6 @@ body {
   background-color: #002e5d; /*rgb(61, 177, 173)*/
   font-family: Arial;
   padding: 3px;
-  font-size: 24px;
   text-align: center;
   justify-content: space-around;
   align-items: center !important;
@@ -361,4 +360,147 @@ body {
   position: absolute;
 
   z-index: 99;
+}
+
+.side-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: .25em;
+  margin-top: 0;
+  margin-bottom: 0;
+  width: 20%;
+  border:
+  3px solid green;
+
+}
+
+/*Smart Phone sized devices*/
+@media screen and (min-width: 0px) and (max-width: 450px) {
+  .side-container {
+    /*width: 20%;*/
+    width: 300px;
+    overflow: visible;
+  }
+
+  .center-menu {
+    height: 100%;
+    overflow: auto;
+    background:green;
+  }
+
+  .menu-pics-container {
+    justify-content: space-between;
+  }
+
+  .menu-button-container {
+    justify-content: center;
+    width: 100%;
+    overflow: auto;
+  }
+
+  .button-34 {
+    width: auto;
+  }
+
+  h2 {
+    font-size: smaller;
+    font-weight: bold;
+  }
+
+  .page-header {
+    height: 3rem;
+  }
+}
+
+/*Tablet sized  devices*/
+@media screen and (min-width: 450px) and (max-width: 769px) {
+  .side-container {
+    /*width: 20%;*/
+    width: 300px;
+    overflow: visible;
+  }
+
+  .center-menu {
+    height: 100%;
+    overflow: auto;
+    background: red;
+  }
+
+  .menu-pics-container {
+    justify-content: space-between;
+  }
+
+  .menu-button-container {
+    justify-content: center;
+    width: 100%;
+    overflow: auto;
+  }
+
+  .button-34 {
+    width: auto;
+  }
+
+  .page-header {
+    word-break: break-word;
+  }
+
+  h2 {
+    font-size: 20px;
+    font-weight: bold;
+  }
+}
+
+
+/*Anything laptop screen size*/
+@media screen and (min-width: 769px) and (max-width: 1200px) {
+  .side-container {
+    /*width: 20%;*/
+    width: 300px;
+    overflow: visible;
+  }
+
+  .center-menu {
+    height: 100%;
+    overflow: auto;
+    background: blue;
+  }
+
+  .menu-pics-container {
+    justify-content: space-between;
+  }
+
+  .menu-button-container {
+    justify-content: center;
+    width: 100%;
+    overflow: auto;
+  }
+
+  .button-34 {
+    width: auto;
+  }
+
+  h2 {
+    font-weight: bold;
+  }
+
+
+}
+
+/*Getting to large monitor screen size*/
+@media screen and (min-width: 1200px) {
+  .side-container {
+    width: 20%;
+  }
+  .menu-pics-container {
+    justify-content: space-around;
+  }
+
+  .center-menu {
+    background: tan;
+  }
+
+  h2 {
+    font-weight: bold;
+  }
 }
