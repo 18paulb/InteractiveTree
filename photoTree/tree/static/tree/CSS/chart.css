@@ -492,12 +492,18 @@ body {
   .side-container {
     width: 20%;
   }
+
   .menu-pics-container {
     justify-content: space-around;
   }
 
+  .menu-button-container {
+    overflow: auto;
+  }
+
   .center-menu {
     background: tan;
+    overflow: auto;
   }
 
   h2 {
