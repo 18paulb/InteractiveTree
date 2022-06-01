@@ -2750,3 +2750,6 @@ function moveToTreeHolder(tree) {
 
   }
 }
+
+function tutorial() {
+}

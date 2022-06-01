@@ -349,3 +349,16 @@ body {
   75%  {background-color:green; left:0px; top:200px;}
   100% {background-color:red; left:0px; top:0px;}
 }
+
+.tutorial-box {
+  display: flex;
+  width: 50%;
+  height: 50%;
+  background-color: lightblue;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  position: absolute;
+
+  z-index: 99;
+}
