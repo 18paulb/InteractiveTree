@@ -305,6 +305,8 @@ let nodeBoxData = [];
 
 //Change this and HTML in order to change graph size
 let chartWidth = 1000;
+//let chartWidth = screen.width * .80
+//console.log(chartWidth)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Defines class to be used for the objects of the values in momArray
@@ -623,7 +625,8 @@ function createLines() {
 
             let valId = value[i].image;
 
-            svgString += `<line id="line${id}" x1="${x1}" y1="${chartWidth - y1}" x2="${x2}" y2="${chartWidth - y2}" stroke="black" stroke-width='5' onmouseover="SVGHoverColor(line${id}, 'enter', 'mother')" onmouseleave="SVGHoverColor(line${id}, 'leave', 'mother')" onclick='testAdd(getNode(${valId}), momArray[${index}].children[${j}])'/>`
+            //svgString += `<line id="line${id}" x1="${x1}" y1="${chartWidth - y1}" x2="${x2}" y2="${chartWidth - y2}" stroke="black" stroke-width='5' onmouseover="SVGHoverColor(line${id}, 'enter', 'mother')" onmouseleave="SVGHoverColor(line${id}, 'leave', 'mother')" onclick='testAdd(getNode(${valId}), momArray[${index}].children[${j}])'/>`
+            svgString += `<line id="line${id}" x1="${x1}" y1="${chartWidth - y1}" x2="${x2}" y2="${chartWidth - y2}" stroke="black" stroke-width='5' onmouseover="SVGHoverColor(line${id}, 'enter', 'mother')" onmouseleave="SVGHoverColor(line${id}, 'leave', 'mother')" onclick='openRemoveRelationshipMenu(getNode(${valId}), momArray[${index}].children[${j}])'/>`
 
             id++;
           }
@@ -639,8 +642,9 @@ function createLines() {
           let valId = value[i].image;
           let valSpouse = value[i].spouse;
 
-          let line = `<line id="line${id}" x1="${xPos}" y1="${chartWidth - yPos}" x2="${spouseXPos}" y2="${chartWidth - spouseYPos}" stroke="blue" stroke-width='5' onmouseover="SVGHoverColor(line${id}, 'enter', 'spouse')" onmouseleave="SVGHoverColor(line${id}, 'leave', 'spouse')" onclick='testAdd(getNode(${valId}), getNode(${valSpouse}))'/>`
-
+          //let line = `<line id="line${id}" x1="${xPos}" y1="${chartWidth - yPos}" x2="${spouseXPos}" y2="${chartWidth - spouseYPos}" stroke="blue" stroke-width='5' onmouseover="SVGHoverColor(line${id}, 'enter', 'spouse')" onmouseleave="SVGHoverColor(line${id}, 'leave', 'spouse')" onclick='testAdd(getNode(${valId}), getNode(${valSpouse}))'/>`
+          let line = `<line id="line${id}" x1="${xPos}" y1="${chartWidth - yPos}" x2="${spouseXPos}" y2="${chartWidth - spouseYPos}" stroke="blue" stroke-width='5' onmouseover="SVGHoverColor(line${id}, 'enter', 'spouse')" onmouseleave="SVGHoverColor(line${id}, 'leave', 'spouse')" onclick='openRemoveRelationshipMenu(getNode(${valId}), getNode(${valSpouse}))'/>`
+          
           //if statement so that two spouse lines aren't drawn between spouses
           if (spouseXPos > xPos) {
             svgString += line
@@ -709,8 +713,40 @@ function testAdd(node1, node2) {
     </div>`)
 }
 
-function openNodeOptions(id) {
-  let node = getNode(id);
+function openRemoveRelationshipMenu(node1, node2) {
+  let id1 = node1.image;
+  let id2 = node2.image;
+
+  let id1Birthyear = node1.birthyear;
+  let id2Birthyear = node2.birthyear;
+
+  $('#menu-position').html(
+    `<div id='center-menu' class='center-menu'>
+      <div><button class="x-button" onclick='closeMenu(), returnConfirmBoxNodes(${id1}, ${id2})'><strong>X</strong></button></div>
+      <div class='menu-pics-container'>
+        <div style="display: flex; flex-direction: column; justify-content:center; align-items:center;">
+          <img class='menu-pic' src='../../static/tree/images/pictures/Kennedy/${id1}.PNG'/>
+          <div id ='node-${id1}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px; text-align:center'>
+            <div><b>${node1.name}</b></div>
+            <div><b>${id1Birthyear}</b></div>
+          </div>
+        </div>
+        <div style="display: flex; flex-direction: column; justify-content:center; align-items:center;">
+          <img class='menu-pic' src='../../static/tree/images/pictures/Kennedy/${id2}.PNG'/>
+          <div id ='node-${id2}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px; text-align:center'>
+            <div><b>${node2.name}</b></div>
+            <div><b>${id2Birthyear}</b></div>
+          </div>
+        </div>
+      </div>
+      <div class='menu-button-container'>
+        <button id='removeButton' class='button-34' onclick='removeRelationship(${id1}, ${id2})'>Remove Relationship</button>
+      </div>
+    </div>`)
+}
+
+function openNodeOptions(nodeId) {
+  let node = getNode(nodeId);
   let idBirthyear = node.birthyear;
 
   //If there is already a node, add the 2nd node
@@ -733,21 +769,21 @@ function openNodeOptions(id) {
   }
 
   $('#menu-position').html(
-    `<div id='${id}center-menu' class='center-menu'>
+    `<div id='${nodeId}center-menu' class='center-menu'>
       <div><button class="x-button" onclick='closeMenu()'><strong>X</strong></button></div>
       <div id="menu-pics" class='menu-pics-container'>
         <div style="display: flex; flex-direction: column; justify-content:center; align-items:center;">
-          <img class='menu-pic' src='../../static/tree/images/pictures/Kennedy/${id}.PNG'/>
-          <div id ='node-${id}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px;'>
+          <img class='menu-pic' src='../../static/tree/images/pictures/Kennedy/${nodeId}.PNG'/>
+          <div id ='node-${nodeId}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column; padding-top: 5px;'>
             <div><b>${node.name}</b></div>
             <div><b>${idBirthyear}</b></div>
           </div>
         </div>
       </div>
       <div id="menu-buttons" class='menu-button-container'>
-        <button id='hiddenFamilyButton' class='button-34' onclick='getHiddenFamily(${id})'>Show Hidden Family</button>
-        <button id='editButton' class='button-34' onclick='editNode(${id})'>Edit Info</button>
-        <button id='removeButton' class='button-34' onclick='deleteNode(${id});'>Delete Node</button>
+        <button id='hiddenFamilyButton' class='button-34' onclick='getHiddenFamily(${nodeId})'>Show Hidden Family</button>
+        <button id='editButton' class='button-34' onclick='editNode(${nodeId})'>Edit Info</button>
+        <button id='removeButton' class='button-34' onclick='deleteNode(${nodeId});'>Delete Node</button>
       </div>
     </div>`)
 }
@@ -2659,9 +2695,6 @@ function resetZoom() {
 
 function hideTree(id) {
 
-
-  debugger
-
   let node = getNode(id);
 
   let descendants = getDescendants(node, []);
@@ -2676,13 +2709,14 @@ function hideTree(id) {
     }
   }
 
-  debugger
-
   //Hides SVG Lines
   let lines = document.getElementById("lines");
   let nodeX = getX(node.image);
+  let nodeY = getY(node.image);
   let spouseX = null;
   let momX = null;
+
+  let tree = getTree(getNode(id))
 
   if (node.spouse != null) {
     spouseX = getX(node.spouse);
@@ -2691,25 +2725,59 @@ function hideTree(id) {
     momX = getX(node.mother);
   }
 
-  //This loop will hide all directly connected children, not any descendants
+
+  //Gets all SVG's that have same x value as any of the descendants of the node, including node and spouse
+  //Possible duplicates  if descendant has 2 or more lines connected to it. or if nodeY < svgY
+  let familyLines = [];
   for (let i = 0; i < lines.children.length; ++i) {
-    //if one of the x vals of the SVG match the node
+    
     if (lines.children[i].x1.baseVal.value == nodeX || lines.children[i].x2.baseVal.value == nodeX) {
-      //This makes sure it doesn't hide spouse or node's mother lines
-      if (lines.children[i].x1.baseVal.value == spouseX || lines.children[i].x2.baseVal.value == spouseX || lines.children[i].x1.baseVal.value == momX || lines.children[i].x2.baseVal.value == momX) {  
-        continue;
-      } else {
-        lines.children[i].style.visibility = "hidden";
-      }
+      familyLines.push(lines.children[i])
     }
-    //Makes hidden all lines that the descendants are connected to
+
     for (let j = 0; j < descendants.length; ++j) {
       let desX = getX(descendants[j].image)
       let desY = getY(descendants[j].image)
+      if (lines.children[i].x1.baseVal.value == desX || lines.children[i].x2.baseVal.value == desX) {
+        if (lines.children[i].y1.baseVal.value > nodeY || lines.children[i].y2.baseVal.value > nodeY) {
+          familyLines.push(lines.children[i]);
+          break;
+        }
 
-      if (descendants[j].image == node.spouse) {continue;} 
-      if ((lines.children[i].x1.baseVal.value == desX || lines.children[i].x2.baseVal.value == desX) && (lines.children[i].y1.baseVal.value == desY || lines.children[i].y2.baseVal.value == desY)) {
-        lines.children[i].style.visibility = "hidden";
+      }
+    }
+  }
+
+  //Remove Duplicates
+  for (let i = 0; i < familyLines.length; ++i) {
+    for (let j = 1; j < familyLines.length; ++j) {
+      if (j == i) {continue;}
+      if (familyLines[i].id == familyLines[j].id) {
+        familyLines.splice(j,1);
+        j--;
+      }
+    }
+  }
+
+  //This loop will hide all directly connected children lines, not any descendants
+  for (let i = 0; i < familyLines.length; ++i) {
+    //if one of the xVals of the SVG match the node
+    if (familyLines[i].x1.baseVal.value == nodeX || familyLines[i].x2.baseVal.value == nodeX) {
+      //This makes sure it doesn't hide spouse or node's mother lines
+      if (familyLines[i].x1.baseVal.value == spouseX || familyLines[i].x2.baseVal.value == spouseX || familyLines[i].x1.baseVal.value == momX || familyLines[i].x2.baseVal.value == momX) {  
+        continue;
+      } else {
+        familyLines[i].style.visibility = "hidden";
+      }
+    }
+  }
+
+  //This loop hides descendant lines
+  for (let i = 0; i < familyLines.length; ++i) {
+    for (let j = 0; j < tree.length; ++j) {
+      if (tree[j].image == node.spouse) {continue;} 
+      if (isDescendant(tree[j], node) && (getX(tree[j].image) == familyLines[i].x1.baseVal.value || getX(tree[j].image) == familyLines[i].x1.baseVal.value)) {
+        familyLines[i].style.visibility = "hidden";
       }
     }
   }
@@ -2749,24 +2817,47 @@ function showTree(id) {
   }
 }
 
-function moveAnimation(tree) {
-  let htmlEls = []
-
-  for (let i = 0; i < tree.length; ++i) {
-    let el = document.getElementById(`${tree[i].image}`)
-    htmlEls.push(el);
-  }
-}
-
-function moveToTreeHolder(tree) {
-  let mainTree = document.getElementById("treeChart");
-  let treeHolder = document.getElementById("tree-holder");
-
-  for (let i = 0; i < tree.length; ++i) {
-    let el = document.getElementById(`${tree[i].image}`);
-
-  }
-}
-
 function tutorial() {
+  $("#tutorial").html(
+    `<div class="tutorial-box">
+      <div><button class="x-button" style="margin-right: 10px;" onclick="closeTutorial()"><strong>X</strong></button></div>
+      <div style="margin: 10px; font-family: Arial;">
+        <p>Photo Family Tree is an interactive new experience in creating and making adjustments to a family tree.
+        In this tree you can change relationships and make new ones with the click of a button! To try this new experience, we are using one of the United State's most prominant families, 
+        the <a href="https://www.jfklibrary.org/learn/about-jfk/the-kennedy-family" target="_blank">Kennedy's</a>.
+        Eventually, with your permission, we would like to have you be able to automatically create your own family tree just from using your photos!</p>
+
+        <p>Just to explain how this software is used here are a few guidelines.</p>
+
+        <ul>
+          <li><p>To remove a relationship you can just click on a line and choose "Remove Relationship" on the menu that opens.</p></li>
+          <li><p>To add a relationship you can click on two photos and add whichever relationship you would like.</p></li>
+          <li><p>To edit info about a person just click on one person and choose "Edit Info"</p></li>
+          <li><p>People that have no relationships are placed at the bottom of the page.</p></li>
+          <li><p>Sometimes spouses have families that are not shown on the tree, this is to make sure that the tree is presented nicely.
+          If a person on the tree has a family that is not shown, simply click on that person and press the "Show Hidden Family" button, that will make their respective family tree appear.</p></li>
+          <li><p><strong>Lines:</strong> A black line represents a parent-child relationship while a blue line represents a spouse relationship.</p></li>
+        </ul>
+
+        <p><strong>Note:</strong> Our spacing algorithm works great in normal circumstances! However, with more complicated relationships, such as inter-family relations, the spacing will start
+        to behave strangely. Please be patient as we try to correct these mistakes and make it easier for you to use!</p>
+      </div>
+    </div>`
+  )
+}
+
+function closeTutorial() {
+  $("#tutorial").html('')
+}
+
+function isDescendant(node, ancestor) {
+  let descendants = getDescendants(ancestor, []);
+
+  for (let i = 0; i < descendants.length; ++i) {
+    if (descendants[i].image == node.image) {
+      return true;
+    }
+  }
+
+  return false;
 }

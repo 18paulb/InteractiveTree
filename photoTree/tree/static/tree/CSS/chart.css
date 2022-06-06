@@ -298,6 +298,7 @@ body {
   border: 2.5px solid black;
 }
 .x-button:hover {
+  transition-duration: 0.2s;
   background-color: darkgray;
 }
 
@@ -351,15 +352,18 @@ body {
 
 .tutorial-box {
   display: flex;
-  width: 50%;
-  height: 50%;
+  width: 75%;
+  height: auto;
   background-color: lightblue;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  position: absolute;
+  position: fixed;
+  padding: 5px;
 
-  z-index: 99;
+  border: 3px solid black;
+
+  flex-direction: column;
 }
 
 .side-container {

@@ -36,6 +36,7 @@
     <script src='https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js'></script>
   </head>
 
+  <!--<body onload="tutorial()">-->
   <body>
 
     <div id="header" class="page-header">
@@ -76,17 +77,21 @@
       <div class="side-container">
         <div id="menu-position" style="width: 100%; height: 40%"></div>
 
+        
+        <button onclick="tutorial()">Show Tutorial</button>
+        <!--
         <div style="display: flex; width: 100%; height: 60%; position: relative;">
           <figure id="tree-holder" class="tree-container">
             <ul id="tree-holder-chart" class="line-chart"></ul>
             <svg id='tree-holder-lines' height="500" width="100%" style="z-index:-1; overflow:hidden"></svg>
           </figure>
         </div>
+      -->
       </div>
 
     </div>
 
-    <!--<div class="tree-animation"></div>-->
+    <div id="tutorial"></div>
 
     <div id="footer" class="footer-box">
       <div id="nodeContainer" class="node-container"></div>
