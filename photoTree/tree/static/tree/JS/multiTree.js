@@ -768,6 +768,11 @@ function openNodeOptions(nodeId) {
     }
 
     id = parseInt(id);
+
+    if (id == nodeId) {
+      return;
+    }
+
     testAdd(getNode(id), node);
     return;
   }
@@ -1948,21 +1953,6 @@ function getLongestGenChain() {
   return genCount;
 }
 
-//TEST
-/*
-function getLongestGenChain(treeValue) {
-  let genCount = 0;
-  let rootNode = getRootNode(treeValue[0]);
-  for (let i = 0; i < treeValue.length; ++i) {
-    //If it or spouse does not have children, it is at lowest gen
-    if (!hasChildren(treeValue[i]) && !hasChildren(getNode(treeValue.spouse))) {
-      while (currNode.image != rootNode.image) {
-
-      }
-    }
-  }
-}
-*/
 function getPlaceInGeneration(node, generation) {
   let nodeArray = [];
   nodeArray = getNodesInGeneration(generation);
@@ -2861,7 +2851,7 @@ function tutorial() {
         </ul>
 
         <p><strong>Note:</strong> Our spacing algorithm works great in normal circumstances! However, with more complicated relationships, such as inter-family relations, the spacing will start
-        to behave strangely. Please be patient as we try to correct these mistakes and make it easier for you to use!</p>
+        to behave strangely. If this happens, just reload the page to start over again. Please be patient as we try to correct these mistakes and make it easier for you to use!</p>
       </div>
     </div>`
   )
