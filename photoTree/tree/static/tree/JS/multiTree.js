@@ -2068,9 +2068,6 @@ function deleteNode(id) {
     }
   }
 
-
-  debugger
-
   document.getElementById(`${id}`).remove();
 
   if (deleted) {
@@ -2666,6 +2663,9 @@ function resetZoom() {
 
 function hideTree(id) {
 
+
+  debugger
+
   let node = getNode(id);
 
   let descendants = getDescendants(node, []);
@@ -2680,12 +2680,27 @@ function hideTree(id) {
     }
   }
 
+  debugger
+
   //Hides SVG Lines
   let lines = document.getElementById("lines");
+  let nodeX = getX(node.image);
+  let spouseX = null;
+  let momX = null;
+
+  if (node.spouse != null) {
+    spouseX = getX(node.spouse);
+  }
+  if (node.mother != null) {
+    momX = getX(node.mother);
+  }
+
+  //This loop will hide all directly connected children, not any descendants
   for (let i = 0; i < lines.children.length; ++i) {
-    if (lines.children[i].x1.baseVal.value == getX(node.image) || lines.children[i].x2.baseVal.value == getX(node.image)) {
-      //This makes sure it doesn't erase spouse or node's mother lines
-      if (lines.children[i].x1.baseVal.value == getX(node.mother) || lines.children[i].x2.baseVal.value == getX(node.mother) || lines.children[i].x1.baseVal.value == getX(node.spouse) || lines.children[i].x2.baseVal.value == getX(node.spouse)) {
+    //if one of the x vals of the SVG match the node
+    if (lines.children[i].x1.baseVal.value == nodeX || lines.children[i].x2.baseVal.value == nodeX) {
+      //This makes sure it doesn't hide spouse or node's mother lines
+      if (lines.children[i].x1.baseVal.value == spouseX || lines.children[i].x2.baseVal.value == spouseX || lines.children[i].x1.baseVal.value == momX || lines.children[i].x2.baseVal.value == momX) {  
         continue;
       } else {
         lines.children[i].style.visibility = "hidden";
@@ -2693,8 +2708,11 @@ function hideTree(id) {
     }
     //Makes hidden all lines that the descendants are connected to
     for (let j = 0; j < descendants.length; ++j) {
+      let desX = getX(descendants[j].image)
+      let desY = getY(descendants[j].image)
+
       if (descendants[j].image == node.spouse) {continue;} 
-      if (lines.children[i].x1.baseVal.value == getX(descendants[j].image) || lines.children[i].x2.baseVal.value == getX(descendants[j].image)) {
+      if ((lines.children[i].x1.baseVal.value == desX || lines.children[i].x2.baseVal.value == desX) && (lines.children[i].y1.baseVal.value == desY || lines.children[i].y2.baseVal.value == desY)) {
         lines.children[i].style.visibility = "hidden";
       }
     }
