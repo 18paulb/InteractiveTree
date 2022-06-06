@@ -1480,6 +1480,8 @@ function fixGenerationSpacing(tree, rootNode) {
   //BASE CASE: continue calling fixGenSpacing until the highest gen of the tree is reached
   if (rootNodeGen <= highestGen) {
     
+    debugger
+    if (!document.getElementById(`${rootNode.image}`).hidden) {
     if (hasChildren(rootNode)) {
 
       //get all the children of the rootNode
@@ -1613,6 +1615,8 @@ function fixGenerationSpacing(tree, rootNode) {
     }
   }
 }
+}
+
 
 /**
  * Accounts for any unforseen overlapping nodes 
@@ -2695,6 +2699,8 @@ function hideTree(id) {
       }
     }
   }
+
+  createChart();
 }
 
 function showTree(id) {
