@@ -439,7 +439,7 @@ function createChart() {
 }
 */
 //Original Function
-function createChart() {
+function createChart(hiddenChildren) {
 
   //Makes sure that the chart is empty of dataMap is empty
   if (dataMap.size == 0) {
@@ -450,7 +450,7 @@ function createChart() {
   }
 
   for (let tree of dataMap.values()) {
-    createDataPoints(tree);
+    createDataPoints(tree, hiddenChildren);
   }
   for (let tree of dataMap.values()) {
     shiftChart(tree);
@@ -490,7 +490,7 @@ function removeTreeFromChart(tree) {
  * Creates HTML elements for each node and sets their initial X and Y positions
  * @param {the current tree that's passed in} treeValue 
  */
-function createDataPoints(treeValue) {
+function createDataPoints(treeValue, hiddenChildren) {
   //erase all the nodes in the current tree
   removeTreeFromChart(treeValue);
   
@@ -508,7 +508,7 @@ function createDataPoints(treeValue) {
     
     //iterate through all nodes in current gen
     for (let node = 0; node < nodesInGen.length; node++) {
-
+      
       //get all nodes in the current tree
       //Protect against duplicates
       if (treeValue.includes(nodesInGen[node])) {
@@ -549,6 +549,10 @@ function createDataPoints(treeValue) {
 
       if (hasChildren(currNode)) {
         li.innerHTML += `<button id="${currNode.image}-hide-button" class='expand-tree' onclick="hideTree(${currNode.image}); changeButton(${currNode.image}, 'hide')">&#8593</button>`
+      }
+
+      if (hiddenChildren?.includes(nodesInTree[nodeIndex])) {
+        li.style.visibility = "hidden";
       }
     
       chartList.appendChild(li);
@@ -1476,12 +1480,10 @@ function fixGenerationSpacing(tree, rootNode) {
   //let highestGen = getHighestGenInTree(1, tree);
   let highestGen = getLongestGenChain();
   let rootNodeGen = getGeneration(rootNode);
-  
+
   //BASE CASE: continue calling fixGenSpacing until the highest gen of the tree is reached
   if (rootNodeGen <= highestGen) {
     
-    debugger
-    if (!document.getElementById(`${rootNode.image}`).hidden) {
     if (hasChildren(rootNode)) {
 
       //get all the children of the rootNode
@@ -1489,132 +1491,142 @@ function fixGenerationSpacing(tree, rootNode) {
       let spacing = getSpaceBetweenNodes(rootNodeGen + 1);
       
       let newXPositions = new Map();
+
+      debugger
+      //TEST: trying to check for hidden children
+      let childId = document.getElementById(`${rootNodeChildren[0].image}`);
       
-      //iterate through all the children of the root node
-      for (let i = 0; i < rootNodeChildren.length; i++) {
-        
-        //define the current node and its XPos
-        let currChild = rootNodeChildren[i];
-        let currChildSpouse = getNode(currChild.spouse);
-        let currChildXPos = getX(currChild.image);
-        
-        //need to update the xPos initially to make sure the child nodes are in the right location
-        updateXPos(currChild, currChildXPos);
+      if (childId.hidden) {
+        console.log("Found hidden children at Node " + rootNodeChildren[0].image);
+      }
+      
+      if (!childId.hidden) {
+      
+        //iterate through all the children of the root node
+        for (let i = 0; i < rootNodeChildren.length; i++) {
+          
+          //define the current node and its XPos
+          let currChild = rootNodeChildren[i];
+          let currChildSpouse = getNode(currChild.spouse);
+          let currChildXPos = getX(currChild.image);
+          
+          //need to update the xPos initially to make sure the child nodes are in the right location
+          updateXPos(currChild, currChildXPos);
 
-        if (i > 0) {
-          
-          //define the previous rootNodeChild and its XPos
-          let prevChild = rootNodeChildren[i - 1];
-          let prevChildXPos = getX(prevChild.image);
-          let updatedXPos;
-          
-          //update the current node's xPos by the previous child's xPos plus a set amount
-          updatedXPos = prevChildXPos + spacing;
-          
-          let rightmostChild;
-          let rightmostChildXPos;
-          let childOverlap = false;
-          
-          if (hasChildren(prevChild) && ((hasChildren(currChild) || hasChildren(currChildSpouse)))) {
+          if (i > 0) {
             
-            //get the rightmostChild of the prevChild
-            rightmostChild = getFarthestDownRightChild(prevChild);
-            rightmostChildXPos = getX(rightmostChild.image);
+            //define the previous rootNodeChild and its XPos
+            let prevChild = rootNodeChildren[i - 1];
+            let prevChildXPos = getX(prevChild.image);
+            let updatedXPos;
             
-            childOverlap = true;
-          }
-          
-          let prevChildSpouse;
-          let prevChildSpouseXPos;
-          
-          //if prevChild has a spouse, then update currChild by prevChild spouse's XPos
-          if (hasSpouse(prevChild)) {
+            //update the current node's xPos by the previous child's xPos plus a set amount
+            updatedXPos = prevChildXPos + spacing;
             
-            prevChildSpouse = getNode(prevChild.spouse);
-            prevChildSpouseXPos = getX(prevChildSpouse.image); 
-    
-            updatedXPos = prevChildSpouseXPos + spacing;
+            let rightmostChild;
+            let rightmostChildXPos;
+            let childOverlap = false;
             
-            if (hasChildren(prevChildSpouse) && (hasChildren(currChild) || hasChildren(currChildSpouse)) && !childOverlap) {
+            if (hasChildren(prevChild) && ((hasChildren(currChild) || hasChildren(currChildSpouse)))) {
               
-              //get the rightmostChild of the prevChildSpouse
-              rightmostChild = getFarthestDownRightChild(prevChildSpouse);
+              //get the rightmostChild of the prevChild
+              rightmostChild = getFarthestDownRightChild(prevChild);
               rightmostChildXPos = getX(rightmostChild.image);
-
+              
               childOverlap = true;
             }
+            
+            let prevChildSpouse;
+            let prevChildSpouseXPos;
+            
+            //if prevChild has a spouse, then update currChild by prevChild spouse's XPos
+            if (hasSpouse(prevChild)) {
+              
+              prevChildSpouse = getNode(prevChild.spouse);
+              prevChildSpouseXPos = getX(prevChildSpouse.image); 
+      
+              updatedXPos = prevChildSpouseXPos + spacing;
+              
+              if (hasChildren(prevChildSpouse) && (hasChildren(currChild) || hasChildren(currChildSpouse)) && !childOverlap) {
+                
+                //get the rightmostChild of the prevChildSpouse
+                rightmostChild = getFarthestDownRightChild(prevChildSpouse);
+                rightmostChildXPos = getX(rightmostChild.image);
 
-            if (prevChildSpouseXPos > rightmostChildXPos) {
-              rightmostChildXPos = prevChildSpouseXPos;
+                childOverlap = true;
+              }
+
+              if (prevChildSpouseXPos > rightmostChildXPos) {
+                rightmostChildXPos = prevChildSpouseXPos;
+              }
             }
+            
+            if (childOverlap) {
+
+              let leftmostChild;
+              let leftmostChildXPos;
+
+              let diff;
+              //get the leftmostChild of the currChild
+              if (hasChildren(currChildSpouse)) {
+                leftmostChild = getFarthestDownLeftChild(currChildSpouse);
+                leftmostChildXPos = getX(leftmostChild.image);
+                let currChildSpouseXPos = getX(currChildSpouse.spouse);
+                diff = currChildSpouseXPos - leftmostChildXPos;
+              }
+              if (hasChildren(currChild)) {
+                leftmostChild = getFarthestDownLeftChild(currChild);
+                leftmostChildXPos = getX(leftmostChild.image);
+                diff = currChildXPos - leftmostChildXPos;
+              }
+
+              //check to prevent overlap from spouses in higher gens
+              if (hasSpouse(rightmostChild) || (hasSpouse(getNode(rightmostChild.mother)) && getGeneration(currChild) >= 3)) {
+                rightmostChildXPos += spacing;
+              }
+
+              updatedXPos = rightmostChildXPos + spacing + diff;
+            }
+
+            //add updated xPos to newXPositions
+            newXPositions.set(currChild, updatedXPos);
+            
+            //update all node's x positions with their new X positions
+            updateXPos(currChild, newXPositions.get(currChild));
+
+            //if previous nodes have overlapping children, this check spaces out nodes accordingly
+            shiftOverlappingNodes(rootNodeChildren, spacing);
+            
+            //A check needed to prevent overlap of spouses with previously updated nodes
+            if (hasSpouse(prevChild)) {
+              currChildXPos = getX(currChild.image);
+              prevChildSpouseXPos = getX(prevChildSpouse.image);
+
+              if (currChildXPos - prevChildSpouseXPos < spacing) {
+                // console.log(`found overlap between node ${currChild.image} and node ${prevChildSpouse.image}`)
+                // console.log(`node ${currChild.image}'s xPos: ${getX(currChild.image)}`)
+                // console.log(`node ${prevChildSpouse.image}'s xPos: ${getX(prevChildSpouse.image)}`)
+
+                updatedXPos += spacing - (currChildXPos - prevChildSpouseXPos);
+                newXPositions.set(currChild, updatedXPos);
+                updateXPos(currChild, newXPositions.get(currChild));
+              }
+            } 
           }
-          
-          if (childOverlap) {
 
-            let leftmostChild;
-            let leftmostChildXPos;
-
-            let diff;
-            //get the leftmostChild of the currChild
-            if (hasChildren(currChildSpouse)) {
-              leftmostChild = getFarthestDownLeftChild(currChildSpouse);
-              leftmostChildXPos = getX(leftmostChild.image);
-              let currChildSpouseXPos = getX(currChildSpouse.spouse);
-              diff = currChildSpouseXPos - leftmostChildXPos;
-            }
-            if (hasChildren(currChild)) {
-              leftmostChild = getFarthestDownLeftChild(currChild);
-              leftmostChildXPos = getX(leftmostChild.image);
-              diff = currChildXPos - leftmostChildXPos;
-            }
-
-            //check to prevent overlap from spouses in higher gens
-            if (hasSpouse(rightmostChild) || (hasSpouse(getNode(rightmostChild.mother)) && getGeneration(currChild) >= 3)) {
-              rightmostChildXPos += spacing;
-            }
-
-            updatedXPos = rightmostChildXPos + spacing + diff;
+          //RECURSIVE CALLS: for each rootNodeChild, call fixGenSpacing
+          if (hasChildren(currChildSpouse)) {
+            fixGenerationSpacing(tree, currChildSpouse);
+            adjustRootNode(currChildSpouse);
           }
-
-          //add updated xPos to newXPositions
-          newXPositions.set(currChild, updatedXPos);
-          
-          //update all node's x positions with their new X positions
-          updateXPos(currChild, newXPositions.get(currChild));
-
-          //if previous nodes have overlapping children, this check spaces out nodes accordingly
-          shiftOverlappingNodes(rootNodeChildren, spacing);
-          
-          //A check needed to prevent overlap of spouses with previously updated nodes
-          if (hasSpouse(prevChild)) {
-            currChildXPos = getX(currChild.image);
-            prevChildSpouseXPos = getX(prevChildSpouse.image);
-
-            if (currChildXPos - prevChildSpouseXPos < spacing) {
-              // console.log(`found overlap between node ${currChild.image} and node ${prevChildSpouse.image}`)
-              // console.log(`node ${currChild.image}'s xPos: ${getX(currChild.image)}`)
-              // console.log(`node ${prevChildSpouse.image}'s xPos: ${getX(prevChildSpouse.image)}`)
-
-              updatedXPos += spacing - (currChildXPos - prevChildSpouseXPos);
-              newXPositions.set(currChild, updatedXPos);
-              updateXPos(currChild, newXPositions.get(currChild));
-            }
-          } 
-        }
-
-        //RECURSIVE CALLS: for each rootNodeChild, call fixGenSpacing
-        if (hasChildren(currChildSpouse)) {
-          fixGenerationSpacing(tree, currChildSpouse);
-          adjustRootNode(currChildSpouse);
-        }
-        else {
-          fixGenerationSpacing(tree, currChild);
-          adjustRootNode(currChild);
+          else {
+            fixGenerationSpacing(tree, currChild);
+            adjustRootNode(currChild);
+          }
         }
       }
     }
   }
-}
 }
 
 
@@ -2609,7 +2621,7 @@ function getHiddenFamily(id) {
 
   activeRoot = root
 
-  createChart()
+  //createChart()
 
   closeMenu();
 
@@ -2664,7 +2676,7 @@ function resetZoom() {
 function hideTree(id) {
 
 
-  debugger
+  //debugger
 
   let node = getNode(id);
 
@@ -2680,7 +2692,7 @@ function hideTree(id) {
     }
   }
 
-  debugger
+  //debugger
 
   //Hides SVG Lines
   let lines = document.getElementById("lines");
@@ -2718,7 +2730,10 @@ function hideTree(id) {
     }
   }
 
-  createChart();
+  //TEST: get an array of nodes that have been hidden
+  let hiddenChildren = descendants;
+
+  createChart(hiddenChildren);
 }
 
 function showTree(id) {
