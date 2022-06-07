@@ -439,7 +439,7 @@ function createChart() {
 }
 */
 //Original Function
-function createChart(hiddenChildren) {
+function createChart() {
 
   //Makes sure that the chart is empty of dataMap is empty
   if (dataMap.size == 0) {
@@ -450,7 +450,7 @@ function createChart(hiddenChildren) {
   }
 
   for (let tree of dataMap.values()) {
-    createDataPoints(tree, hiddenChildren);
+    createDataPoints(tree);
   }
   for (let tree of dataMap.values()) {
     shiftChart(tree);
@@ -490,7 +490,7 @@ function removeTreeFromChart(tree) {
  * Creates HTML elements for each node and sets their initial X and Y positions
  * @param {the current tree that's passed in} treeValue 
  */
-function createDataPoints(treeValue, hiddenChildren) {
+function createDataPoints(treeValue) {
   //erase all the nodes in the current tree
   removeTreeFromChart(treeValue);
   
@@ -549,10 +549,6 @@ function createDataPoints(treeValue, hiddenChildren) {
 
       if (hasChildren(currNode)) {
         li.innerHTML += `<button id="${currNode.image}-hide-button" class='expand-tree' onclick="hideTree(${currNode.image}); changeButton(${currNode.image}, 'hide')">&#8593</button>`
-      }
-
-      if (hiddenChildren?.includes(nodesInTree[nodeIndex])) {
-        li.style.visibility = "hidden";
       }
     
       chartList.appendChild(li);
@@ -2621,8 +2617,6 @@ function getHiddenFamily(id) {
 
   activeRoot = root
 
-  //createChart()
-
   closeMenu();
 
   //return hiddenFamily
@@ -2730,10 +2724,7 @@ function hideTree(id) {
     }
   }
 
-  //TEST: get an array of nodes that have been hidden
-  let hiddenChildren = descendants;
-
-  createChart(hiddenChildren);
+  //shiftChart(getTree(node));
 }
 
 function showTree(id) {
