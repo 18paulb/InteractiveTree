@@ -431,7 +431,7 @@ function testCreateChart() {
 
 
 //Original Function
-function createChart(hiddenChildren) {
+function createChart() {
 
   //Makes sure that the chart is empty of dataMap is empty
   if (dataMap.size == 0) {
@@ -442,7 +442,7 @@ function createChart(hiddenChildren) {
   }
 
   for (let tree of dataMap.values()) {
-    createDataPoints(tree, hiddenChildren);
+    createDataPoints(tree);
   }
   for (let tree of dataMap.values()) {
     shiftChart(tree);
@@ -482,7 +482,7 @@ function removeTreeFromChart(tree) {
  * Creates HTML elements for each node and sets their initial X and Y positions
  * @param {the current tree that's passed in} treeValue 
  */
-function createDataPoints(treeValue, hiddenChildren) {
+function createDataPoints(treeValue) {
   //erase all the nodes in the current tree
   removeTreeFromChart(treeValue);
   
@@ -541,10 +541,6 @@ function createDataPoints(treeValue, hiddenChildren) {
 
       if (hasChildren(currNode)) {
         li.innerHTML += `<button id="${currNode.image}-hide-button" class='expand-tree' onclick="hideTree(${currNode.image}); changeButton(${currNode.image}, 'hide')">&#8593</button>`
-      }
-
-      if (hiddenChildren?.includes(nodesInTree[nodeIndex])) {
-        li.style.visibility = "hidden";
       }
     
       chartList.appendChild(li);
@@ -2492,6 +2488,58 @@ function getDescendants(node, children) {
 
 //You only want to go up by the node's mother, do not access spouse mother
 
+<<<<<<< HEAD
+=======
+  let node = getNode(id)
+
+  if (node.mother == null) {
+    alert("Does not have hidden family");
+    return;
+  }
+
+  //Gets the mother of the node with the hidden family  
+  let mother = getNode(node.mother);
+
+  //This will get the root node of that family tree
+  let root = getSpecificFamilyRoot(mother);
+
+  let hiddenFamily = getDescendants(root, []);
+  //Possibly not needed, adds root to the hidden family tree
+  hiddenFamily.push(root)
+
+  console.log(hiddenFamily)
+
+  //EVEN MORE RISKY TESTS
+
+  for (let i = 0; i < hiddenFamily.length; ++i) {
+    let inDataTree = false;
+    for (let j = 0; j < dataMap.get(root.image).length; ++j) {
+      if (dataMap.get(root.image)[j] == hiddenFamily[i]) {
+        inDataTree = true;
+      }
+    }
+
+    if (!inDataTree) {
+      dataMap.get(root.image).push(hiddenFamily[i]);
+    }
+  }
+
+  //Removes the old main tree from the chart
+  let oldMainTree = getTree(activeRoot);
+  removeTreeFromChart(oldMainTree);
+
+  //activeRoot = root
+
+  //TEST Making the key in dataMap become activeRootNode
+
+<<<<<<< HEAD
+=======
+
+>>>>>>> fc0100a599cc80bc1cb43a8c395ef76013ff87e5
+  closeMenu();
+}
+*/
+>>>>>>> b66074d638cb5b0f82c889d6589dea694c210ab6
 function getHiddenFamily(id) {
   let node = getNode(id);
 
@@ -2659,10 +2707,7 @@ function hideTree(id) {
     }
   }
 
-  //TEST: get an array of nodes that have been hidden
-  let hiddenChildren = descendants;
-
-  createChart(hiddenChildren);
+  //shiftChart(getTree(node));
 }
 
 function showTree(id) {
