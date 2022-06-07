@@ -462,6 +462,9 @@ function createChart() {
 */
 
 function removeTreeFromChart(tree) {
+
+  debugger
+
   for (let i = 0; i < tree.length; ++i) {
     let tmpElement = document.getElementById(tree[i].image);
     if (tmpElement != null) {
@@ -953,7 +956,7 @@ function addMotherRelationship(id1, id2) {
   //FIXME: Logic errors exist here, what happens if spouse has mother and other spouse gets mother from this condition? we don't want to remove from the old tree
   //FIXME: also, try to add account for the hidden trees and how that will affect dataMap, maybe add those nodes onto tree but only show main root node's tree
   //If child is on tree and mother in nodeBox
-  
+/*
   if (isOnTree(child) && inNodeBox(mother)) {
 
     //This case happens if mother becomes the new root node of a tree
@@ -981,6 +984,33 @@ function addMotherRelationship(id1, id2) {
     dataMap.set(mother.image, tree);
     } 
   }
+*/
+  if (isOnTree(child) && inNodeBox(mother)) {
+
+    //If you are just trying to switch a child's mother and create new tree
+    if (child.mother != null) {
+      let tree = [child, mother];
+      //Removes child from old tree
+      let currTree = getTree(child);
+      let childIndex = getDataIndex(child.image);
+      currTree.splice(childIndex, 1);
+
+      //creates new tree
+      dataMap.set(mother.image, tree);
+    }
+
+    //If you are trying to add a mother to a node without a mother, it'll make a hidden tree
+    if (child.mother == null) {
+      let key = getKeyofVal(child);
+      dataMap.get(key).push(mother);
+    }
+
+    //Removes mom from nodeBoxData
+    let momIndex = getNodeBoxDataIndex(mother.image);
+    nodeBoxData.splice(momIndex, 1)
+
+  }
+
 
   //if both are in nodeBox
   if (inNodeBox(child) && inNodeBox(mother)) {
@@ -2423,6 +2453,7 @@ function getDescendants(node, children) {
 //You only want to go up by the node's mother, do not access spouse mother
 
 function getHiddenFamily(id) {
+
   let node = getNode(id);
 
   if (node.mother == null) {
@@ -2437,22 +2468,19 @@ function getHiddenFamily(id) {
   //Adds root to hiddenFamily array
   hiddenFamily.push(newActiveRoot);
 
-  let oldActiveRoot;
 
   //Gets the oldKey
-  dataMap.forEach((value, key) => {
-    for (let i = 0; i < value.length; ++i) {
-      if (value[i].image == id) {
-        oldActiveRoot = key;
-      }
-    }
-  })
+  let oldActiveRoot = getNode(getKeyofVal(getNode(id)))
 
   //Creates new dataMap entry with the new activeRoot as key
   dataMap.set(newActiveRoot.image, dataMap.get(oldActiveRoot.image));
   
   //Deletes old map with oldActiveRoot
   dataMap.delete(oldActiveRoot.image);
+
+  debugger
+
+  createChart();
 }
 
 function getSpecificFamilyRoot(node) {
@@ -2627,6 +2655,13 @@ function showTree(id) {
 }
 
 function tutorial() {
+
+  $("#page-container").css("filter", "blur(2px)");
+  $("#header").css("filter", "blur(2px)");
+  $("#footer").css("filter", "blur(2px)");
+
+
+
   $("#tutorial").html(
     `<div class="tutorial-box">
       <div><button class="x-button" style="margin-right: 10px;" onclick="closeTutorial()"><strong>X</strong></button></div>
@@ -2657,6 +2692,10 @@ function tutorial() {
 
 function closeTutorial() {
   $("#tutorial").html('')
+
+  $("#page-container").css("filter", "blur(0px)");
+  $("#header").css("filter", "blur(0px)");
+  $("#footer").css("filter", "blur(0px)");
 }
 
 function isDescendant(node, ancestor) {
@@ -2669,4 +2708,24 @@ function isDescendant(node, ancestor) {
   }
 
   return false;
+}
+
+function getKeyofVal(node) {
+
+  let focusNodeKey = null
+
+  dataMap.forEach((value, key) => {
+    for (let i = 0; i < value.length; ++i) {
+      if (value[i].image == node.image) {
+        focusNodeKey = key;
+      }
+    }
+  })
+
+  if (focusNodeKey != null) {
+    return focusNodeKey;
+  }
+
+  alert("No key found");
+  return null
 }
