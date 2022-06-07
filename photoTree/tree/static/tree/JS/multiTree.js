@@ -381,7 +381,7 @@ let momArray = makeMomArray();
 
 //GLOBAL VARIABLE for the chart
 
-let activeRoot = getNode(2);
+//let activeRoot = getNode(2);
 
 let chartList = document.getElementById('chart');
 let treeHolder = document.getElementById('tree-holder-chart')
@@ -394,10 +394,10 @@ createChart();
 //3. AddMotherRelationship (Causes duplicates of nodes in multiple trees)
 
 
-/*
-function createChart() {
-
-  //Makes sure that the chart is empty of dataMap is empty
+//TEST
+//IDEAS: The key to each value in the map can just be the active root
+function testCreateChart() {
+  //Makes sure tree is empty of dataMap is empty
   if (dataMap.size == 0) {
     for (let i = 0; i < chartList.children.length; ++i) {
       chartList.children[i].remove();
@@ -405,41 +405,10 @@ function createChart() {
     }
   }
 
-  let shownTree = []
-
-  for (let tree of dataMap.values()) {
-
-    //TEST
-    if (getRootNode(tree[0]).image != activeRoot.image) {
-      continue;
-    }
-
-    let descendants = getDescendants(activeRoot, []);
-    descendants.push(activeRoot);
-
-    //TODO: This does not account for duplicate nodes yet
-    for (let i = 0; i < descendants.length; ++i) {
-      for (let j = 0; j < tree.length; ++j) {
-        if (tree[j] == descendants[i]) {
-          shownTree.push(tree[j]);
-        }
-      }
-    }
-
-
-    debugger
-    //remove duplicates
-    createDataPoints(shownTree);
-
-  }
-
-  shiftChart(shownTree)
-  checkRootNode();
-  createLines();
-
-  debugger
+  
 }
-*/
+
+
 //Original Function
 function createChart(hiddenChildren) {
 
@@ -989,10 +958,10 @@ function addMotherRelationship(id1, id2) {
     dataMap.set(mother.image, tree);
     } 
   }
-  /*
+  
  //TEST, in this, the child is not removed from the old tree
  //There will be duplicates of certain nodes in the trees and only the one connected to the activeNode will be shown and created
- 
+ /*
   if (isOnTree(child) && inNodeBox(mother)) {
 
     //This case happens if mother becomes the new root node of a tree
@@ -1016,7 +985,8 @@ function addMotherRelationship(id1, id2) {
     } 
   }
   ////////////
-*/
+  */
+
   //if both are in nodeBox
   if (inNodeBox(child) && inNodeBox(mother)) {
     let tree = [child, mother]
@@ -1326,7 +1296,7 @@ function shiftChart(tree) {
 
   //1. Shift all nodes by a set margin to better align on the screen
   shiftNodesByMarginX(tree)
-  shiftNodesByMarginY(tree)
+  //shiftNodesByMarginY(tree)
 }
 
 function shiftNodesByMarginY(tree) {
@@ -1373,6 +1343,7 @@ function shiftNodesByMarginX(tree) {
 
   //Get the leftmost XPos on entire tree
   
+  
   for (let value of dataMap.values()) {
     for (let i = 0; i < value.length; ++i) {
       if (isOnTree(value[i])) {
@@ -1387,36 +1358,36 @@ function shiftNodesByMarginX(tree) {
  let shiftMargin;
 
  if (xPos > 50) {
-  shiftMargin = xPos - 50;
-  //shift the xPos of every node by the margin to the left so that furthest left node is 100px from left edge
-  for (let values of dataMap.values()) {
-    for (let i = 0; i < values.length; ++i) {
-      if (isOnTree(values[i])) {
-        let node = document.getElementById(values[i].image);
-        let originalY = parseAttribute('y', node.style.cssText);
-        let originalX = parseAttribute('x', node.style.cssText);
-        node.setAttribute('style', `--y: ${originalY}px; --x: ${originalX - shiftMargin}px`);
+    shiftMargin = xPos - 50;
+    //shift the xPos of every node by the margin to the left so that furthest left node is 100px from left edge
+    for (let values of dataMap.values()) {
+      for (let i = 0; i < values.length; ++i) {
+        if (isOnTree(values[i])) {
+          let node = document.getElementById(values[i].image);
+          let originalY = parseAttribute('y', node.style.cssText);
+          let originalX = parseAttribute('x', node.style.cssText);
+          node.setAttribute('style', `--y: ${originalY}px; --x: ${originalX - shiftMargin}px`);
+        }
+      }
+    }
+  } 
+  else {
+    //shift the xPos of every node by the margin to the right so that furthest left node is 100px from left edge
+    shiftMargin = 50;
+    for (let values of dataMap.values()) {
+      for (let i = 0; i < values.length; ++i) {
+        if (isOnTree(values[i])) {
+          let node = document.getElementById(values[i].image);
+          let originalY = parseAttribute('y', node.style.cssText);
+          let originalX = parseAttribute('x', node.style.cssText);
+          node.setAttribute('style', `--y: ${originalY}px; --x: ${originalX + shiftMargin}px`);
+        }
       }
     }
   }
-} 
-else {
-  //shift the xPos of every node by the margin to the right so that furthest left node is 100px from left edge
-  shiftMargin = 50;
-  for (let values of dataMap.values()) {
-    for (let i = 0; i < values.length; ++i) {
-      if (isOnTree(values[i])) {
-        let node = document.getElementById(values[i].image);
-        let originalY = parseAttribute('y', node.style.cssText);
-        let originalX = parseAttribute('x', node.style.cssText);
-        node.setAttribute('style', `--y: ${originalY}px; --x: ${originalX + shiftMargin}px`);
-      }
-    }
-  }
-}
+  
 
-
-/*
+  /*
  //TEST
   for (let i = 0; i < tree.length; ++i) {
     if (isOnTree(tree[i])) {
@@ -1427,8 +1398,8 @@ else {
     }
   }
 
-  if (xPos > 25) {
-    shiftMargin = xPos - 25;
+  if (xPos > 50) {
+    shiftMargin = xPos - 50;
     //shift the xPos of every node by the margin to the left so that furthest left node is 100px from left edge
     for (let i = 0; i < tree.length; ++i) {
       if (isOnTree(tree[i])) {
@@ -1441,7 +1412,7 @@ else {
   } 
   else {
     //shift the xPos of every node by the margin to the right so that furthest left node is 100px from left edge
-    shiftMargin = 25;
+    shiftMargin = 50;
     for (let i = 0; i < tree.length; ++i) {
       if (isOnTree(tree[i])) {
         let node = document.getElementById(tree[i].image);
@@ -1451,8 +1422,7 @@ else {
       }
     }
   }
-*/
-
+  */
 }
 
 function shiftTree(xBuffer, tree) {
@@ -2606,6 +2576,7 @@ function getDescendants(node, children) {
 }
 
 //You only want to go up by the node's mother, do not access spouse mother
+/*
 function getHiddenFamily(id) {  
 
   let node = getNode(id)
@@ -2618,7 +2589,7 @@ function getHiddenFamily(id) {
   //Gets the mother of the node with the hidden family  
   let mother = getNode(node.mother);
 
-  //This will get the root node of that family tree]
+  //This will get the root node of that family tree
   let root = getSpecificFamilyRoot(mother);
 
   let hiddenFamily = getDescendants(root, []);
@@ -2642,16 +2613,38 @@ function getHiddenFamily(id) {
     }
   }
 
+  //Removes the old main tree from the chart
   let oldMainTree = getTree(activeRoot);
   removeTreeFromChart(oldMainTree);
 
-  activeRoot = root
+  //activeRoot = root
 
-  //createChart()
+  //TEST Making the key in dataMap become activeRootNode
+
 
   closeMenu();
+}
+*/
+function getHiddenFamily(id) {
+  let node = getNode(id);
 
-  //return hiddenFamily
+  if (node.mother == null) {
+    alert("Does not have hidden family.");
+    return;
+  }
+
+  //This will get the root node of that family tree
+  let root = getSpecificFamilyRoot(node);
+
+  let hiddenFamily = getDescendants(root, []);
+  //Adds root to hiddenFamily
+  hiddenFamily.push(root);
+
+
+
+
+  return hiddenFamily;
+
 }
 
 function getSpecificFamilyRoot(node) {
@@ -2833,10 +2826,10 @@ function tutorial() {
     `<div class="tutorial-box">
       <div><button class="x-button" style="margin-right: 10px;" onclick="closeTutorial()"><strong>X</strong></button></div>
       <div style="margin: 10px; font-family: Arial;">
-        <p>Photo Family Tree is an interactive new experience in creating and making adjustments to a family tree.
+        <p>Photo Family Tree is an interactive new experience for creating and making adjustments to a family tree.
         In this tree you can change relationships and make new ones with the click of a button! To try this new experience, we are using one of the United State's most prominant families, 
         the <a href="https://www.jfklibrary.org/learn/about-jfk/the-kennedy-family" target="_blank">Kennedy's</a>.
-        Eventually, with your permission, we would like to have you be able to automatically create your own family tree just from using your photos!</p>
+        Eventually, with your permission, we would like to have you be able to automatically create your own family tree using your own family photos!</p>
 
         <p>Just to explain how this software is used here are a few guidelines.</p>
 
@@ -2850,7 +2843,7 @@ function tutorial() {
           <li><p><strong>Lines:</strong> A black line represents a parent-child relationship while a blue line represents a spouse relationship.</p></li>
         </ul>
 
-        <p><strong>Note:</strong> Our spacing algorithm works great in normal circumstances! However, with more complicated relationships, such as inter-family relations, the spacing will start
+        <p><strong>Note:</strong> Our spacing algorithm works great in normal circumstances! However, there are a few complicated relationships where the spacing will start
         to behave strangely. If this happens, just reload the page to start over again. Please be patient as we try to correct these mistakes and make it easier for you to use!</p>
       </div>
     </div>`
