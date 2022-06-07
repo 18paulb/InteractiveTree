@@ -379,10 +379,6 @@ function makeMomArray() {
 let momArray = makeMomArray();
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-//GLOBAL VARIABLE for the chart
-
-//let activeRoot = getNode(2);
-
 let chartList = document.getElementById('chart');
 let treeHolder = document.getElementById('tree-holder-chart')
 createChart();
@@ -405,6 +401,31 @@ function testCreateChart() {
     }
   }
 
+
+  dataMap.forEach((value, key) => {
+    
+    let activeTree = []
+    for (let i = 0; i < value.length; ++i) {
+      if (isDescendant(value[i], getNode(key))) {
+        activeTree.push(value[i])
+      }
+    }
+    createDataPoints(activeTree);
+  })
+
+  dataMap.forEach((value, key) => {
+    
+    let activeTree = []
+    for (let i = 0; i < value.length; ++i) {
+      if (isDescendant(value[i], getNode(key))) {
+        activeTree.push(value[i])
+      }
+    }
+    shiftChart(activeTree)
+  })
+
+  checkRootNode();
+  createLines();
   
 }
 
@@ -598,7 +619,6 @@ function createLines() {
 
             let valId = value[i].image;
 
-            //svgString += `<line id="line${id}" x1="${x1}" y1="${chartWidth - y1}" x2="${x2}" y2="${chartWidth - y2}" stroke="black" stroke-width='5' onmouseover="SVGHoverColor(line${id}, 'enter', 'mother')" onmouseleave="SVGHoverColor(line${id}, 'leave', 'mother')" onclick='testAdd(getNode(${valId}), momArray[${index}].children[${j}])'/>`
             svgString += `<line id="line${id}" x1="${x1}" y1="${chartWidth - y1}" x2="${x2}" y2="${chartWidth - y2}" stroke="black" stroke-width='5' onmouseover="SVGHoverColor(line${id}, 'enter', 'mother')" onmouseleave="SVGHoverColor(line${id}, 'leave', 'mother')" onclick='openRemoveRelationshipMenu(getNode(${valId}), momArray[${index}].children[${j}])'/>`
 
             id++;
@@ -615,7 +635,6 @@ function createLines() {
           let valId = value[i].image;
           let valSpouse = value[i].spouse;
 
-          //let line = `<line id="line${id}" x1="${xPos}" y1="${chartWidth - yPos}" x2="${spouseXPos}" y2="${chartWidth - spouseYPos}" stroke="blue" stroke-width='5' onmouseover="SVGHoverColor(line${id}, 'enter', 'spouse')" onmouseleave="SVGHoverColor(line${id}, 'leave', 'spouse')" onclick='testAdd(getNode(${valId}), getNode(${valSpouse}))'/>`
           let line = `<line id="line${id}" x1="${xPos}" y1="${chartWidth - yPos}" x2="${spouseXPos}" y2="${chartWidth - spouseYPos}" stroke="blue" stroke-width='5' onmouseover="SVGHoverColor(line${id}, 'enter', 'spouse')" onmouseleave="SVGHoverColor(line${id}, 'leave', 'spouse')" onclick='openRemoveRelationshipMenu(getNode(${valId}), getNode(${valSpouse}))'/>`
           
           //if statement so that two spouse lines aren't drawn between spouses
@@ -1923,95 +1942,6 @@ function getLongestGenChain() {
   return genCount;
 }
 
-function getPlaceInGeneration(node, generation) {
-  let nodeArray = [];
-  nodeArray = getNodesInGeneration(generation);
-
-  let placeInGen = 0;
-  for (let i = 0; i < nodeArray.length; i++) {
-    if (nodeArray[i] == node) {
-      placeInGen = i;
-    }
-  }
-  return placeInGen + 1;
-}
-
-function getPlaceInFamily(node) {
-  let nodeArray = [];
-  nodeArray = getFamilyArray(node);
-
-  let placeInFamily;
-  for (let i = 0; i < nodeArray.length; i++) {
-    if (nodeArray[i] == node) {
-      placeInFamily = i;
-    }
-  }
-  return placeInFamily + 1;
-}
-
-function getNumChildrenInFamily(node) {
-
-  let counter = 0;
-  for (let value of dataMap.values()) {
-    for (let i = 0; i < value.length; ++i) {
-      if (value[i].mother == node.mother) {
-        counter++;
-      }
-    }
-  }
-  return counter;
-}
-
-function getFamilyArray(node) {
-  let nodesInFamily = [];
-  for (let value of dataMap.values()) {
-    for (let i = 0; i < value.length; ++i) {
-      if (value[i].mother == node.mother) {
-        nodesInFamily.push(value[i]);
-      }
-    }
-  }
-  return nodesInFamily;
-}
-
-//FIXME: This function probably should be changed
-function getWidthOfFamily(node) {
-  let width;
-  let nodeGen = getGeneration(node);
-
-  if (nodeGen <= 2) {
-    width = 800;
-  } else if (nodeGen == 3) {
-    width = 600;
-  } else { // if Gen is greater than 3
-    width = 400;
-  }
-
-  return width;
-}
-
-function getMomsInGen(generation) {
-  theMomArray = [];
-  //gets all motherId's in data
-  for (let value of dataMap.values()) {
-    for (let i = 0; i < value.length; ++i) {
-      if (value[i].mother != null) {
-        if (theMomArray.every(element => element != value[i].mother)) {
-          theMomArray.push(value[i].mother); //push the motherIds
-        }
-      }
-    }
-  }
-  //gets array of motherId's in generation
-  newMomArray = [];
-  for (let i = 0; i < theMomArray.length; i++) {
-    if (getGeneration(theMomArray[i] == generation)) {
-      newMomArray.push(theMomArray[i]);
-    }
-  }
-  return newMomArray;
-}
-
 function getDataIndex(id) {
   for (let value of dataMap.values()) {
     for (let i = 0; i < value.length; ++i) {
@@ -2199,18 +2129,6 @@ function getGeneration(node) {
   count = getGenerationCount(node, count);
 
   return count;
-}
-
-function getMotherPlaceInGen(nodeMother, node) {
-  let motherNodeChildren = getChildren(nodeMother);
-  let motherPlaceInGen;
-
-  for (let i = 0; i < motherNodeChildren.length; i++) {
-    if (motherNodeChildren[i] == node || motherNodeChildren[i] == getNode(node.spouse)) {
-      motherPlaceInGen = i;
-    }
-  }
-  return motherPlaceInGen;
 }
 
 function getHighestGenInTree(gen, tree) {
@@ -2495,9 +2413,6 @@ function startEmpty() {
   createChart();
 }
 
-
-
-
 //Just was testing for spacing
 
 //Finds the first node that all nodes in gen nodes have in common, the node in common should be 2 generations up and work for fixGenerationSpacing() - works if there is more than one mother to the specific generation
@@ -2576,55 +2491,7 @@ function getDescendants(node, children) {
 }
 
 //You only want to go up by the node's mother, do not access spouse mother
-/*
-function getHiddenFamily(id) {  
 
-  let node = getNode(id)
-
-  if (node.mother == null) {
-    alert("Does not have hidden family");
-    return;
-  }
-
-  //Gets the mother of the node with the hidden family  
-  let mother = getNode(node.mother);
-
-  //This will get the root node of that family tree
-  let root = getSpecificFamilyRoot(mother);
-
-  let hiddenFamily = getDescendants(root, []);
-  //Possibly not needed, adds root to the hidden family tree
-  hiddenFamily.push(root)
-
-  console.log(hiddenFamily)
-
-  //EVEN MORE RISKY TESTS
-
-  for (let i = 0; i < hiddenFamily.length; ++i) {
-    let inDataTree = false;
-    for (let j = 0; j < dataMap.get(root.image).length; ++j) {
-      if (dataMap.get(root.image)[j] == hiddenFamily[i]) {
-        inDataTree = true;
-      }
-    }
-
-    if (!inDataTree) {
-      dataMap.get(root.image).push(hiddenFamily[i]);
-    }
-  }
-
-  //Removes the old main tree from the chart
-  let oldMainTree = getTree(activeRoot);
-  removeTreeFromChart(oldMainTree);
-
-  //activeRoot = root
-
-  //TEST Making the key in dataMap become activeRootNode
-
-
-  closeMenu();
-}
-*/
 function getHiddenFamily(id) {
   let node = getNode(id);
 
@@ -2634,17 +2501,28 @@ function getHiddenFamily(id) {
   }
 
   //This will get the root node of that family tree
-  let root = getSpecificFamilyRoot(node);
+  let newActiveRoot = getSpecificFamilyRoot(node);
 
-  let hiddenFamily = getDescendants(root, []);
-  //Adds root to hiddenFamily
-  hiddenFamily.push(root);
+  let hiddenFamily = getDescendants(newActiveRoot, []);
+  //Adds root to hiddenFamily array
+  hiddenFamily.push(newActiveRoot);
 
+  let oldActiveRoot;
 
+  //Gets the oldKey
+  dataMap.forEach((value, key) => {
+    for (let i = 0; i < value.length; ++i) {
+      if (value[i].image == id) {
+        oldActiveRoot = key;
+      }
+    }
+  })
 
-
-  return hiddenFamily;
-
+  //Creates new dataMap entry with the new activeRoot as key
+  dataMap.set(newActiveRoot.image, dataMap.get(oldActiveRoot.image));
+  
+  //Deletes old map with oldActiveRoot
+  dataMap.delete(oldActiveRoot.image);
 }
 
 function getSpecificFamilyRoot(node) {
