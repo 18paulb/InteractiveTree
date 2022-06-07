@@ -392,7 +392,7 @@ createChart();
 
 //TEST
 //IDEAS: The key to each value in the map can just be the active root
-function testCreateChart() {
+function createChart() {
   //Makes sure tree is empty of dataMap is empty
   if (dataMap.size == 0) {
     for (let i = 0; i < chartList.children.length; ++i) {
@@ -401,11 +401,17 @@ function testCreateChart() {
     }
   }
 
+  debugger
 
   dataMap.forEach((value, key) => {
     
     let activeTree = []
     for (let i = 0; i < value.length; ++i) {
+
+      if (value[i].image == key) {
+        activeTree.push(value[i])
+      }
+
       if (isDescendant(value[i], getNode(key))) {
         activeTree.push(value[i])
       }
@@ -429,9 +435,9 @@ function testCreateChart() {
   
 }
 
-
+/*
 //Original Function
-function createChart(hiddenChildren) {
+function createChart() {
 
   //Makes sure that the chart is empty of dataMap is empty
   if (dataMap.size == 0) {
@@ -442,7 +448,7 @@ function createChart(hiddenChildren) {
   }
 
   for (let tree of dataMap.values()) {
-    createDataPoints(tree, hiddenChildren);
+    createDataPoints(tree);
   }
   for (let tree of dataMap.values()) {
     shiftChart(tree);
@@ -453,7 +459,7 @@ function createChart(hiddenChildren) {
 
   createLines();
 }
-
+*/
 
 function removeTreeFromChart(tree) {
   for (let i = 0; i < tree.length; ++i) {
@@ -482,7 +488,7 @@ function removeTreeFromChart(tree) {
  * Creates HTML elements for each node and sets their initial X and Y positions
  * @param {the current tree that's passed in} treeValue 
  */
-function createDataPoints(treeValue, hiddenChildren) {
+function createDataPoints(treeValue) {
   //erase all the nodes in the current tree
   removeTreeFromChart(treeValue);
   
@@ -541,10 +547,6 @@ function createDataPoints(treeValue, hiddenChildren) {
 
       if (hasChildren(currNode)) {
         li.innerHTML += `<button id="${currNode.image}-hide-button" class='expand-tree' onclick="hideTree(${currNode.image}); changeButton(${currNode.image}, 'hide')">&#8593</button>`
-      }
-
-      if (hiddenChildren?.includes(nodesInTree[nodeIndex])) {
-        li.style.visibility = "hidden";
       }
     
       chartList.appendChild(li);
@@ -979,34 +981,6 @@ function addMotherRelationship(id1, id2) {
     dataMap.set(mother.image, tree);
     } 
   }
-  
- //TEST, in this, the child is not removed from the old tree
- //There will be duplicates of certain nodes in the trees and only the one connected to the activeNode will be shown and created
- /*
-  if (isOnTree(child) && inNodeBox(mother)) {
-
-    //This case happens if mother becomes the new root node of a tree
-    if (dataMap.get(child.image) != null) {
-      dataMap.set(mother.image, dataMap.get(child.image))
-      //Mom is not part of the tree so push to that tree
-      dataMap.get(mother.image).push(mother)
-
-      dataMap.delete(child.image)
-    }
-    else {
-
-    let tree = [child, mother];
-
-    //Removes mom from nodeBoxData
-    let momIndex = getNodeBoxDataIndex(mother.image);
-    nodeBoxData.splice(momIndex, 1)
-
-    //creates new tree
-    dataMap.set(mother.image, tree);
-    } 
-  }
-  ////////////
-  */
 
   //if both are in nodeBox
   if (inNodeBox(child) && inNodeBox(mother)) {
@@ -1406,44 +1380,6 @@ function shiftNodesByMarginX(tree) {
       }
     }
   }
-  
-
-  /*
- //TEST
-  for (let i = 0; i < tree.length; ++i) {
-    if (isOnTree(tree[i])) {
-      let checkXPos = getX(tree[i].image);
-      if (checkXPos < xPos) {
-        xPos = checkXPos;
-      }
-    }
-  }
-
-  if (xPos > 50) {
-    shiftMargin = xPos - 50;
-    //shift the xPos of every node by the margin to the left so that furthest left node is 100px from left edge
-    for (let i = 0; i < tree.length; ++i) {
-      if (isOnTree(tree[i])) {
-        let node = document.getElementById(tree[i].image);
-        let originalY = parseAttribute('y', node.style.cssText);
-        let originalX = parseAttribute('x', node.style.cssText);
-        node.setAttribute('style', `--y: ${originalY}px; --x: ${originalX - shiftMargin}px`);
-      }
-    }
-  } 
-  else {
-    //shift the xPos of every node by the margin to the right so that furthest left node is 100px from left edge
-    shiftMargin = 50;
-    for (let i = 0; i < tree.length; ++i) {
-      if (isOnTree(tree[i])) {
-        let node = document.getElementById(tree[i].image);
-        let originalY = parseAttribute('y', node.style.cssText);
-        let originalX = parseAttribute('x', node.style.cssText);
-        node.setAttribute('style', `--y: ${originalY}px; --x: ${originalX + shiftMargin}px`);
-      }
-    }
-  }
-  */
 }
 
 function shiftTree(xBuffer, tree) {
@@ -1524,7 +1460,6 @@ function fixGenerationSpacing(tree, rootNode) {
       
       let newXPositions = new Map();
 
-      debugger
       //TEST: trying to check for hidden children
       let childId = document.getElementById(`${rootNodeChildren[0].image}`);
       
@@ -1635,10 +1570,6 @@ function fixGenerationSpacing(tree, rootNode) {
               prevChildSpouseXPos = getX(prevChildSpouse.image);
 
               if (currChildXPos - prevChildSpouseXPos < spacing) {
-                // console.log(`found overlap between node ${currChild.image} and node ${prevChildSpouse.image}`)
-                // console.log(`node ${currChild.image}'s xPos: ${getX(currChild.image)}`)
-                // console.log(`node ${prevChildSpouse.image}'s xPos: ${getX(prevChildSpouse.image)}`)
-
                 updatedXPos += spacing - (currChildXPos - prevChildSpouseXPos);
                 newXPositions.set(currChild, updatedXPos);
                 updateXPos(currChild, newXPositions.get(currChild));
@@ -1993,7 +1924,6 @@ function deleteNode(id) {
 
       //if the value ends up having no relationships because of deletion, put in node container
       if (!hasRelationship(value[i])) {
-        debugger
         addToNodeContainer(value[i].image)
         document.getElementById(`${value[i].image}`).remove();
         removeNodeFromTree(value[i])
@@ -2415,8 +2345,6 @@ function startEmpty() {
   createChart();
 }
 
-//Just was testing for spacing
-
 //Finds the first node that all nodes in gen nodes have in common, the node in common should be 2 generations up and work for fixGenerationSpacing() - works if there is more than one mother to the specific generation
 //If there is only one mother, this function should just return the mother, and there shouldn't be any overlap anyways
 /**
@@ -2661,10 +2589,7 @@ function hideTree(id) {
     }
   }
 
-  //TEST: get an array of nodes that have been hidden
-  let hiddenChildren = descendants;
-
-  createChart(hiddenChildren);
+  createChart();
 }
 
 function showTree(id) {
