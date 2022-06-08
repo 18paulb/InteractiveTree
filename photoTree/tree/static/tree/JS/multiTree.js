@@ -394,14 +394,13 @@ createChart();
 //IDEAS: The key to each value in the map can just be the active root
 function createChart() {
   //Makes sure tree is empty of dataMap is empty
-  if (dataMap.size == 0) {
+  //TEST REMOVING ENTIRE TREE
+  //if (dataMap.size == 0) {
     for (let i = 0; i < chartList.children.length; ++i) {
       chartList.children[i].remove();
       i -= 1;
     }
-  }
-
-  debugger
+  //}
 
   dataMap.forEach((value, key) => {
     
@@ -423,10 +422,18 @@ function createChart() {
     
     let activeTree = []
     for (let i = 0; i < value.length; ++i) {
+
+      if (value[i].image == key) {
+        activeTree.push(value[i])
+      }
+      
       if (isDescendant(value[i], getNode(key))) {
         activeTree.push(value[i])
       }
     }
+
+    debugger
+
     shiftChart(activeTree)
   })
 
@@ -463,8 +470,6 @@ function createChart() {
 
 function removeTreeFromChart(tree) {
 
-  debugger
-
   for (let i = 0; i < tree.length; ++i) {
     let tmpElement = document.getElementById(tree[i].image);
     if (tmpElement != null) {
@@ -493,7 +498,7 @@ function removeTreeFromChart(tree) {
  */
 function createDataPoints(treeValue) {
   //erase all the nodes in the current tree
-  removeTreeFromChart(treeValue);
+  //removeTreeFromChart(treeValue);
   
   //get highest gen in current tree
   let genCount = getLongestGenChain();
@@ -790,6 +795,14 @@ function openNodeOptions(nodeId) {
         <button id='removeButton' class='button-34' onclick='deleteNode(${nodeId});'>Delete Node</button>
       </div>
     </div>`)
+
+  //These if statements remove hiddenFamilyButton if there is no hidden family or the family is shown
+  if (node.mother == null) {
+    document.getElementById("hiddenFamilyButton").remove();
+  }
+  else if (getRootNode(node).image == getNode(getKeyofVal(node)).image) {
+    document.getElementById("hiddenFamilyButton").remove();
+  }
 }
 
 function editNode(id) {
@@ -1309,11 +1322,15 @@ function shiftChart(tree) {
 
   //If there are multiple trees, then shift those trees to the right accordingly
   //FIXME: Doesn't work in all cases, what if you check spacing between all spaced trees (leftmost/rightmost nodes) and position from there
+  debugger
+
   let treeSpace = getXBuffer(tree);
   if (dataMap.size > 1) {shiftTree(treeSpace, tree)};
 
   //3. Find the furthest down generation in the tree and adjust the spacing so there are no overlaps
-  let rootNode = getRootNode(tree[0]);
+  //TODO: Changed rootNode
+  //let rootNode = getRootNode(tree[0]);
+  let rootNode = getNode(getKeyofVal(tree[0]))
   fixGenerationSpacing(tree, rootNode);
 
   //4. Center Root Node between her leftmost and rightmost child
