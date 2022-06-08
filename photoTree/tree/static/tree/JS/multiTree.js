@@ -2485,54 +2485,6 @@ function getDescendants(node, children) {
 
 //You only want to go up by the node's mother, do not access spouse mother
 
-<<<<<<< HEAD
-=======
-  let node = getNode(id)
-
-  if (node.mother == null) {
-    alert("Does not have hidden family");
-    return;
-  }
-
-  //Gets the mother of the node with the hidden family  
-  let mother = getNode(node.mother);
-
-  //This will get the root node of that family tree
-  let root = getSpecificFamilyRoot(mother);
-
-  let hiddenFamily = getDescendants(root, []);
-  //Possibly not needed, adds root to the hidden family tree
-  hiddenFamily.push(root)
-
-  console.log(hiddenFamily)
-
-  //EVEN MORE RISKY TESTS
-
-  for (let i = 0; i < hiddenFamily.length; ++i) {
-    let inDataTree = false;
-    for (let j = 0; j < dataMap.get(root.image).length; ++j) {
-      if (dataMap.get(root.image)[j] == hiddenFamily[i]) {
-        inDataTree = true;
-      }
-    }
-
-    if (!inDataTree) {
-      dataMap.get(root.image).push(hiddenFamily[i]);
-    }
-  }
-
-  //Removes the old main tree from the chart
-  let oldMainTree = getTree(activeRoot);
-  removeTreeFromChart(oldMainTree);
-
-  //activeRoot = root
-
-  //TEST Making the key in dataMap become activeRootNode
-
-  closeMenu();
-}
-*/
->>>>>>> b66074d638cb5b0f82c889d6589dea694c210ab6
 function getHiddenFamily(id) {
   let node = getNode(id);
 
