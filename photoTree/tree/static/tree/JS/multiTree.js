@@ -299,6 +299,7 @@ let data = [
 let dataMap = new Map();
 
 //Hard Coding Root Node for starting tree, just for sample data
+//Notes: The key to each value in map is the id for the active node of the tree, if a hidden family becomes the active node, then the key is changed
 dataMap.set(data[1].image, Array.from(data));
 
 let nodeBoxData = [];
@@ -381,24 +382,12 @@ let chartList = document.getElementById('chart');
 let treeHolder = document.getElementById('tree-holder-chart')
 createChart();
 
-
-//IMPORTANT: Functions changed in hiddenTree
-//1. Create Chart
-//2. ShiftNodesByMarginX (Accounts for only one tree on page)
-//3. AddMotherRelationship (Causes duplicates of nodes in multiple trees)
-
-
-//TEST
-//IDEAS: The key to each value in the map can just be the active root
 function createChart() {
-  //Makes sure tree is empty of dataMap is empty
-  //TEST REMOVING ENTIRE TREE
-  //if (dataMap.size == 0) {
-    for (let i = 0; i < chartList.children.length; ++i) {
-      chartList.children[i].remove();
-      i -= 1;
-    }
-  //}
+  //Makes sure tree is empty
+  for (let i = 0; i < chartList.children.length; ++i) {
+    chartList.children[i].remove();
+    i -= 1;
+  }
 
   dataMap.forEach((value, key) => {
     
@@ -438,68 +427,14 @@ function createChart() {
   
 }
 
-/*
-//Original Function
-function createChart() {
-
-  //Makes sure that the chart is empty of dataMap is empty
-  if (dataMap.size == 0) {
-    for (let i = 0; i < chartList.children.length; ++i) {
-      chartList.children[i].remove();
-      i -= 1;
-    }
-  }
-
-  for (let tree of dataMap.values()) {
-    createDataPoints(tree);
-  }
-  for (let tree of dataMap.values()) {
-    shiftChart(tree);
-  }
-
-  //Makes sure mother is root node and not father (needed because of certain addRelationship conditions)
-  checkRootNode();
-
-  createLines();
-}
-*/
-
-function removeTreeFromChart(tree) {
-
-  for (let i = 0; i < tree.length; ++i) {
-    let tmpElement = document.getElementById(tree[i].image);
-    if (tmpElement != null) {
-      tmpElement.remove();
-    }
-  }
-
-  for (let i = 0; i < nodeBoxData.length; ++i) {
-    let tmpElement = document.getElementById(`button${nodeBoxData[i].image}`);
-
-    let tree = document.getElementById('chart');
-
-    for (let i = 0; i < tree.children.length; ++i) {
-      if (tmpElement.id == `button${tree.children[i].id}`) {
-        tree.children[i].remove();
-        //TEST, might break
-        i -= 1
-      }
-    }
-  }
-}
-
 /**
  * Creates HTML elements for each node and sets their initial X and Y positions
  * @param {the current tree that's passed in} treeValue 
  */
 function createDataPoints(treeValue) {
-  //erase all the nodes in the current tree
-  //removeTreeFromChart(treeValue);
   
   //get highest gen in current tree
   let genCount = getLongestGenChain();
-  //TEST:
-  //let genCount = getLongestGenChain(treeValue);
   
   //iterate through all of the gens in current tree
   for (let genIndex = 1; genIndex <= genCount; genIndex++) {
@@ -1320,8 +1255,6 @@ function shiftChart(tree) {
   if (dataMap.size > 1) {shiftTree(treeSpace, tree)};
 
   //3. Find the furthest down generation in the tree and adjust the spacing so there are no overlaps
-  //TODO: Changed rootNode
-  //let rootNode = getRootNode(tree[0]);
   let rootNode = getNode(getKeyofVal(tree[0]))
   fixGenerationSpacing(tree, rootNode);
 
@@ -1712,7 +1645,6 @@ function shiftOverlappingNodes(rootNodeChildren, spacing) {
   }
 }
 
-//FIXME: can change later, just made the spacing between nodes of each gen hardcoded values
 function getSpaceBetweenNodes(gen) {
   let spacing = 120;
   
@@ -2437,9 +2369,9 @@ function returnConfirmBoxNodes(id1, id2) {
 //FOR PRESENTATION
 function startEmpty() {
 
-  for (let value of dataMap.values()) {
-    removeTreeFromChart(value)
-  }
+  //for (let value of dataMap.values()) {
+  //  removeTreeFromChart(value)
+  //}
 
   for (let value of dataMap.values()) {
     while (value.length != 0) {
