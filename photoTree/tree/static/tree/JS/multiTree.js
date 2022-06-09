@@ -2321,7 +2321,12 @@ function getFarthestDownRightChild(momNode, gen) {
   if (hasChildren(rightmostNode) && currGen <= gen) {
     return getFarthestDownRightChild(rightmostNode);
   }
-  return rightmostNode;
+  
+  if (hasSpouse(rightmostNode)) {
+    return getNode(rightmostNode.spouse);
+  } else {
+    return rightmostNode;
+  }
 }
 
 function getRightmostChild(momNode) {
