@@ -579,8 +579,6 @@ function createDataPoints(treeValue) {
   }
 }
 
-//FIXME: Bug: Sometimes hiding a tree will hide line in other trees
-
 function changeButton(id, method) {
 
   let hideButton = document.getElementById(`${id}-hide-button`);
@@ -987,36 +985,9 @@ function addMotherRelationship(id1, id2) {
   //FIXME: Logic errors exist here, what happens if spouse has mother and other spouse gets mother from this condition? we don't want to remove from the old tree
   //FIXME: also, try to add account for the hidden trees and how that will affect dataMap, maybe add those nodes onto tree but only show main root node's tree
   //If child is on tree and mother in nodeBox
-/*
   if (isOnTree(child) && inNodeBox(mother)) {
 
-    //This case happens if mother becomes the new root node of a tree
-    if (dataMap.get(child.image) != null) {
-      dataMap.set(mother.image, dataMap.get(child.image))
-      //Mom is not part of the tree so push to that tree
-      dataMap.get(mother.image).push(mother)
-
-      dataMap.delete(child.image)
-    }
-    else {
-
-    let tree = [child, mother];
-
-    //Removes child from old tree
-    let currTree = getTree(child);
-    let childIndex = getDataIndex(child.image);
-    currTree.splice(childIndex, 1);
-
-    //Removes mom from nodeBoxData
-    let momIndex = getNodeBoxDataIndex(mother.image);
-    nodeBoxData.splice(momIndex, 1)
-
-    //creates new tree
-    dataMap.set(mother.image, tree);
-    } 
-  }
-*/
-  if (isOnTree(child) && inNodeBox(mother)) {
+    debugger
 
     //If you are just trying to switch a child's mother and create new tree
     if (child.mother != null) {
@@ -1030,10 +1001,20 @@ function addMotherRelationship(id1, id2) {
       dataMap.set(mother.image, tree);
     }
 
+    //If child is root node
+    else if (child.mother == null && (child.spouse == null || (child.spouse != null && getNode(child.spouse).mother == null))) {
+      getTree(child).push(mother)
+      dataMap.set(mother.image, getTree(child));
+      dataMap.delete(child.image)
+    }
+
     //If you are trying to add a mother to a node without a mother, it'll make a hidden tree
-    if (child.mother == null) {
+    else if (child.mother == null) {
       let key = getKeyofVal(child);
       dataMap.get(key).push(mother);
+    }
+    else {
+      alert("check add function because something broke")
     }
 
     //Removes mom from nodeBoxData
@@ -2828,12 +2809,11 @@ function getKeyofVal(node) {
   return null
 }
 
-//FIXME: Probably doesn't work
 function hasHiddenFamily(node) {
   if (node.mother == null) {
     return false;
   }
-  if (getRootNode(getNode(node.mother)).image != getKeyofVal(node)) {
+  else if (node.mother != null && document.getElementById(`${node.mother}`) == null) {
     return true;
   }
   else {
