@@ -50,7 +50,7 @@
 /* Each point on the chart, each a circle with a light border */
 .data-point {
   background-color: white;
-  border: 5px solid #7ab7e6; /*was light blue*/
+  border: 5px solid #7ab7e6;
   border-radius: 50%;
   position: absolute;
   height: 3rem;
@@ -58,12 +58,32 @@
 
   /* The data points have a radius of 8px and the line segment has a width of 3px, 
     so we split the difference to center the data points on the line segment origins */
-  /*
-  bottom: calc(var(--y) - 27.5px);
-  left: calc(var(--x) - 30.5px);
-  */
   bottom: calc(var(--y) - 24px);
   left: calc(var(--x) - 23px);
+}
+
+.data-point:hover {
+  transition-duration: 0.25s;
+  transform: scale(1.2);
+}
+
+.data-point-hidden {
+  background-color: white;
+  border: 5px solid tan;
+  border-radius: 50%;
+  position: absolute;
+  height: 3rem;
+  width: 3rem;
+
+  /* The data points have a radius of 8px and the line segment has a width of 3px, 
+    so we split the difference to center the data points on the line segment origins */
+  bottom: calc(var(--y) - 24px);
+  left: calc(var(--x) - 23px);
+}
+
+.data-point-hidden:hover {
+  transition-duration: 0.25s;
+  transform: scale(1.2);
 }
 
 .expand-tree {
@@ -81,10 +101,7 @@
   left: calc(var(--x) - 12px);
 }
 
-.data-point:hover {
-  transition-duration: 0.25s;
-  transform: scale(1.2);
-}
+
 
 .hover-point {
   background-color: white;
@@ -332,22 +349,6 @@ body {
 .zoom-btn:hover {
   transition-duration: 0.2s;
   background-color: rgb(185, 176, 176);
-}
-
-.tree-animation {
-  width: 100px;
-  height: 100px;
-  background-color: red;
-  position: absolute;
-  animation-name: treeMove;
-  animation-duration: 4s;
-}
-@keyframes treeMove {
-  0%   {background-color:red; left:0px; top:0px;}
-  25%  {background-color:yellow; left:200px; top:0px;}
-  50%  {background-color:blue; left:200px; top:200px;}
-  75%  {background-color:green; left:0px; top:200px;}
-  100% {background-color:red; left:0px; top:0px;}
 }
 
 .tutorial-box {

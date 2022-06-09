@@ -298,15 +298,13 @@ let data = [
 //For multi Trees
 let dataMap = new Map();
 
-//Hard Coding Root Node for starting tree
+//Hard Coding Root Node for starting tree, just for sample data
 dataMap.set(data[1].image, Array.from(data));
 
 let nodeBoxData = [];
 
 //Change this and HTML in order to change graph size
 let chartWidth = 1000;
-//let chartWidth = screen.width * .80
-//console.log(chartWidth)
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Defines class to be used for the objects of the values in momArray
@@ -551,10 +549,27 @@ function createDataPoints(treeValue) {
       li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`);
 
       //append each element to the tree
+      /*
       li.innerHTML += `<div id='button${currNode.image}' onclick='openNodeOptions(${currNode.image})'>
       <img class="data-point data-button" src="../../static/tree/images/pictures/Kennedy/${currNode.image}.PNG" onmouseenter='hoverMenu(${currNode.image})' onmouseleave='closeHoverMenu()'>
       </div>`
+      */
 
+      //If it has a hidden family, makes node border tan, if it doesn not, the border is blue
+      
+      if (hasHiddenFamily(nodesInTree[nodeIndex])) {
+        li.innerHTML += `<div id='button${currNode.image}' onclick='openNodeOptions(${currNode.image})'>
+        <img class="data-point-hidden data-button" src="../../static/tree/images/pictures/Kennedy/${currNode.image}.PNG" onmouseenter='hoverMenu(${currNode.image})' onmouseleave='closeHoverMenu()'>
+        </div>`
+      }
+      else {
+        li.innerHTML += `<div id='button${currNode.image}' onclick='openNodeOptions(${currNode.image})'>
+        <img class="data-point data-button" src="../../static/tree/images/pictures/Kennedy/${currNode.image}.PNG" onmouseenter='hoverMenu(${currNode.image})' onmouseleave='closeHoverMenu()'>
+        </div>`
+      }
+      
+
+      //Button for expanding a tree
       if (hasChildren(currNode)) {
         li.innerHTML += `<button id="${currNode.image}-hide-button" class='expand-tree' onclick="hideTree(${currNode.image}); changeButton(${currNode.image}, 'hide')">&#8593</button>`
       }
@@ -609,8 +624,8 @@ function createLines() {
   for (let value of dataMap.values()) {
 
     for (let i = 0; i < value.length; ++i) {
-      if (!isHidden(value[i])) {
-        if (isOnTree(value[i])) {
+      if (isOnTree(value[i])) {
+        if (!isHidden(value[i])) {
           let li = $(`#${value[i].image}`);
           let yPos = parseAttribute('y', li[0].style.cssText);
           let xPos = parseAttribute('x', li[0].style.cssText);
@@ -793,7 +808,7 @@ function openNodeOptions(nodeId) {
         </div>
       </div>
       <div id="menu-buttons" class='menu-button-container'>
-        <button id='hiddenFamilyButton' class='button-34' onclick='getHiddenFamily(${nodeId})'>Show Hidden Family</button>
+        <button id='hiddenFamilyButton' class='button-34' onclick='getHiddenFamily(${nodeId}); closeMenu()'>Show Hidden Family</button>
         <button id='editButton' class='button-34' onclick='editNode(${nodeId})'>Edit Info</button>
         <button id='removeButton' class='button-34' onclick='deleteNode(${nodeId});'>Delete Node</button>
       </div>
@@ -1341,7 +1356,7 @@ function shiftChart(tree) {
 
   //1. Shift all nodes by a set margin to better align on the screen
   shiftNodesByMarginX(tree)
-  //shiftNodesByMarginY(tree)
+  shiftNodesByMarginY(tree)
 }
 
 function shiftNodesByMarginY(tree) {
@@ -1349,9 +1364,11 @@ function shiftNodesByMarginY(tree) {
   let yPos = getY(tree[0].image)
   for (let values of dataMap.values()) {
     for (let i = 0; i < values.length; ++i) {
-      let checkYPos = getY(values[i].image);
-      if (checkYPos > yPos) {
-        yPos = checkYPos;
+      if (isOnTree(values[i])) {
+        let checkYPos = getY(values[i].image);
+        if (checkYPos > yPos) {
+          yPos = checkYPos;
+        }
       }
     }
   }
@@ -1360,10 +1377,12 @@ function shiftNodesByMarginY(tree) {
     //shift the yPos of every node downward so that highest node is 1050px
     for (let values of dataMap.values()) {
       for (let i = 0; i < values.length; ++i) {
-        let node = document.getElementById(values[i].image);
-        let originalY = parseAttribute('y', node.style.cssText);
-        let originalX = parseAttribute('x', node.style.cssText);
-        node.setAttribute('style', `--y: ${originalY - shiftMargin}px; --x: ${originalX}px`);
+        if (isOnTree(values[i])) {
+          let node = document.getElementById(values[i].image);
+          let originalY = parseAttribute('y', node.style.cssText);
+          let originalX = parseAttribute('x', node.style.cssText);
+          node.setAttribute('style', `--y: ${originalY - shiftMargin}px; --x: ${originalX}px`);
+        }
       }
     }
   }
@@ -1372,10 +1391,12 @@ function shiftNodesByMarginY(tree) {
     //shift the yPos of every node downward so that highest node is 1050px
     for (let values of dataMap.values()) {
       for (let i = 0; i < values.length; ++i) {
-        let node = document.getElementById(values[i].image);
-        let originalY = parseAttribute('y', node.style.cssText);
-        let originalX = parseAttribute('x', node.style.cssText);
-        node.setAttribute('style', `--y: ${originalY + shiftMargin}px; --x: ${originalX}px`);
+        if (isOnTree(values[i])) {
+          let node = document.getElementById(values[i].image);
+          let originalY = parseAttribute('y', node.style.cssText);
+          let originalX = parseAttribute('x', node.style.cssText);
+          node.setAttribute('style', `--y: ${originalY + shiftMargin}px; --x: ${originalX}px`);
+        }
       }
     }
   }
@@ -2745,13 +2766,14 @@ function tutorial() {
         <p>Just to explain how this software is used here are a few guidelines.</p>
 
         <ul>
+        <li><p><strong>Lines:</strong> A <strong>black</strong> line represents a parent-child relationship while a <strong style="color: blue">blue</strong> line represents a spouse relationship.</p></li>
           <li><p>To remove a relationship you can just click on a line and choose "Remove Relationship" on the menu that opens.</p></li>
           <li><p>To add a relationship you can click on two photos and add whichever relationship you would like.</p></li>
           <li><p>To edit info about a person just click on one person and choose "Edit Info"</p></li>
           <li><p>People that have no relationships are placed at the bottom of the page.</p></li>
-          <li><p>Sometimes spouses have families that are not shown on the tree, this is to make sure that the tree is presented nicely.
+          <li><p>Sometimes people have families that are not shown on the tree, this is to make sure that the tree is presented nicely. These nodes have a <strong style="color: #97694F">tan</strong> border around them.
           If a person on the tree has a family that is not shown, simply click on that person and press the "Show Hidden Family" button, that will make their respective family tree appear.</p></li>
-          <li><p><strong>Lines:</strong> A black line represents a parent-child relationship while a blue line represents a spouse relationship.</p></li>
+          
         </ul>
 
         <p><strong>Note:</strong> Our spacing algorithm works great in normal circumstances! However, there are a few complicated relationships where the spacing will start
@@ -2799,4 +2821,17 @@ function getKeyofVal(node) {
 
   alert("No key found");
   return null
+}
+
+//FIXME: Probably doesn't work
+function hasHiddenFamily(node) {
+  if (node.mother == null) {
+    return false;
+  }
+  if (getRootNode(getNode(node.mother)).image != getKeyofVal(node)) {
+    return true;
+  }
+  else {
+    return false;
+  }
 }
