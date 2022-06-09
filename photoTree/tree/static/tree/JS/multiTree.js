@@ -429,9 +429,7 @@ function createChart() {
         activeTree.push(value[i])
       }
     }
-
-    debugger
-
+    
     shiftChart(activeTree)
   })
 
@@ -467,8 +465,6 @@ function createChart() {
 */
 
 function removeTreeFromChart(tree) {
-
-  //debugger
 
   for (let i = 0; i < tree.length; ++i) {
     let tmpElement = document.getElementById(tree[i].image);
@@ -987,8 +983,6 @@ function addMotherRelationship(id1, id2) {
   //If child is on tree and mother in nodeBox
   if (isOnTree(child) && inNodeBox(mother)) {
 
-    debugger
-
     //If you are just trying to switch a child's mother and create new tree
     if (child.mother != null) {
       let tree = [child, mother];
@@ -1321,7 +1315,6 @@ function shiftChart(tree) {
 
   //If there are multiple trees, then shift those trees to the right accordingly
   //FIXME: Doesn't work in all cases, what if you check spacing between all spaced trees (leftmost/rightmost nodes) and position from there
-  debugger
 
   let treeSpace = getXBuffer(tree);
   if (dataMap.size > 1) {shiftTree(treeSpace, tree)};
@@ -1524,7 +1517,6 @@ function fixGenerationSpacing(tree, rootNode) {
         updateXPos(currChild, currChildXPos);
 
         if (i > 0) {
-          debugger
           //define the previous rootNodeChild and its XPos
           let prevChild = rootNodeChildren[i - 1];
           let prevChildXPos = getX(prevChild.image);
@@ -1967,6 +1959,8 @@ function removeNodeFromTree(node) {
 
 function deleteNode(id) {
 
+  let node = getNode(id)
+
   let execute = confirm("This person will be permanently deleted, are you sure you want to proceed?")
 
   if (!execute) {
@@ -1981,6 +1975,7 @@ function deleteNode(id) {
         value.splice(i,1)
         i--;
         deleted = true;
+        continue
       }
       //If any node has it as spouse, set to null
       if (value[i].spouse == id) {
@@ -1995,14 +1990,31 @@ function deleteNode(id) {
       if (!hasRelationship(value[i])) {
         addToNodeContainer(value[i].image)
         document.getElementById(`${value[i].image}`).remove();
-        removeNodeFromTree(value[i])
+        //removeNodeFromTree(value[i])
+        value.splice(i,1);
         i--;
+        continue
       }
 
       //TODO: Add case for if you try to permanently delete the root node
       //If it is a rootNode
-      if (value[i].mother == null && getNode(value[i].spouse).mother == null) {
+      debugger
 
+      if (value[i].mother == null) {
+        //FIXME: getnode spouse is returning undefined
+        if ((value[i].spouse != null && getNode(value[i].spouse).mother == null) || value[i].spouse == null) {
+          let children = getChildren(node);
+          if (children == null) {continue}
+          for (let j = 0; j < children.length; ++j) {
+            if (hasChildren(children[j])) {
+              let descendants = getDescendants(children[j], [])
+              descendants.push(children[j])
+              dataMap.set(children[j].image, descendants);
+            }
+          }
+
+          dataMap.delete(node.image)
+        }
       }
     }
   }
@@ -2122,7 +2134,7 @@ function isHidden(node) {
   }
 }
 
-//FIXME: Exceeds maximum stack frame at times
+//FIXME: Exceeds maximum stack frame at times, ex is when you try to add mother/child relationship to root node spouse couple
 function getGenerationCount(node, count) {
 
   if (node?.mother == null) {
@@ -2445,38 +2457,6 @@ function startEmpty() {
   createChart();
 }
 
-//Finds the first node that all nodes in gen nodes have in common, the node in common should be 2 generations up and work for fixGenerationSpacing() - works if there is more than one mother to the specific generation
-//If there is only one mother, this function should just return the mother, and there shouldn't be any overlap anyways
-/**
- * You shoud only have to check at most 2 generations up from starting nodes
- * @param {tree nodes in generation} nodes 
- */
-function getAncestors(node, ancestorMap) {
-  //Base Case
-  if (node.mother == null && node.spouse == null) {
-    return ancestorMap
-  }
-
-  if (node.mother != null) {
-    let mother = getNode(node.mother)
-    ancestorMap.set(node.mother, getGeneration(mother))
-    getAncestors(mother, ancestorMap);
-  }
-
-  let spouse = getNode(node.spouse)
-
-  if (node.mother == null & spouse != null) {
-    let spouseMother = getNode(spouse.mother)
-    ancestorMap.set(spouse.image, getGeneration(spouse))
-    if (spouseMother != null) {
-      ancestorMap.set(spouseMother.image, getGeneration(spouseMother))
-      getAncestors(spouseMother, ancestorMap)
-    }
-  }
-
-  return ancestorMap
-}
-
 function getDescendants(node, children) {
 
   //Base Case
@@ -2547,8 +2527,6 @@ function getHiddenFamily(id) {
   
   //Deletes old map with oldActiveRoot
   dataMap.delete(oldActiveRoot.image);
-
-  //debugger
 
   createChart();
 }
