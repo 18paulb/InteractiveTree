@@ -738,7 +738,6 @@ function openNodeOptions(nodeId) {
       <div id="menu-buttons" class='menu-button-container'>
         <button id='hiddenFamilyButton' class='button-34' onclick='getHiddenFamily(${nodeId}); closeMenu()'>Show Hidden Family</button>
         <button id='editButton' class='button-34' onclick='editNode(${nodeId})'>Edit Info</button>
-        <button id='removeButton' class='button-34' onclick='deleteNode(${nodeId});'>Delete Node</button>
       </div>
     </div>`)
 
@@ -2528,7 +2527,7 @@ function hideTree(id) {
   if (node.spouse != null) {
     spouseX = getX(node.spouse);
   }
-  if (node.mother != null) {
+  if (node.mother != null && isOnTree(getNode(node.mother))) {
     momX = getX(node.mother);
   }
 
@@ -2590,9 +2589,10 @@ function hideTree(id) {
   }
   
   //shiftChart();
-  fixGenerationSpacing(getTree(node), getRootNode(node));
-  adjustRootNode(getRootNode(node));
-  createLines();
+  //fixGenerationSpacing(getTree(node), getRootNode(node));
+  //adjustRootNode(getRootNode(node));
+  //adjustRootNode(getNode(getKeyofVal(node)))
+  //createLines();
 }
 
 function showTree(id) {
@@ -2613,7 +2613,7 @@ function showTree(id) {
   let lines = document.getElementById("lines");
   for (let i = 0; i < lines.children.length; ++i) {
     if (lines.children[i].x1.baseVal.value == getX(node.image) || lines.children[i].x2.baseVal.value == getX(node.image)) {
-      if (lines.children[i].x1.baseVal.value == getX(node.mother) || lines.children[i].x2.baseVal.value == getX(node.mother) || lines.children[i].x1.baseVal.value == getX(node.spouse) || lines.children[i].x2.baseVal.value == getX(node.spouse)) {
+      if (isOnTree(getNode(node.mother)) && (lines.children[i].x1.baseVal.value == getX(node.mother) || lines.children[i].x2.baseVal.value == getX(node.mother)) || lines.children[i].x1.baseVal.value == getX(node.spouse) || lines.children[i].x2.baseVal.value == getX(node.spouse)) {
         continue;
       } else {
         lines.children[i].style.visibility = "visible";
@@ -2629,9 +2629,10 @@ function showTree(id) {
   }
 
   //shiftChart();
-  fixGenerationSpacing(getTree(node), getRootNode(node));
-  adjustRootNode(getRootNode(node));
-  createLines();
+  //fixGenerationSpacing(getTree(node), getRootNode(node));
+  //adjustRootNode(getRootNode(node));
+  //adjustRootNode(getNode(getKeyofVal(node)))
+  //createLines();
 }
 
 function tutorial() {
