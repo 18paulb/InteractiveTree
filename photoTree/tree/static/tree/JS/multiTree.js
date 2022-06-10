@@ -379,7 +379,6 @@ let momArray = makeMomArray();
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 let chartList = document.getElementById('chart');
-let treeHolder = document.getElementById('tree-holder-chart')
 createChart();
 
 function createChart() {
@@ -1240,12 +1239,7 @@ function closeMenu() {
 }
 
 //Spacing
-
-/**
- * Currently calls:
- * 1. shiftNodesByMarginX
- * 3. adjustRootNode
-**/
+/*TODO: Explanation for spacing*/
 function shiftChart(tree) {
 
   //If there are multiple trees, then shift those trees to the right accordingly
@@ -1852,8 +1846,6 @@ function getY(nodeId) {
 function setY(generation, genCount) {
   return (chartWidth + 250) - (chartWidth / genCount + 1) * generation;
 }
-
-//FIXME: Find better way, this takes way too much 
 
 function getLongestGenChain() {
   let genCount = 0;
@@ -2659,13 +2651,13 @@ function tutorial() {
         the <a href="https://www.jfklibrary.org/learn/about-jfk/the-kennedy-family" target="_blank">Kennedy's</a>.
         Eventually, with your permission, we would like to have you be able to automatically create your own family tree using your own family photos!</p>
 
-        <p>Just to explain how this software is used here are a few guidelines.</p>
+        <p>Just to explain how this software is used here are a few guidelines:</p>
 
         <ul>
         <li><p><strong>Lines:</strong> A <strong>black</strong> line represents a parent-child relationship while a <strong style="color: blue">blue</strong> line represents a spouse relationship.</p></li>
-          <li><p>To remove a relationship you can just click on a line and choose "Remove Relationship" on the menu that opens.</p></li>
-          <li><p>To add a relationship you can click on two photos and add whichever relationship you would like.</p></li>
-          <li><p>To edit info about a person just click on one person and choose "Edit Info"</p></li>
+          <li><p>To <strong>remove a relationship</strong> you can just click on a line and choose "Remove Relationship" on the menu that opens.</p></li>
+          <li><p>To <strong>add a relationship</strong> you can click on two photos and add whichever relationship you would like.</p></li>
+          <li><p>To <strong>edit info</strong> about a person just click on one person and choose "Edit Info"</p></li>
           <li><p>People that have no relationships are placed at the bottom of the page.</p></li>
           <li><p>Sometimes people have families that are not shown on the tree, this is to make sure that the tree is presented nicely. These nodes have a <strong style="color: #97694F">tan</strong> border around them.
           If a person on the tree has a family that is not shown, simply click on that person and press the "Show Hidden Family" button, that will make their respective family tree appear.</p></li>
