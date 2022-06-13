@@ -57,41 +57,46 @@
       </div>
     </div>
 
-    <div id="page-container" style="display: flex; position: relative;">
+    <div id="page-container" style="display: flex; position: relative; left:0;">
 
       <div style="display:flex; width: 80%; height: 100%">
         <figure id="treeChart" class="css-chart" style="--widget-size: 1000px; zoom: 1;">
           <ul id="chart" class="line-chart"></ul>
-          <svg id='lines' height="1000" width="1000" style="z-index:-1; overflow:hidden"></svg>
+          <svg id='lines' height="1000" width="1000" style="z-index:-1; overflow:hidden;"></svg>
           <div id="hover-menu"></div>
         </figure>
       </div>
 
-      <div style="display: flex; flex-direction: column; align-items: center; width: 20%; position: absolute; top: 0; ">
+      <!--
+      <div style="display: flex; flex-direction: column; align-items: center; width: 20%; position: absolute; top: 0;">
           <div style="display:flex; flex-direction: column; justify-content: center; position: fixed; left: 0;">
+            
             <button class="zoom-btn" onclick="zoomIn()">&#65291</button>
             <button class="zoom-btn" onclick="zoomOut()">&#65293</button>
             <button class="zoom-btn" onclick="resetZoom()">&#x21bb</button>
           </div>
       </div>
-
-      <div class="side-container">
-        <div id="menu-position" style="width: 100%; height: 40%"></div>
-
-        
-        <button onclick="tutorial()">Show Tutorial</button>
-        <!--
-        <div style="display: flex; width: 100%; height: 60%; position: relative;">
-          <figure id="tree-holder" class="tree-container">
-            <ul id="tree-holder-chart" class="line-chart"></ul>
-            <svg id='tree-holder-lines' height="500" width="100%" style="z-index:-1; overflow:hidden"></svg>
-          </figure>
-        </div>
-      -->
+    -->
+      <div style="display: flex; flex-direction: column; align-items: left; width: 20%; position: absolute; top: 0;">
+      <button class="zoom-btn" onclick="tutorial()" style="left: 0;">Tutorial</button>
       </div>
+      
+      <div class="side-container">
+        <div id="menu-position" style="width: 100%; height: 40%"></div>    
+      </div>
+      
+
+      
+      <!-- Use any element to open the sidenav -->
+      <!--<button onclick="openNav()" style="width: 2%">open</button>-->
 
     </div>
-
+<!--
+    <div id="mySidenav" class="sidenav">
+      <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
+      <div id="menu-position" style="width: 100%; height: 40%"></div>
+    </div>
+  -->
     <div id="tutorial"></div>
 
     <div id="footer" class="footer-box">

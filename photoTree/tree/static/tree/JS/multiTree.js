@@ -1244,6 +1244,8 @@ function shiftChart(tree) {
   //If there are multiple trees, then shift those trees to the right accordingly
   //FIXME: Doesn't work in all cases, what if you check spacing between all spaced trees (leftmost/rightmost nodes) and position from there
 
+  debugger
+
   let treeSpace = getXBuffer(tree);
   if (dataMap.size > 1) {shiftTree(treeSpace, tree)};
 
@@ -1361,7 +1363,7 @@ function shiftTree(xBuffer, tree) {
   //Gets initial val
   xPos = getX(tree[0].image);
 
-  //Gets furthest right xPos Val
+  //Gets furthest left xPos Val
   for (let i = 0; i < tree.length; ++i) {
     let checkXPos = getX(tree[i].image);
     if (checkXPos < xPos) {
@@ -2515,84 +2517,13 @@ function hideTree(id) {
     }
   }
 
-  //Hides SVG Lines
-  let lines = document.getElementById("lines");
-  let nodeX = getX(node.image);
-  let nodeY = getY(node.image);
-  let spouseX = null;
-  let momX = null;
+  debugger
 
-  let tree = getTree(getNode(id))
-
-  if (node.spouse != null) {
-    spouseX = getX(node.spouse);
-  }
-  if (node.mother != null && isOnTree(getNode(node.mother))) {
-    momX = getX(node.mother);
-  }
-
-
-  //Gets all SVG's that have same x value as any of the descendants of the node, including node and spouse
-  //Possible duplicates  if descendant has 2 or more lines connected to it. or if nodeY < svgY
-  let familyLines = [];
-  for (let i = 0; i < lines.children.length; ++i) {
-    
-    if (lines.children[i].x1.baseVal.value == nodeX || lines.children[i].x2.baseVal.value == nodeX) {
-      familyLines.push(lines.children[i])
-    }
-
-    for (let j = 0; j < descendants.length; ++j) {
-      let desX = getX(descendants[j].image)
-      let desY = getY(descendants[j].image)
-      if (lines.children[i].x1.baseVal.value == desX || lines.children[i].x2.baseVal.value == desX) {
-        if (lines.children[i].y1.baseVal.value > nodeY || lines.children[i].y2.baseVal.value > nodeY) {
-          familyLines.push(lines.children[i]);
-          break;
-        }
-
-      }
-    }
-  }
-
-  //Remove Duplicates
-  for (let i = 0; i < familyLines.length; ++i) {
-    for (let j = 1; j < familyLines.length; ++j) {
-      if (j == i) {continue;}
-      if (familyLines[i].id == familyLines[j].id) {
-        familyLines.splice(j,1);
-        j--;
-      }
-    }
-  }
-
-  //This loop will hide all directly connected children lines, not any descendants
-  for (let i = 0; i < familyLines.length; ++i) {
-    //if one of the xVals of the SVG match the node
-    if (familyLines[i].x1.baseVal.value == nodeX || familyLines[i].x2.baseVal.value == nodeX) {
-      //This makes sure it doesn't hide spouse or node's mother lines
-      if (familyLines[i].x1.baseVal.value == spouseX || familyLines[i].x2.baseVal.value == spouseX || familyLines[i].x1.baseVal.value == momX || familyLines[i].x2.baseVal.value == momX) {  
-        continue;
-      } else {
-        familyLines[i].style.visibility = "hidden";
-      }
-    }
-  }
-
-  //This loop hides descendant lines
-  for (let i = 0; i < familyLines.length; ++i) {
-    for (let j = 0; j < tree.length; ++j) {
-      if (tree[j].image == node.spouse) {continue;} 
-      if (isDescendant(tree[j], node) && (getX(tree[j].image) == familyLines[i].x1.baseVal.value || getX(tree[j].image) == familyLines[i].x1.baseVal.value)) {
-        familyLines[i].style.visibility = "hidden";
-      }
-    }
-  }
-  
+  //CreatLine functions creates lines that connect to only visible nodes
   //shiftChart();
-  //fixGenerationSpacing(getTree(node), getRootNode(node));
-  //adjustRootNode(getRootNode(node));
-  //adjustRootNode(getNode(getKeyofVal(node)))
-  //createLines();
+  fixGenerationSpacing(getTree(node), getRootNode(node));
+  adjustRootNode(getNode(getKeyofVal(node)))
+  createLines();
 }
 
 function showTree(id) {
@@ -2609,30 +2540,11 @@ function showTree(id) {
     }
   }
 
-  //Receals SVG Lines
-  let lines = document.getElementById("lines");
-  for (let i = 0; i < lines.children.length; ++i) {
-    if (lines.children[i].x1.baseVal.value == getX(node.image) || lines.children[i].x2.baseVal.value == getX(node.image)) {
-      if (isOnTree(getNode(node.mother)) && (lines.children[i].x1.baseVal.value == getX(node.mother) || lines.children[i].x2.baseVal.value == getX(node.mother)) || lines.children[i].x1.baseVal.value == getX(node.spouse) || lines.children[i].x2.baseVal.value == getX(node.spouse)) {
-        continue;
-      } else {
-        lines.children[i].style.visibility = "visible";
-      }
-    }
-    //Reveals all lines that the descendants are connected to
-    for (let j = 0; j < descendants.length; ++j) {
-      if (descendants[j].image == node.spouse) {continue;} 
-      if (lines.children[i].x1.baseVal.value == getX(descendants[j].image) || lines.children[i].x2.baseVal.value == getX(descendants[j].image)) {
-        lines.children[i].style.visibility = "visible";
-      }
-    }
-  }
-
+  //CreatLine functions creates lines that connect to only visible nodes
   //shiftChart();
-  //fixGenerationSpacing(getTree(node), getRootNode(node));
-  //adjustRootNode(getRootNode(node));
-  //adjustRootNode(getNode(getKeyofVal(node)))
-  //createLines();
+  fixGenerationSpacing(getTree(node), getRootNode(node));
+  adjustRootNode(getNode(getKeyofVal(node)))
+  createLines();
 }
 
 function tutorial() {
@@ -2722,4 +2634,18 @@ function hasHiddenFamily(node) {
   else {
     return false;
   }
+}
+
+
+
+/* Set the width of the side navigation to 250px and the left margin of the page content to 250px */
+function openNav() {
+  document.getElementById("mySidenav").style.width = "20%";
+  document.getElementById("page-container").style.marginRight = "250px";
+}
+
+/* Set the width of the side navigation to 0 and the left margin of the page content to 0 */
+function closeNav() {
+  document.getElementById("mySidenav").style.width = "0";
+  document.getElementById("page-container").style.marginRight = "0";
 }
