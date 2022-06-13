@@ -1588,7 +1588,7 @@ function fixGenerationSpacing(tree, rootNode) {
  * @param {how much space to put between each node} spacing 
  */
 function shiftOverlappingNodes(rootNodeChildren, spacing) {
-  
+  debugger
   //Loop through all of the rootNodeChildren
   for (let i = 1; i < rootNodeChildren.length; i++) {
     
@@ -1633,6 +1633,12 @@ function shiftOverlappingNodes(rootNodeChildren, spacing) {
 
             let updatedXPos = rightmostChildXPos + spacing + diff;
             updateXPos(currMother, updatedXPos);
+
+            if (hasSpouse(currMother)) {
+              if (getX(getNode(currMother.spouse).image) != getX(currMother.image) - 100) {
+                setX(getNode(currMother.spouse), getX(currMother.image) - 100);
+              }
+            }
           }
         }
       }
@@ -1666,10 +1672,12 @@ function updateXPos(node, newXPos) {
   //if node has spouse
   if (node.spouse != null) {
     let nodeSpouse = getNode(node.spouse);
+
     if (!isHidden(nodeSpouse)) {
       newXPos = newXPos + 100;
       setX(nodeSpouse, newXPos);
     }
+    
     //if node's spouse has children
     if (hasChildren(nodeSpouse) && !hasHiddenChildren(nodeSpouse)) {
       nodeChildren = getChildren(nodeSpouse);
