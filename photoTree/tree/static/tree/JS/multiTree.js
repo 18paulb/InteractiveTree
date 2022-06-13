@@ -894,8 +894,8 @@ function addMotherRelationship(id1, id2) {
     child = node2;
   }
 
-  //FIXME: Logic error, what if spouse is younger than mother
-  //This feature might not be wanted, might cause too many issues
+  debugger
+
   if (hasChildren(getNode(mother.spouse))) {
     alert("Spouse already has children, please add child to only one parent");
     returnConfirmBoxNodes(id1, id2);
@@ -911,8 +911,6 @@ function addMotherRelationship(id1, id2) {
     nodeBoxData.splice(childIndex, 1);
   }
 
-  //FIXME: Logic errors exist here, what happens if spouse has mother and other spouse gets mother from this condition? we don't want to remove from the old tree
-  //FIXME: also, try to add account for the hidden trees and how that will affect dataMap, maybe add those nodes onto tree but only show main root node's tree
   //If child is on tree and mother in nodeBox
   if (isOnTree(child) && inNodeBox(mother)) {
 
@@ -929,13 +927,13 @@ function addMotherRelationship(id1, id2) {
     }
 
     //If child is root node
-    else if (child.mother == null && (child.spouse == null || (child.spouse != null && getNode(child.spouse).mother == null))) {
+    else if (hasChildren(child) && child.mother == null && (child.spouse == null || (child.spouse != null && getNode(child.spouse).mother == null))) {
       getTree(child).push(mother)
       dataMap.set(mother.image, getTree(child));
       dataMap.delete(child.image)
     }
 
-    //If you are trying to add a mother to a node without a mother, it'll make a hidden tree
+    //If child's spouse is a root node
     else if (child.mother == null) {
       let key = getKeyofVal(child);
       dataMap.get(key).push(mother);
@@ -1241,17 +1239,13 @@ function closeMenu() {
 /*TODO: Explanation for spacing*/
 function shiftChart(tree) {
 
-  //If there are multiple trees, then shift those trees to the right accordingly
-  //FIXME: Doesn't work in all cases, what if you check spacing between all spaced trees (leftmost/rightmost nodes) and position from there
-
-  debugger
-
-  let treeSpace = getXBuffer(tree);
-  if (dataMap.size > 1) {shiftTree(treeSpace, tree)};
-
   //3. Find the furthest down generation in the tree and adjust the spacing so there are no overlaps
   let rootNode = getNode(getKeyofVal(tree[0]))
   fixGenerationSpacing(tree, rootNode);
+
+  //If there are multiple trees, then shift those trees to the right accordingly
+  let treeSpace = getXBuffer(tree);
+  if (dataMap.size > 1) {shiftTree(treeSpace, tree)};
 
   //4. Center Root Node between her leftmost and rightmost child
   adjustRootNode(rootNode);
@@ -2635,8 +2629,6 @@ function hasHiddenFamily(node) {
     return false;
   }
 }
-
-
 
 /* Set the width of the side navigation to 250px and the left margin of the page content to 250px */
 function openNav() {
