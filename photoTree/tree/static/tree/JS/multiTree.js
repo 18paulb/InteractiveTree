@@ -808,6 +808,10 @@ function addSpouseRelationship(id1, id2) {
   let spouse1Index;
   let spouse2Index;
 
+  if (spouse1.mother == spouse2.image || spouse2.mother == spouse1.image) {
+    removeRelationship(id1, id2)
+  }
+
   //If spouse1 is in nodeBox and spouse2 is on tree, push spouse1 onto tree
   if (inNodeBox(spouse1) && isOnTree(spouse2)) {
     currTree = getTree(spouse2);
@@ -893,8 +897,6 @@ function addMotherRelationship(id1, id2) {
     mother = node1;
     child = node2;
   }
-
-  debugger
 
   if (hasChildren(getNode(mother.spouse))) {
     alert("Spouse already has children, please add child to only one parent");
@@ -1009,6 +1011,8 @@ function removeRelationship(id1, id2) {
   let oldRoot = getRootNode(node1);
   let newTree = []
 
+  debugger
+
   //Removes Spouse Relationship
   if (node1.spouse == id2) {
 
@@ -1091,26 +1095,26 @@ function removeRelationship(id1, id2) {
             addToNodeContainer(mother.image);
             removeNodeFromTree(mother);
 
-            //FIXME: Logic error, what if rootNode is only mother to one kid and you remove that relationship, there is still a tree
             //If the mother does not have a relationship, and it is a root node, you can infer that the tree is empty
             if (dataMap.get(mother.image) != null && dataMap.get(mother.image).length == 0) {
               dataMap.delete(mother.image)
             }
+            //In case the mother's children still exist
             if (dataMap.get(mother.image) != null && dataMap.get(mother.image).length > 0) {
               //Mother should only have one child if it reaches this point
               dataMap.set(child.image, dataMap.get(mother.image));
               dataMap.delete(mother.image);
             }
+            continue
           }
 
-          //FIXME: Breaking here do to previous changes above
           //If it is it's own root node          
           if ((getRootNode(child)?.image == child.image || getRootNode(child)?.image == child.spouse) && !inNodeBox(child)) {
             newTree = getTreeLine(child, newTree);
             oldRoot = getRootNode(mother);
             addToTreeMap(newTree, dataMap.get(oldRoot.image));
           }
-          
+
           break;
         }
       }
@@ -1582,7 +1586,7 @@ function fixGenerationSpacing(tree, rootNode) {
  * @param {how much space to put between each node} spacing 
  */
 function shiftOverlappingNodes(rootNodeChildren, spacing) {
-  debugger
+
   //Loop through all of the rootNodeChildren
   for (let i = 1; i < rootNodeChildren.length; i++) {
     
@@ -2518,8 +2522,6 @@ function hideTree(id) {
       changeButton(descendants[i].image, "hide");
     }
   }
-
-  debugger
 
   //CreatLine functions creates lines that connect to only visible nodes
   //shiftChart();
