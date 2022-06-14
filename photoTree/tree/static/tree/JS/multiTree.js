@@ -966,7 +966,6 @@ function addMotherRelationship(id1, id2) {
   }
 
   //if both are on the chart
-  //FIXME: Some weird errors exist
   if ((isOnTree(child) && isOnTree(mother))) {
 
     let momTree = getTree(mother);
@@ -2065,7 +2064,6 @@ function isHidden(node) {
   }
 }
 
-//FIXME: Exceeds maximum stack frame at times, ex is when you try to add mother/child relationship to root node spouse couple
 function getGenerationCount(node, count) {
 
   if (node?.mother == null) {
