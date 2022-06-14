@@ -6,6 +6,8 @@
     <title>Photo Family Tree</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <link rel="stylesheet" href="../../static/tree/CSS/chart.css"/>
+    <!--DragScroll-->
+    <script type="text/javascript" src="https://cdn.rawgit.com/asvd/dragscroll/master/dragscroll.js"></script>
 
     <style>
       /* width */
@@ -58,7 +60,7 @@
     <div id="page-container" style="display: flex; position: relative; left:0;">
 
       <div style="display:flex; width: 80%; height: 100%">
-        <figure id="treeChart" class="css-chart" style="--widget-size: 1000px; zoom: 1;">
+        <figure id="treeChart" class="css-chart dragscroll" style="--widget-size: 1000px; zoom: 1;">
           <ul id="chart" class="line-chart"></ul>
           <svg id='lines' height="1000" width="1000" style="z-index:-1; overflow:hidden;"></svg>
           <div id="hover-menu"></div>

@@ -29,10 +29,11 @@
   
   /*overflow: scroll;*/
 
-  overflow: auto;
+  overflow: scroll;
   cursor: grab;
-
-
+  cursor : -o-grab; 
+  cursor : -moz-grab; 
+  cursor : -webkit-grab;
 }
 
 .tree-container {
@@ -69,6 +70,7 @@
     so we split the difference to center the data points on the line segment origins */
   bottom: calc(var(--y) - 24px);
   left: calc(var(--x) - 23px);
+  cursor: pointer;
 }
 
 .data-point:hover {
