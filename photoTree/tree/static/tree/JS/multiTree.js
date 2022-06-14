@@ -422,6 +422,8 @@ function createChart() {
   })
 
   checkRootNode();
+
+  debugger
   createLines();
   
 }
@@ -583,6 +585,8 @@ function createLines() {
 
           //Creates Spouse Lines
           if (value[i].spouse != null) {
+
+            debugger
 
             let spouseElement = $(`#${value[i].spouse}`);
             let spouseXPos = parseAttribute('x', spouseElement[0].style.cssText);
@@ -1123,6 +1127,8 @@ function removeRelationship(id1, id2) {
   if (!isRelated) {
     alert("Error, No Direct Relationship");
   }
+
+  debugger
 
   createChart();
 
@@ -2648,4 +2654,21 @@ function openNav() {
 function closeNav() {
   document.getElementById("mySidenav").style.width = "0";
   document.getElementById("page-container").style.marginRight = "0";
+}
+
+function openNavBottom() {
+  document.getElementById("myBottomnav").style.width = "100%";
+  document.getElementById("myBottomnav").style.height = "auto";
+  //document.getElementById("page-container").style.marginBottom = "auto";
+
+  document.getElementById("navButton").style.marginBottom = "100px";
+}
+
+/* Set the width of the side navigation to 0 and the left margin of the page content to 0 */
+function closeNavBottom() {
+  document.getElementById("myBottomnav").style.width = "0";
+  document.getElementById("myBottomnav").style.height = "0";
+  //document.getElementById("page-container").style.marginTop = "0";
+
+  document.getElementById("navButton").style.marginBottom = "0";
 }

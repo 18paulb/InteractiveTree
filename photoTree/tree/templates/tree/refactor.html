@@ -67,16 +67,6 @@
         </figure>
       </div>
 
-      <!--
-      <div style="display: flex; flex-direction: column; align-items: center; width: 20%; position: absolute; top: 0;">
-          <div style="display:flex; flex-direction: column; justify-content: center; position: fixed; left: 0;">
-            
-            <button class="zoom-btn" onclick="zoomIn()">&#65291</button>
-            <button class="zoom-btn" onclick="zoomOut()">&#65293</button>
-            <button class="zoom-btn" onclick="resetZoom()">&#x21bb</button>
-          </div>
-      </div>
-    -->
       <div style="display: flex; flex-direction: column; align-items: left; width: 20%; position: absolute; top: 0;">
       <button class="zoom-btn" onclick="tutorial()" style="left: 0;">Tutorial</button>
       </div>
@@ -85,21 +75,18 @@
         <div id="menu-position" style="width: 100%; height: 40%"></div>    
       </div>
       
-
-      
-      <!-- Use any element to open the sidenav -->
-      <!--<button onclick="openNav()" style="width: 2%">open</button>-->
-
     </div>
-<!--
-    <div id="mySidenav" class="sidenav">
-      <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a>
-      <div id="menu-position" style="width: 100%; height: 40%"></div>
-    </div>
-  -->
+  
     <div id="tutorial"></div>
 
-    <div id="footer" class="footer-box">
+    <div id="navButton">
+    <button class="openNav-button" onclick="openNavBottom()">&#8593</button>
+    </div>
+
+    <div id="myBottomnav" class="bottomnav">
+      <!--<a href="javascript:void(0)" class="closebtn" onclick="closeNavBottom()">&times;</a>-->
+      <div><button class="x-button" onclick='closeNavBottom()'><strong>X</strong></button></div>
+          <div id="footer" class="footer-box">
       <div id="nodeContainer" class="node-container"></div>
     </div>
 
