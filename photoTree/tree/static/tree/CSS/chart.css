@@ -533,10 +533,12 @@ body {
 /*///////////////////////////////////*/
 
 .openNav-button {
-  position: relative;
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
   height: 30px;
-  width: 30px;
-  border-radius: 100%;
+  width: auto;
+  border-radius: 0%;
   border: 2.5px solid black;
 }
 

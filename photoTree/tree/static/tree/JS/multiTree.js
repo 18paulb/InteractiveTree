@@ -2661,7 +2661,7 @@ function openNavBottom() {
   document.getElementById("myBottomnav").style.height = "auto";
   //document.getElementById("page-container").style.marginBottom = "auto";
 
-  document.getElementById("navButton").style.marginBottom = "100px";
+  //document.getElementById("navButton").style.marginBottom = "100px";
 }
 
 /* Set the width of the side navigation to 0 and the left margin of the page content to 0 */
@@ -2670,5 +2670,5 @@ function closeNavBottom() {
   document.getElementById("myBottomnav").style.height = "0";
   //document.getElementById("page-container").style.marginTop = "0";
 
-  document.getElementById("navButton").style.marginBottom = "0";
+  //document.getElementById("navButton").style.marginBottom = "0";
 }
