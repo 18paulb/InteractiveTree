@@ -2579,7 +2579,7 @@ function tutorial() {
           <li><p>To <strong>remove a relationship</strong> you can just click on a line and choose "Remove Relationship" on the menu that opens.</p></li>
           <li><p>To <strong>add a relationship</strong> you can click on two photos and add whichever relationship you would like.</p></li>
           <li><p>To <strong>edit info</strong> about a person just click on one person and choose "Edit Info"</p></li>
-          <li><p>People that have no relationships are placed at the bottom of the page.</p></li>
+          <li><p>People that have no relationships are placed at the bottom of the page. Click the person icon to view them</p></li>
           <li><p>Sometimes people have families that are not shown on the tree, this is to make sure that the tree is presented nicely. These nodes have a <strong style="color: #97694F">tan</strong> border around them.
           If a person on the tree has a family that is not shown, simply click on that person and press the "Show Hidden Family" button, that will make their respective family tree appear.</p></li>
           
@@ -2659,16 +2659,10 @@ function closeNav() {
 function openNavBottom() {
   document.getElementById("myBottomnav").style.width = "100%";
   document.getElementById("myBottomnav").style.height = "auto";
-  //document.getElementById("page-container").style.marginBottom = "auto";
-
-  //document.getElementById("navButton").style.marginBottom = "100px";
 }
 
 /* Set the width of the side navigation to 0 and the left margin of the page content to 0 */
 function closeNavBottom() {
   document.getElementById("myBottomnav").style.width = "0";
   document.getElementById("myBottomnav").style.height = "0";
-  //document.getElementById("page-container").style.marginTop = "0";
-
-  //document.getElementById("navButton").style.marginBottom = "0";
 }

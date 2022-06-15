@@ -5,6 +5,10 @@
   box-sizing: border-box;
 }
 
+body {
+  background-color: #eef7fe;
+}
+
 /* The parent element */
 .css-chart {
   /* The height, which is initially defined in the HTML */
@@ -44,7 +48,6 @@
   border: 4px solid black;
   overflow: scroll;
   margin: 0;
-
 }
 
 /* The unordered list holding the data points, no list styling and no spacing */
@@ -52,9 +55,6 @@
   list-style: none;
   margin-top: 50px;
   padding: 0;
-  /*transform: scale(1);
-  -webkit-backface-visibility:hidden;
-  backface-visibility:hidden;*/
 }
 
 /* Each point on the chart, each a circle with a light border */
@@ -216,16 +216,13 @@
   background-color: rgb(214, 213, 213);
 }
 
-body {
-  background-color: #eef7fe;
-}
+
 
 .center-menu {
   padding: 10px;
   width: 100%;
   border-radius: 7px;
 
-  /*background: #9dbef1;*/
   background: #FAE5A1;
   border: 4px solid black;
   
@@ -290,7 +287,7 @@ body {
   display: flex;
   justify-content: space-between;
   width: 100%;
-  height: auto;
+  height: 100px;
   bottom: 0;
   position: relative;
 
@@ -596,6 +593,7 @@ body {
   transform: translateX(-50%);
 
   background-color: #002e5d; /* Black*/
+  overflow: scroll;
   overflow-x: hidden; /* Disable horizontal scroll */
   transition: 0.3s; /* 0.5 second transition effect to slide in the sidenav */
 }
