@@ -1222,7 +1222,7 @@ function hoverMenu(nodeId) {
   //Make this class a datapoint technically and make XY pos's from there, just get X,Y from node and then adjust slightly for it to be near node
   hMenu.innerHTML = `
   <div id='hover-menu' class='hover-menu hover-point' style='--y: ${nodeY + yPlacement}px; --x: ${nodeX - 35}px'>
-    <div>Node: ${dataNode.image}<br>x: ${nodeX} y: ${getY(nodeId)}</div>
+    <!-- <div>Node: ${dataNode.image}<br>x: ${nodeX} y: ${getY(nodeId)}</div> -->
     <img class='menu-pic' src='../../static/tree/images/pictures/Kennedy/${nodeId}.PNG'/>
     <div id ='node-${nodeId}-info' style='display: flex; justify-content:center; align-items:center; flex-direction: column;'>
       <div style="text-align:center"><b>${nodeIdName}</br></div>
@@ -1501,7 +1501,7 @@ function fixGenerationSpacing(tree, rootNode) {
             }
 
             if (prevChildSpouseXPos > rightmostChildXPos) {
-              rightmostChildXPos = prevChildSpouseXPos;
+              rightmostChildXPos = prevChildSpouseXPos + spacing;
             }
           }
           
@@ -1529,7 +1529,7 @@ function fixGenerationSpacing(tree, rootNode) {
               rightmostChildXPos += spacing;
             }
 
-            updatedXPos = rightmostChildXPos + spacing + diff;
+            updatedXPos = rightmostChildXPos + diff;
           }
           
           if (hasHiddenChildren(currChild) || hasHiddenChildren(currChildSpouse)) {
@@ -1576,9 +1576,11 @@ function fixGenerationSpacing(tree, rootNode) {
         //RECURSIVE CALLS: for each rootNodeChild, call fixGenSpacing
         if (hasChildren(currChildSpouse)) {
           fixGenerationSpacing(tree, currChildSpouse);
+          adjustRootNode(currChildSpouse);
         }
         else {
           fixGenerationSpacing(tree, currChild);
+          adjustRootNode(currChild);
         }
       }
     }
@@ -1638,7 +1640,7 @@ function shiftOverlappingNodes(rootNodeChildren, spacing) {
             updateXPos(currMother, updatedXPos);
 
             if (hasSpouse(currMother)) {
-              if (getX(getNode(currMother.spouse).image) != getX(currMother.image) - 100) {
+              if (currMother != rootNodeChildren[i] && getX(getNode(currMother.spouse).image) != getX(currMother.image) - 100) {
                 setX(getNode(currMother.spouse), getX(currMother.image) - 100);
               }
             }
@@ -1736,7 +1738,7 @@ function shiftChildrenX(nodeMother, nodeChildren) {
 function adjustRootNode(rootNode) {
 
   //In case this tree has no children yet is still root node ie just a spouse tree (2 nodes)
-  if (!hasChildren(rootNode)) {
+  if (!hasChildren(rootNode) || hasHiddenChildren(rootNode)) {
     return;
   }
   
@@ -2528,9 +2530,9 @@ function hideTree(id) {
   }
 
   //CreatLine functions creates lines that connect to only visible nodes
-  //shiftChart();
+  //shiftChart(getTree(node));
   fixGenerationSpacing(getTree(node), getRootNode(node));
-  adjustRootNode(getNode(getKeyofVal(node)))
+  adjustRootNode(getNode(getKeyofVal(node)));
   createLines();
 }
 
@@ -2549,9 +2551,9 @@ function showTree(id) {
   }
 
   //CreatLine functions creates lines that connect to only visible nodes
-  //shiftChart();
+  //shiftChart(getTree(node));
   fixGenerationSpacing(getTree(node), getRootNode(node));
-  adjustRootNode(getNode(getKeyofVal(node)))
+  adjustRootNode(getNode(getKeyofVal(node)));
   createLines();
 }
 
