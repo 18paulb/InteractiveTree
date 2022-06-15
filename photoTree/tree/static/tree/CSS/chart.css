@@ -385,8 +385,6 @@ body {
   margin-top: 0;
   margin-bottom: 0;
   width: 20%;
-  border:
-  3px solid green;
 
 }
 
@@ -589,8 +587,9 @@ body {
   z-index: 1; /* Stay on top */
   bottom: 0; /* Stay at the bottom */
 
-  left: 50%;
+  /*left: 50%;
   transform: translateX(-50%);
+  */
 
   background-color: #002e5d; /* Black*/
   overflow: scroll;

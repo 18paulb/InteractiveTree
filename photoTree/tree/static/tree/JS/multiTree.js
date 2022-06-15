@@ -397,7 +397,8 @@ function createChart() {
         activeTree.push(value[i])
       }
 
-      if (isDescendant(value[i], getNode(key))) {
+      let root = getNode(key);
+      if (isDescendant(value[i], root)) {
         activeTree.push(value[i])
       }
     }
@@ -423,7 +424,6 @@ function createChart() {
 
   checkRootNode();
 
-  debugger
   createLines();
   
 }
@@ -585,8 +585,6 @@ function createLines() {
 
           //Creates Spouse Lines
           if (value[i].spouse != null) {
-
-            debugger
 
             let spouseElement = $(`#${value[i].spouse}`);
             let spouseXPos = parseAttribute('x', spouseElement[0].style.cssText);
@@ -773,32 +771,35 @@ function editNode(id) {
       <button type="submit" class="btn btn-primary">Submit Edits</button>
     </form>`
   )
-    $("#editForm").submit(function(e) {
-      e.preventDefault();
 
-      let inputYear = document.getElementById("byear").value
-      let inputName = document.getElementById("name").value
+  $("#editForm").submit(function(e) {
+    e.preventDefault();
 
-      if (inputYear.length != 4) {
-        alert("Birthyear must be 4 digit number")
+    let inputYear = document.getElementById("byear").value
+    let inputName = document.getElementById("name").value
+
+    if (inputYear.length != 4) {
+      alert("Birthyear must be 4 digit number")
+      //returnConfirmBoxNodes(id)
+      closeMenu();
+      return;
+    }
+
+    for (let i = 0; i < inputYear.length; ++i) {
+      let isNumber = parseInt(inputYear[i])
+      if (isNaN(isNumber)) {
+        alert("Birthyear must contain only numbers");
+        //returnConfirmBoxNodes(id)
         closeMenu();
         return;
       }
+    }
 
-      for (let i = 0; i < inputYear.length; ++i) {
-        let isNumber = parseInt(inputYear[i])
-        if (isNaN(isNumber)) {
-          alert("Birthyear must contain only numbers");
-          closeMenu();
-          return;
-        }
-      }
+    node.birthyear = inputYear;
+    node.name = inputName;
 
-      node.birthyear = inputYear;
-      node.name = inputName;
-
-      closeMenu();
-    })
+    closeMenu();
+  })
 
 }
 
@@ -890,6 +891,11 @@ function addMotherRelationship(id1, id2) {
 
   let node1 = getNode(id1);
   let node2 = getNode(id2);
+
+  //Accounts for if you try to add a mother/child relationship to spouses
+  if (node1.spouse == node2.image || node2.spouse == node1.image) {
+    removeRelationship(id1, id2)
+  }
 
   let mother;
   let child;
@@ -1014,8 +1020,6 @@ function removeRelationship(id1, id2) {
   let oldRoot = getRootNode(node1);
   let newTree = []
 
-  debugger
-
   //Removes Spouse Relationship
   if (node1.spouse == id2) {
 
@@ -1128,8 +1132,6 @@ function removeRelationship(id1, id2) {
     alert("Error, No Direct Relationship");
   }
 
-  debugger
-
   createChart();
 
   closeMenu();
@@ -1191,6 +1193,8 @@ function addToNodeContainer(id) {
   button.appendChild(img);
 
   container.appendChild(button);
+
+  openNavBottom()
 }
 
 function removeFromNodeContainer(id) {
@@ -1934,10 +1938,6 @@ function deleteNode(id) {
         continue
       }
 
-      //TODO: Add case for if you try to permanently delete the root node
-      //If it is a rootNode
-      debugger
-
       if (value[i].mother == null) {
         //FIXME: getnode spouse is returning undefined
         if ((value[i].spouse != null && getNode(value[i].spouse).mother == null) || value[i].spouse == null) {
@@ -2360,13 +2360,14 @@ function checkRootNode() {
 
 //If confirmBox menu is exited without changing relationship, confirmBox is cleared, this is to make sure that no node is lost
 function returnConfirmBoxNodes(id1, id2) {
+  debugger
   let node1 = getNode(id1);
   let node2 = getNode(id2);
 
-  if (!hasRelationship(node1)) {
+  if (!hasRelationship(node1) && node1 != null) {
     addToNodeContainer(id1);
   }
-  if (!hasRelationship(node2)) {
+  if (!hasRelationship(node2) && node2 != null) {
     addToNodeContainer(id2);
   }
 }
@@ -2396,13 +2397,6 @@ function startEmpty() {
 
 function getDescendants(node, children) {
 
-  //Base Case
-  if (!hasChildren(node)) {
-    return children;
-  }
-
-  let nodeChildren = getChildren(node);
-
   //Adds Spouse of Node
   if (node.spouse != null) {
     let inTree = false;
@@ -2416,6 +2410,15 @@ function getDescendants(node, children) {
       children.push(getNode(node.spouse))
     }
   }
+
+  //Base Case
+  if (!hasChildren(node)) {
+    return children;
+  }
+
+  let nodeChildren = getChildren(node);
+
+
 
   //The recursive call, either calls this function on node's children or spouses children
   for (let i = 0; i < nodeChildren.length; ++i) {
@@ -2559,7 +2562,16 @@ function showTree(id) {
 
 function tutorial() {
 
-  $("#page-container").css("filter", "blur(2px)");
+  let pageContainer = document.getElementById("page-container");
+
+  for (let i = 0; i < pageContainer.children.length; ++i) {
+    let id = pageContainer.children[i].getAttribute("id")
+    if (id != "navButton") {
+      document.getElementById(`${id}`).style.filter = "blur(2px)"
+    }
+  }
+ 
+  //$("#page-container").css("filter", "blur(2px)");
   $("#header").css("filter", "blur(2px)");
   $("#footer").css("filter", "blur(2px)");
 
@@ -2597,12 +2609,22 @@ function tutorial() {
 function closeTutorial() {
   $("#tutorial").html('')
 
-  $("#page-container").css("filter", "blur(0px)");
+  let pageContainer = document.getElementById("page-container");
+
+  for (let i = 0; i < pageContainer.children.length; ++i) {
+    if (pageContainer.children[i].id != "navButton") {
+      let id = pageContainer.children[i].getAttribute("id")
+      document.getElementById(`${id}`).style.filter = "blur(0px)"
+    }
+  }
+
+  //$("#page-container").css("filter", "blur(0px)");
   $("#header").css("filter", "blur(0px)");
   $("#footer").css("filter", "blur(0px)");
 }
 
 function isDescendant(node, ancestor) {
+
   let descendants = getDescendants(ancestor, []);
 
   for (let i = 0; i < descendants.length; ++i) {
