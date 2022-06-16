@@ -12,7 +12,6 @@ body {
 /* The parent element */
 .css-chart {
   /* The height, which is initially defined in the HTML */
-  /*height: var(--widget-size);*/
   height: 100%;
 
   /* A little breathing room should there be others items around the chart */
@@ -23,15 +22,12 @@ body {
   margin: 0;
 
   /* The chart width, as defined in the HTML */
-  /*width: var(--widget-size);*/
   width: 100%;
 
   border: 4px solid black;
   border-top: none;
 
   zoom: 1;
-  
-  /*overflow: scroll;*/
 
   overflow: scroll;
   cursor: grab;
@@ -44,6 +40,8 @@ body {
   height: auto;
   width: 100%;
   position: relative;
+
+  user-select: none;
 
   border: 4px solid black;
   overflow: scroll;
@@ -189,7 +187,7 @@ body {
   /*background: #5E5DF0;*/
   background: aliceblue;
   border-radius: 999px;
-  box-shadow: #5e5df0 0 10px 20px -10px;
+  box-shadow: rgb(105, 105, 105) 0 10px 20px -10px;
   box-sizing: border-box;
   color: black;
   cursor: pointer;
@@ -268,17 +266,14 @@ body {
 
 .page-header {
   width: 100%;
-  /*height: 100px;*/
   height: 4rem;
-  background-color: #002e5d; /*rgb(61, 177, 173)*/
+  background-color: #002e5d; 
   font-family: Arial;
   padding: 3px;
   text-align: center;
   justify-content: space-around;
   align-items: center !important;
-  /*ADDED*/
   display: flex;
-
   position: relative;
   top:0;
 }
@@ -335,10 +330,8 @@ body {
   display: flex;
   margin: 5px;
 
-  /*background: #5E5DF0;*/
   background: rgb(230, 222, 222);
   border-radius: 999px;
-  box-shadow: #002e5d 0 10px 20px -10px;
   box-sizing: border-box;
   color: black;
   cursor: pointer;
