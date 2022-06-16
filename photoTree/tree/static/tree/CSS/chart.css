@@ -223,7 +223,7 @@ body {
   position: sticky;
   top: 0;
 
-  background: #FAE5A1;
+  background: tan;
   border: 4px solid black;
   
 }
@@ -444,7 +444,6 @@ body {
   .center-menu {
     height: 100%;
     overflow: auto;
-    background:green;
   }
 
   .menu-pics-container {
@@ -482,7 +481,7 @@ body {
   .center-menu {
     height: 100%;
     overflow: auto;
-    background: red;
+
   }
 
   .menu-pics-container {
@@ -521,7 +520,6 @@ body {
   .center-menu {
     height: 100%;
     overflow: auto;
-    background: blue;
   }
 
   .menu-pics-container {

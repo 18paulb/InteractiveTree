@@ -1477,7 +1477,7 @@ function fixGenerationSpacing(tree, rootNode) {
           if (hasChildren(prevChild) && ((hasChildren(currChild) || hasChildren(currChildSpouse)))) {
             
             if (hasHiddenChildren(prevChild)) {
-              console.log(`Found hidden children: ${prevChild.name}`);
+              //console.log(`Found hidden children: ${prevChild.name}`);
               hiddenChildren = true;
             }
             
