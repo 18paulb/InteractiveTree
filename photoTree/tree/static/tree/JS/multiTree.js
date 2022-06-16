@@ -1082,6 +1082,8 @@ function removeRelationship(id1, id2) {
     child = node2;
   }
 
+  debugger
+
   //Removes Mother/Child Relationship
   for (let i = 0; i < momArray.length; ++i) {
     if (momArray[i].data.image == mother.image) {
@@ -1112,7 +1114,14 @@ function removeRelationship(id1, id2) {
               dataMap.set(child.image, dataMap.get(mother.image));
               dataMap.delete(mother.image);
             }
+            /*
+            if (momArray[i].children.length == j+1) {
+              break;
+            } else {
             continue
+            }
+            */
+            break;
           }
 
           //If it is it's own root node          
@@ -1408,7 +1417,7 @@ function getXBuffer(tree) {
   //Since this function is being iterated over, the position of the tree in dataMap is important, every tree before it has already been placed
   //This function only needs to get the furthest right xPos of the tree that was placed before it, ignoring all others. This loop checks for that using previousVal
   for (let value of dataMap.values()) {
-    if (value[0].image == tree[0].image) {
+    if (getKeyofVal(value[0]) == getKeyofVal(tree[0])) {
       if (previousVal != null) {
         return getFurthestXOfTree(previousVal) + 100;
       }
@@ -2360,7 +2369,6 @@ function checkRootNode() {
 
 //If confirmBox menu is exited without changing relationship, confirmBox is cleared, this is to make sure that no node is lost
 function returnConfirmBoxNodes(id1, id2) {
-  debugger
   let node1 = getNode(id1);
   let node2 = getNode(id2);
 
@@ -2668,24 +2676,12 @@ function hasHiddenFamily(node) {
   }
 }
 
-/* Set the width of the side navigation to 250px and the left margin of the page content to 250px */
-function openNav() {
-  document.getElementById("mySidenav").style.width = "20%";
-  document.getElementById("page-container").style.marginRight = "250px";
-}
-
-/* Set the width of the side navigation to 0 and the left margin of the page content to 0 */
-function closeNav() {
-  document.getElementById("mySidenav").style.width = "0";
-  document.getElementById("page-container").style.marginRight = "0";
-}
-
 function openNavBottom() {
   document.getElementById("myBottomnav").style.width = "100%";
   document.getElementById("myBottomnav").style.height = "auto";
 }
 
-/* Set the width of the side navigation to 0 and the left margin of the page content to 0 */
+/* Set the width of the bottom navigation to 0 and the bottom margin of the page content to 0 */
 function closeNavBottom() {
   document.getElementById("myBottomnav").style.width = "0";
   document.getElementById("myBottomnav").style.height = "0";
