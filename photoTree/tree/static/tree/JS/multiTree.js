@@ -2609,6 +2609,8 @@ function tutorial() {
 
         <p><strong>Note:</strong> Our spacing algorithm works great in normal circumstances! However, there are a few complicated relationships where the spacing will start
         to behave strangely. If this happens, just reload the page to start over again. Please be patient as we try to correct these mistakes and make it easier for you to use!</p>
+
+        <p>This website is best used on a computer</p>
       </div>
     </div>`
   )
