@@ -1579,7 +1579,7 @@ function fixGenerationSpacing(tree, rootNode) {
             prevChildSpouseXPos = getX(prevChildSpouse.image);
 
             if (currChildXPos - prevChildSpouseXPos < spacing) {
-              updatedXPos += spacing - (currChildXPos - prevChildSpouseXPos);
+              updatedXPos = prevChildSpouseXPos + spacing;
               newXPositions.set(currChild, updatedXPos);
               updateXPos(currChild, newXPositions.get(currChild));
             }
