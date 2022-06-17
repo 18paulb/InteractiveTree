@@ -481,12 +481,6 @@ function createDataPoints(treeValue) {
       li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`);
 
       //append each element to the tree
-      /*
-      li.innerHTML += `<div id='button${currNode.image}' onclick='openNodeOptions(${currNode.image})'>
-      <img class="data-point data-button" src="../../static/tree/images/pictures/Kennedy/${currNode.image}.PNG" onmouseenter='hoverMenu(${currNode.image})' onmouseleave='closeHoverMenu()'>
-      </div>`
-      */
-
       //If it has a hidden family, makes node border tan, if it doesn not, the border is blue
       
       if (hasHiddenFamily(nodesInTree[nodeIndex])) {
