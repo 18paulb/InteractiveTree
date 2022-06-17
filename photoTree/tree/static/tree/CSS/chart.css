@@ -9,6 +9,29 @@ body {
   background-color: #eef7fe;
 }
 
+/* width */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 12px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: #f1f1f1; 
+  visibility: hidden;
+}
+  
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: rgb(175, 175, 175); 
+  border-radius: 10px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: rgb(129, 129, 129); 
+}
+
 /* The parent element */
 .css-chart {
   /* The height, which is initially defined in the HTML */
