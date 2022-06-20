@@ -1107,13 +1107,6 @@ function removeRelationship(id1, id2) {
               dataMap.set(child.image, dataMap.get(mother.image));
               dataMap.delete(mother.image);
             }
-            /*
-            if (momArray[i].children.length == j+1) {
-              break;
-            } else {
-            continue
-            }
-            */
             break;
           }
 
@@ -1122,6 +1115,16 @@ function removeRelationship(id1, id2) {
             newTree = getTreeLine(child, newTree);
             oldRoot = getRootNode(mother);
             addToTreeMap(newTree, dataMap.get(oldRoot.image));
+          }
+
+          //Add case for if spouse's mother is hidden and the root
+          if (child.spouse != null && hasHiddenFamily(getNode(child.spouse))) {
+            closeMenu();
+            let activeRoot = getSpecificFamilyRoot(getNode(child.spouse));
+            let hiddenFamily = getDescendants(activeRoot, []);
+            hiddenFamily.push(activeRoot);
+            oldRoot = getRootNode(mother);
+            addToTreeMap(hiddenFamily, dataMap.get(oldRoot.image))
           }
 
           break;
@@ -2459,7 +2462,6 @@ function getHiddenFamily(id) {
   //Adds root to hiddenFamily array
   hiddenFamily.push(newActiveRoot);
 
-
   //Gets the oldKey
   let oldActiveRoot = getNode(getKeyofVal(getNode(id)))
 
@@ -2480,41 +2482,6 @@ function getSpecificFamilyRoot(node) {
     let mother = getNode(node.mother);
     return getSpecificFamilyRoot(mother);
   }
-}
-
-//Front End Functions
-function zoomIn() {
-  let treeChart = document.getElementById("treeChart");
-  let currZoom = treeChart.style.zoom;
-  currZoom = parseFloat(currZoom);
-
-  if (currZoom == 1.4) {
-    treeChart.style.zoom = 1.4;
-    return
-  }
-
-  let newZoom = currZoom + .1;
-  treeChart.style.zoom = `${newZoom}`;
-}
-
-function zoomOut() {
-  let treeChart = document.getElementById("treeChart");
-  let currZoom = treeChart.style.zoom;
-  currZoom = parseFloat(currZoom);
-
-  if (currZoom == .7) {
-    treeChart.style.zoom = .7;
-    return
-  }
-
-  let newZoom = currZoom - .1;
-
-  treeChart.style.zoom = `${newZoom}`;
-}
-
-function resetZoom() {
-  let treeChart = document.getElementById("treeChart");
-  treeChart.style.zoom = 1;
 }
 
 function hideTree(id) {
