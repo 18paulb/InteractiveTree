@@ -527,7 +527,6 @@ function createLines() {
   //Height might still not be perfectly scaled
   let svgelem = document.getElementById("lines")
   let svgWidth = svgelem.getBBox().width
-  let svgHeight = svgelem.getBBox().height
 
   //Gets new width for SVG
   for (let value of dataMap.values()) {
