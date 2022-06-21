@@ -95,7 +95,7 @@ body {
 
   /* The data points have a radius of 8px and the line segment has a width of 3px, 
     so we split the difference to center the data points on the line segment origins */
-  bottom: calc(var(--y) - 24px);
+  bottom: calc(var(--y) - 32px);
   left: calc(var(--x) - 32px);
   cursor: pointer;
 }
@@ -218,7 +218,6 @@ body {
   display: flex;
   margin: 5px;
 
-  /*background: #5E5DF0;*/
   background: aliceblue;
   border-radius: 999px;
   box-shadow: rgb(105, 105, 105) 0 10px 20px -10px;
@@ -354,40 +353,16 @@ body {
 }
 
 .x-button {
-  /* display: flex;
+
+  background: aliceblue;
+  display: flex;
   justify-content: center;
   align-items: center;
   height: 30px;
   width: 30px;
   border-radius: 100%;
-  border: 2.5px solid black; */
-
-  display: flex;
-  margin: 5px;
-
-  /*background: #5E5DF0;*/
-  background: aliceblue;
-  border-radius: 50%;
-  box-shadow: #5e5df0 0 10px 20px -10px;
-  box-sizing: border-box;
-  color: black;
-  cursor: pointer;
-  font-family: Inter, Helvetica, "Apple Color Emoji", "Segoe UI Emoji",
-    NotoColorEmoji, "Noto Color Emoji", "Segoe UI Symbol", "Android Emoji",
-    EmojiSymbols, -apple-system, system-ui, "Segoe UI", Roboto, "Helvetica Neue",
-    "Noto Sans", sans-serif;
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 24px;
-  opacity: 1;
-  outline: 0 solid transparent;
-  padding: 8px 18px;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
-  width: fit-content;
-  word-break: break-word;
-  border: 0;
+  border: none;
+  box-shadow: rgb(105, 105, 105) 0 10px 20px -10px;
 }
 .x-button:hover {
   transition-duration: 0.2s;
@@ -535,8 +510,6 @@ body {
   overflow: scroll;
   overflow-x: hidden; /* Disable horizontal scroll */
   transition: 0.3s; /* 0.5 second transition effect to slide in the sidenav */
-
-  
 }
 
 .close-nav-button {
