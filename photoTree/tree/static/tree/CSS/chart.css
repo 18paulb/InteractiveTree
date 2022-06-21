@@ -13,7 +13,9 @@ body {
 .css-chart {
   /* The height, which is initially defined in the HTML */
   /*height: var(--widget-size);*/
-  height: 100%;
+  min-height: 100%;
+  min-width: none;
+  bottom: 0;
 
   /* A little breathing room should there be others items around the chart */
   /* Remove any padding so we have as much space to work with inside the element */
@@ -24,9 +26,8 @@ body {
 
   /* The chart width, as defined in the HTML */
   /*width: var(--widget-size);*/
-  width: 100%;
 
-  border: 4px solid black;
+  /* border: 4px solid black; */
   border-top: none;
 
   zoom: 1;
@@ -41,6 +42,7 @@ body {
 }
 
 .tree-container {
+  
   height: auto;
   width: 100%;
   position: relative;
@@ -48,6 +50,7 @@ body {
   border: 4px solid black;
   overflow: scroll;
   margin: 0;
+  
 }
 
 /* The unordered list holding the data points, no list styling and no spacing */
@@ -63,13 +66,14 @@ body {
   border: 5px solid #7ab7e6;
   border-radius: 50%;
   position: absolute;
-  height: 3rem;
-  width: 3rem;
+  height: 4rem;
+  width: 4rem;
+  box-shadow: gray 0 10px 20px -10px;
 
   /* The data points have a radius of 8px and the line segment has a width of 3px, 
     so we split the difference to center the data points on the line segment origins */
   bottom: calc(var(--y) - 24px);
-  left: calc(var(--x) - 23px);
+  left: calc(var(--x) - 32px);
   cursor: pointer;
 }
 
@@ -83,8 +87,8 @@ body {
   border: 5px solid tan;
   border-radius: 50%;
   position: absolute;
-  height: 3rem;
-  width: 3rem;
+  height: 3.75rem;
+  width: 3.75rem;
 
   /* The data points have a radius of 8px and the line segment has a width of 3px, 
     so we split the difference to center the data points on the line segment origins */
@@ -144,10 +148,15 @@ body {
 
 
 .nodeBox-button {
+  /* background-color: white;
+  border: 6px solid #7ab7e6;
+  border-radius: 50px;
+  margin: 7px; */
+
   background-color: white;
-  border: 4px solid #7ab7e6; /*was light blue*/
-  border-radius: 65px;
-  margin: 7px;
+  border: 6px solid #7ab7e6;
+  border-radius: 50%;
+  position: absolute;
 }
 
 .nodeBox-button:hover {
@@ -189,7 +198,7 @@ body {
   /*background: #5E5DF0;*/
   background: aliceblue;
   border-radius: 999px;
-  box-shadow: #5e5df0 0 10px 20px -10px;
+  box-shadow: #002e5d 0 10px 20px -10px;
   box-sizing: border-box;
   color: black;
   cursor: pointer;
@@ -223,8 +232,9 @@ body {
   position: sticky;
   top: 0;
 
-  background: tan;
-  border: 4px solid black;
+  /*background: tan;*/
+  /*border: 4px solid black;*/
+  box-shadow: #002e5d 0 10px 20px -10px;
   
 }
 
@@ -237,6 +247,12 @@ body {
 .menu-pic {
   display: flex;
   border-radius: 20px;
+
+  background-color: white;
+  border-radius: 50%;
+  height: 3rem;
+  width: 3rem;
+  box-shadow: gray 0 10px 20px -10px;
 
   width: 100px;
   height: 100px;
@@ -261,7 +277,7 @@ body {
   
   border-radius: 10px;
 
-  border: 2px solid rgb(65, 65, 65);
+  /* border: 2px solid rgb(65, 65, 65); */
 
   box-shadow: #002e5d 0 10px 20px -10px;
 }
@@ -318,13 +334,40 @@ body {
 }
 
 .x-button {
-  display: flex;
+  /* display: flex;
   justify-content: center;
   align-items: center;
   height: 30px;
   width: 30px;
   border-radius: 100%;
-  border: 2.5px solid black;
+  border: 2.5px solid black; */
+
+  display: flex;
+  margin: 5px;
+
+  /*background: #5E5DF0;*/
+  background: aliceblue;
+  border-radius: 50%;
+  box-shadow: #5e5df0 0 10px 20px -10px;
+  box-sizing: border-box;
+  color: black;
+  cursor: pointer;
+  font-family: Inter, Helvetica, "Apple Color Emoji", "Segoe UI Emoji",
+    NotoColorEmoji, "Noto Color Emoji", "Segoe UI Symbol", "Android Emoji",
+    EmojiSymbols, -apple-system, system-ui, "Segoe UI", Roboto, "Helvetica Neue",
+    "Noto Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+  opacity: 1;
+  outline: 0 solid transparent;
+  padding: 8px 18px;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  width: fit-content;
+  word-break: break-word;
+  border: 0;
 }
 .x-button:hover {
   transition-duration: 0.2s;
@@ -364,7 +407,7 @@ body {
 }
 
 .tutorial-box {
-  display: flex;
+  /* display: flex;
   width: 75%;
   height: auto;
   background-color: lightblue;
@@ -376,28 +419,86 @@ body {
 
   border: 3px solid black;
 
-  flex-direction: column;
+  flex-direction: column; */
+
+  display: flex;
+  margin: 5px;
+  
+  width: 75%;
+  height: auto;
+  background-color: lightblue;
+  border-radius: 20px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  position: fixed;
+  padding: 5px;
+  /*background: #5E5DF0;*/
+  background: rgb(161, 193, 222);
+  box-shadow: #002e5d 0 10px 20px -10px;
+  box-sizing: border-box;
+  color: black;
+  cursor: pointer;
+  border: 3px solid black;
+  font-family: Inter, Helvetica, "Apple Color Emoji", "Segoe UI Emoji",
+    NotoColorEmoji, "Noto Color Emoji", "Segoe UI Symbol", "Android Emoji",
+    EmojiSymbols, -apple-system, system-ui, "Segoe UI", Roboto, "Helvetica Neue",
+    "Noto Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+  opacity: 1;
+  outline: 0 solid transparent;
+  padding: 8px 18px;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  width: fit-content;
+  word-break: break-word;
+  border: 0;
 }
 
 .side-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: .25em;
-  margin-top: 0;
-  margin-bottom: 0;
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: 10px;
   width: 20%;
-
 }
 
 .openNav-button {
   position: fixed;
-  bottom: 10px;
-  left: 10px;
+  bottom: 20px;
+  left: 20px;
   height: 30px;
   width: auto;
-  border-radius: 0%;
-  border: 2.5px solid black;
+
+  display: flex;
+  margin: 5px;
+
+  /*background: #5E5DF0;*/
+  background: rgb(161, 193, 222);
+  border-radius: 20%;
+  box-shadow: #5e5df0 0 10px 20px -10px;
+  box-sizing: border-box;
+  color: black;
+  cursor: pointer;
+  font-family: Inter, Helvetica, "Apple Color Emoji", "Segoe UI Emoji",
+    NotoColorEmoji, "Noto Color Emoji", "Segoe UI Symbol", "Android Emoji",
+    EmojiSymbols, -apple-system, system-ui, "Segoe UI", Roboto, "Helvetica Neue",
+    "Noto Sans", sans-serif;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+  opacity: 1;
+  outline: 0 solid transparent;
+  padding: 8px 18px;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+  width: fit-content;
+  word-break: break-word;
+  border: 0;
 }
 
 .openNav-button:hover {
@@ -416,6 +517,8 @@ body {
   overflow: scroll;
   overflow-x: hidden; /* Disable horizontal scroll */
   transition: 0.3s; /* 0.5 second transition effect to slide in the sidenav */
+
+  
 }
 
 .close-nav-button {
@@ -558,7 +661,7 @@ body {
   }
 
   .center-menu {
-    background: tan;
+    background: rgb(174, 208, 240);
     overflow: auto;
   }
 

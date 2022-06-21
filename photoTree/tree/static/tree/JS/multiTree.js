@@ -1577,7 +1577,7 @@ function fixGenerationSpacing(tree, rootNode) {
           if (hasSpouse(prevChild)) {
             currChildXPos = getX(currChild.image);
             prevChildSpouseXPos = getX(prevChildSpouse.image);
-
+            
             if (currChildXPos - prevChildSpouseXPos < spacing) {
               updatedXPos = prevChildSpouseXPos + spacing;
               newXPositions.set(currChild, updatedXPos);
@@ -2064,7 +2064,7 @@ function hasHiddenChildren(node) {
   let testChild = nodeChildren[0];
   let testChildElement = document.getElementById(`${testChild.image}`);
   
-  if (testChildElement.style.visibility == "hidden") {
+  if (testChildElement != null && testChildElement.style.visibility == "hidden") {
     return true;
   } else {
     return false;
@@ -2074,7 +2074,7 @@ function hasHiddenChildren(node) {
 function isHidden(node) {
   let nodeElement = document.getElementById(`${node.image}`);
 
-  if (nodeElement.style.visibility == "hidden") {
+  if (nodeElement != null && nodeElement.style.visibility == "hidden") {
     return true;
   } else {
     return false;
