@@ -180,6 +180,7 @@ body {
   border: 6px solid #7ab7e6;
   border-radius: 50%;
   position: absolute;
+  margin: 5px;
 }
 
 .nodeBox-button:hover {
@@ -215,9 +216,7 @@ body {
 
 /* CSS */
 .button-34 {
-  display: flex;
-  margin: 5px;
-
+  margin-bottom: 10px;
   background: aliceblue;
   border-radius: 999px;
   box-shadow: rgb(105, 105, 105) 0 10px 20px -10px;
@@ -335,6 +334,7 @@ body {
   margin: 4px;
 
   border-radius: 50px;
+  flex-direction: column;
 }
 
 .footer-node {
@@ -362,6 +362,7 @@ body {
   width: 30px;
   border-radius: 100%;
   border: none;
+  margin: 5px;
   box-shadow: rgb(105, 105, 105) 0 10px 20px -10px;
 }
 .x-button:hover {
@@ -370,29 +371,10 @@ body {
 }
 
 .zoom-btn {
-  display: flex;
-  margin: 5px;
-
-  background: rgb(230, 222, 222);
-  border-radius: 999px;
-  box-sizing: border-box;
-  color: black;
-  cursor: pointer;
-  font-family: Inter, Helvetica, "Apple Color Emoji", "Segoe UI Emoji",
-    NotoColorEmoji, "Noto Color Emoji", "Segoe UI Symbol", "Android Emoji",
-    EmojiSymbols, -apple-system, system-ui, "Segoe UI", Roboto, "Helvetica Neue",
-    "Noto Sans", sans-serif;
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 24px;
-  opacity: 1;
-  outline: 0 solid transparent;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
-  width: fit-content;
-  word-break: break-word;
-  border: 2px solid black;
+  position: absolute;
+  right: 20px;
+  margin: 20px;
+  background-color: rgb(161, 193, 222);
 }
 .zoom-btn:hover {
   transition-duration: 0.2s;
@@ -438,7 +420,6 @@ body {
     EmojiSymbols, -apple-system, system-ui, "Segoe UI", Roboto, "Helvetica Neue",
     "Noto Sans", sans-serif;
   font-size: 16px;
-  font-weight: 700;
   line-height: 24px;
   opacity: 1;
   outline: 0 solid transparent;
@@ -459,39 +440,12 @@ body {
   width: 20%;
 }
 
-.openNav-button {
+.openNav-button { 
   position: fixed;
+  width: auto;
+  background-color: rgb(161, 193, 222);
   bottom: 20px;
   left: 20px;
-  height: 30px;
-  width: auto;
-
-  display: flex;
-  margin: 5px;
-
-  /*background: #5E5DF0;*/
-  background: rgb(161, 193, 222);
-  border-radius: 20%;
-  box-shadow: #5e5df0 0 10px 20px -10px;
-  box-sizing: border-box;
-  color: black;
-  cursor: pointer;
-  font-family: Inter, Helvetica, "Apple Color Emoji", "Segoe UI Emoji",
-    NotoColorEmoji, "Noto Color Emoji", "Segoe UI Symbol", "Android Emoji",
-    EmojiSymbols, -apple-system, system-ui, "Segoe UI", Roboto, "Helvetica Neue",
-    "Noto Sans", sans-serif;
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 24px;
-  opacity: 1;
-  outline: 0 solid transparent;
-  padding: 8px 18px;
-  user-select: none;
-  -webkit-user-select: none;
-  touch-action: manipulation;
-  width: fit-content;
-  word-break: break-word;
-  border: 0;
 }
 
 .openNav-button:hover {
@@ -515,6 +469,8 @@ body {
 .close-nav-button {
   height: 25px; 
   width: 25px; 
+  margin: 10px;
+  border-radius: 50%;
   display: flex; 
   justify-content: center; 
   align-items: center;
