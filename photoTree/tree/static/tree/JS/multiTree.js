@@ -425,7 +425,6 @@ function createChart() {
   checkRootNode();
 
   createLines();
-  
 }
 
 /**
@@ -481,14 +480,7 @@ function createDataPoints(treeValue) {
       li.setAttribute('style', `--y: ${Math.round(yPos)}px; --x: ${Math.round(xPos)}px`);
 
       //append each element to the tree
-      /*
-      li.innerHTML += `<div id='button${currNode.image}' onclick='openNodeOptions(${currNode.image})'>
-      <img class="data-point data-button" src="../../static/tree/images/pictures/Kennedy/${currNode.image}.PNG" onmouseenter='hoverMenu(${currNode.image})' onmouseleave='closeHoverMenu()'>
-      </div>`
-      */
-
       //If it has a hidden family, makes node border tan, if it doesn not, the border is blue
-      
       if (hasHiddenFamily(nodesInTree[nodeIndex])) {
         li.innerHTML += `<div id='button${currNode.image}' onclick='openNodeOptions(${currNode.image})'>
         <img class="data-point-hidden data-button" src="../../static/tree/images/pictures/Kennedy/${currNode.image}.PNG" onmouseenter='hoverMenu(${currNode.image})' onmouseleave='closeHoverMenu()'>
@@ -499,7 +491,6 @@ function createDataPoints(treeValue) {
         <img class="data-point data-button" src="../../static/tree/images/pictures/Kennedy/${currNode.image}.PNG" onmouseenter='hoverMenu(${currNode.image})' onmouseleave='closeHoverMenu()'>
         </div>`
       }
-      
 
       //Button for expanding a tree
       if (hasChildren(currNode)) {
@@ -523,17 +514,13 @@ function changeButton(id, method) {
     hideButton.attributes.onclick.nodeValue = `showTree(${id}); changeButton(${id}, 'show')`;
     hideButton.innerHTML = "&#8595";
   }
-
 }
 
 function createLines() {
   let svgString = '';
 
-  //Test to increase size of SVG dynamically
-  //Height might still not be perfectly scaled
   let svgelem = document.getElementById("lines")
   let svgWidth = svgelem.getBBox().width
-  let svgHeight = svgelem.getBBox().height
 
   //Gets new width for SVG
   for (let value of dataMap.values()) {
@@ -552,7 +539,6 @@ function createLines() {
 
   let id = 1;
   for (let value of dataMap.values()) {
-
     for (let i = 0; i < value.length; ++i) {
       if (isOnTree(value[i])) {
         if (!isHidden(value[i])) {
@@ -576,7 +562,6 @@ function createLines() {
 
               let valId = value[i].image;
 
-
               svgString += `<line id="line${id}" x1="${x1}" y1="${chartWidth - y1}" x2="${x2}" y2="${chartWidth - y2}" stroke="black" stroke-width='5' onmouseover="SVGHoverColor(line${id}, 'enter', 'mother')" onmouseleave="SVGHoverColor(line${id}, 'leave', 'mother')" onclick='openRemoveRelationshipMenu(getNode(${valId}), momArray[${index}].children[${j}])'/>`
 
               id++;
@@ -592,7 +577,6 @@ function createLines() {
 
             let valId = value[i].image;
             let valSpouse = value[i].spouse;
-
 
             let line = `<line id="line${id}" x1="${xPos}" y1="${chartWidth - yPos}" x2="${spouseXPos}" y2="${chartWidth - spouseYPos}" stroke="blue" stroke-width='5' onmouseover="SVGHoverColor(line${id}, 'enter', 'spouse')" onmouseleave="SVGHoverColor(line${id}, 'leave', 'spouse')" onclick='openRemoveRelationshipMenu(getNode(${valId}), getNode(${valSpouse}))'/>`
             
@@ -630,7 +614,7 @@ function SVGHoverColor(id, method, relation) {
   }
 }
 
-function testAdd(node1, node2) {
+function openMenu(node1, node2) {
 
   let id1 = node1.image;
   let id2 = node2.image;
@@ -721,7 +705,7 @@ function openNodeOptions(nodeId) {
       return;
     }
 
-    testAdd(getNode(id), node);
+    openMenu(getNode(id), node);
     return;
   }
 
@@ -866,8 +850,6 @@ function addSpouseRelationship(id1, id2) {
         removeNodeFromTree(spouse);
       }
     }
-
-
 
     spouse1.spouse = null;
     spouse2.spouse = null;
@@ -1114,13 +1096,6 @@ function removeRelationship(id1, id2) {
               dataMap.set(child.image, dataMap.get(mother.image));
               dataMap.delete(mother.image);
             }
-            /*
-            if (momArray[i].children.length == j+1) {
-              break;
-            } else {
-            continue
-            }
-            */
             break;
           }
 
@@ -1129,6 +1104,16 @@ function removeRelationship(id1, id2) {
             newTree = getTreeLine(child, newTree);
             oldRoot = getRootNode(mother);
             addToTreeMap(newTree, dataMap.get(oldRoot.image));
+          }
+
+          //Add case for if spouse's mother is hidden and the root
+          if (child.spouse != null && hasHiddenFamily(getNode(child.spouse))) {
+            closeMenu();
+            let activeRoot = getSpecificFamilyRoot(getNode(child.spouse));
+            let hiddenFamily = getDescendants(activeRoot, []);
+            hiddenFamily.push(activeRoot);
+            oldRoot = getRootNode(mother);
+            addToTreeMap(hiddenFamily, dataMap.get(oldRoot.image))
           }
 
           break;
@@ -1251,9 +1236,7 @@ function closeHoverMenu() {
 }
 
 function closeMenu() {
-
   let menu = document.getElementById('menu-position')
-
   menu.innerHTML = '';
 }
 
@@ -1290,6 +1273,7 @@ function shiftNodesByMarginY(tree) {
       }
     }
   }
+
   if (yPos > 950) {
     shiftMargin = yPos - 950;
     //shift the yPos of every node downward so that highest node is 1050px
@@ -1326,8 +1310,6 @@ function shiftNodesByMarginX(tree) {
   let xPos = getX(tree[0].image);
 
   //Get the leftmost XPos on entire tree
-  
-  
   for (let value of dataMap.values()) {
     for (let i = 0; i < value.length; ++i) {
       if (isOnTree(value[i])) {
@@ -1799,14 +1781,9 @@ function setInitialX(currGen, placeInGen) {
   return xPos;
 }
 
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
 //All helper functions to access data, etc.
-
-
 
 function hasSpouse(node) {
   if (node == null) {return false}
@@ -2001,21 +1978,6 @@ function isOnTree(node) {
   else {
     return true;
   }
-}
-
-function getHypotenuse(datapoint1, datapoint2, left1, left2) {
-  triSide = datapoint1 - datapoint2;
-  tmpSpacing = left1 - left2;
-  hypotenuse = Math.sqrt((triSide * triSide) + (tmpSpacing * tmpSpacing));
-  return hypotenuse;
-}
-
-function getAngle(opposite, hypotenuse) {
-  let sine = Math.asin(opposite / hypotenuse);
-  //Convert from radians to degrees
-  sine = sine * (180 / Math.PI);
-
-  return sine;
 }
 
 function parseAttribute(lookFor, attribute) {
@@ -2380,12 +2342,12 @@ function returnConfirmBoxNodes(id1, id2) {
   }
 }
 
-//FOR PRESENTATION
 function startEmpty() {
 
-  //for (let value of dataMap.values()) {
-  //  removeTreeFromChart(value)
-  //}
+  for (let i = 0; i < chartList.children.length; ++i) {
+    chartList.children[i].remove();
+    i -= 1;
+  }
 
   for (let value of dataMap.values()) {
     while (value.length != 0) {
@@ -2426,8 +2388,6 @@ function getDescendants(node, children) {
 
   let nodeChildren = getChildren(node);
 
-
-
   //The recursive call, either calls this function on node's children or spouses children
   for (let i = 0; i < nodeChildren.length; ++i) {
     let spouse = getNode(nodeChildren[i].spouse);
@@ -2449,7 +2409,6 @@ function getDescendants(node, children) {
 }
 
 //You only want to go up by the node's mother, do not access spouse mother
-
 function getHiddenFamily(id) {
 
   let node = getNode(id);
@@ -2463,9 +2422,9 @@ function getHiddenFamily(id) {
   let newActiveRoot = getSpecificFamilyRoot(node);
 
   let hiddenFamily = getDescendants(newActiveRoot, []);
+
   //Adds root to hiddenFamily array
   hiddenFamily.push(newActiveRoot);
-
 
   //Gets the oldKey
   let oldActiveRoot = getNode(getKeyofVal(getNode(id)))
@@ -2489,41 +2448,6 @@ function getSpecificFamilyRoot(node) {
   }
 }
 
-//Front End Functions
-function zoomIn() {
-  let treeChart = document.getElementById("treeChart");
-  let currZoom = treeChart.style.zoom;
-  currZoom = parseFloat(currZoom);
-
-  if (currZoom == 1.4) {
-    treeChart.style.zoom = 1.4;
-    return
-  }
-
-  let newZoom = currZoom + .1;
-  treeChart.style.zoom = `${newZoom}`;
-}
-
-function zoomOut() {
-  let treeChart = document.getElementById("treeChart");
-  let currZoom = treeChart.style.zoom;
-  currZoom = parseFloat(currZoom);
-
-  if (currZoom == .7) {
-    treeChart.style.zoom = .7;
-    return
-  }
-
-  let newZoom = currZoom - .1;
-
-  treeChart.style.zoom = `${newZoom}`;
-}
-
-function resetZoom() {
-  let treeChart = document.getElementById("treeChart");
-  treeChart.style.zoom = 1;
-}
-
 function hideTree(id) {
 
   let node = getNode(id);
@@ -2540,8 +2464,7 @@ function hideTree(id) {
     }
   }
 
-  //CreatLine functions creates lines that connect to only visible nodes
-  //shiftChart(getTree(node));
+  //createLines function creates lines that connect to only visible nodes
   fixGenerationSpacing(getTree(node), getRootNode(node));
   adjustRootNode(getNode(getKeyofVal(node)));
   createLines();
@@ -2561,8 +2484,7 @@ function showTree(id) {
     }
   }
 
-  //CreatLine functions creates lines that connect to only visible nodes
-  //shiftChart(getTree(node));
+  //createLine function creates lines that connect to only visible nodes
   fixGenerationSpacing(getTree(node), getRootNode(node));
   adjustRootNode(getNode(getKeyofVal(node)));
   createLines();
@@ -2578,12 +2500,9 @@ function tutorial() {
       document.getElementById(`${id}`).style.filter = "blur(2px)"
     }
   }
- 
-  //$("#page-container").css("filter", "blur(2px)");
+
   $("#header").css("filter", "blur(2px)");
   $("#footer").css("filter", "blur(2px)");
-
-
 
   $("#tutorial").html(
     `<div class="tutorial-box">
@@ -2628,7 +2547,6 @@ function closeTutorial() {
     }
   }
 
-  //$("#page-container").css("filter", "blur(0px)");
   $("#header").css("filter", "blur(0px)");
   $("#footer").css("filter", "blur(0px)");
 }
