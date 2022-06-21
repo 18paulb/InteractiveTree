@@ -1096,7 +1096,10 @@ function removeRelationship(id1, id2) {
               dataMap.set(child.image, dataMap.get(mother.image));
               dataMap.delete(mother.image);
             }
+<<<<<<< HEAD
             
+=======
+>>>>>>> 7702eb746dcbed960a70f580bec1d1b6e2fd2152
             break;
           }
 
@@ -1105,6 +1108,16 @@ function removeRelationship(id1, id2) {
             newTree = getTreeLine(child, newTree);
             oldRoot = getRootNode(mother);
             addToTreeMap(newTree, dataMap.get(oldRoot.image));
+          }
+
+          //Add case for if spouse's mother is hidden and the root
+          if (child.spouse != null && hasHiddenFamily(getNode(child.spouse))) {
+            closeMenu();
+            let activeRoot = getSpecificFamilyRoot(getNode(child.spouse));
+            let hiddenFamily = getDescendants(activeRoot, []);
+            hiddenFamily.push(activeRoot);
+            oldRoot = getRootNode(mother);
+            addToTreeMap(hiddenFamily, dataMap.get(oldRoot.image))
           }
 
           break;
@@ -1552,7 +1565,7 @@ function fixGenerationSpacing(tree, rootNode) {
             prevChildSpouseXPos = getX(prevChildSpouse.image);
 
             if (currChildXPos - prevChildSpouseXPos < spacing) {
-              updatedXPos += spacing - (currChildXPos - prevChildSpouseXPos);
+              updatedXPos = prevChildSpouseXPos + spacing;
               newXPositions.set(currChild, updatedXPos);
               updateXPos(currChild, newXPositions.get(currChild));
             }
@@ -2439,7 +2452,10 @@ function getSpecificFamilyRoot(node) {
   }
 }
 
+<<<<<<< HEAD
 //Front End Functions
+=======
+>>>>>>> 7702eb746dcbed960a70f580bec1d1b6e2fd2152
 function hideTree(id) {
 
   let node = getNode(id);
