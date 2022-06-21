@@ -1096,10 +1096,6 @@ function removeRelationship(id1, id2) {
               dataMap.set(child.image, dataMap.get(mother.image));
               dataMap.delete(mother.image);
             }
-<<<<<<< HEAD
-            
-=======
->>>>>>> 7702eb746dcbed960a70f580bec1d1b6e2fd2152
             break;
           }
 
@@ -2452,10 +2448,6 @@ function getSpecificFamilyRoot(node) {
   }
 }
 
-<<<<<<< HEAD
-//Front End Functions
-=======
->>>>>>> 7702eb746dcbed960a70f580bec1d1b6e2fd2152
 function hideTree(id) {
 
   let node = getNode(id);
